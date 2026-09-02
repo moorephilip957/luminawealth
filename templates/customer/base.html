@@ -1,0 +1,665 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark"> <!-- data-bs-theme="dark" enables Bootstrap 5 dark mode -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Client Dashboard{% endblock %} | LuminaWealth AI</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* --- CUSTOM MODERN TRADING THEME --- */
+        :root {
+            --bg-primary: #0b0f19;      /* Deep dark blue/black background */
+            --bg-sidebar: #111827;      /* Slightly lighter sidebar */
+            --bg-card: #1f2937;         /* Card background */
+            --text-primary: #f3f4f6;    /* Main text */
+            --text-secondary: #9ca3af;  /* Muted text */
+            --accent-green: #10b981;    /* Profit/Success color */
+            --accent-red: #ef4444;      /* Loss/Danger color */
+            --accent-blue: #3b82f6;     /* Primary buttons/links */
+            --border-color: #374151;    /* Subtle borders */
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Modern font stack */
+            overflow-x: hidden;
+        }
+
+        /* --- DARK MODE DROPDOWN FIXES --- */
+
+        /* Form Select Dropdown */
+        .form-select {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .form-select:focus {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+        }
+
+        .form-select option {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Bootstrap Dropdown Menu */
+        .dropdown-menu {
+            background-color: var(--bg-sidebar) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .dropdown-menu .dropdown-item {
+            color: var(--text-primary) !important;
+        }
+
+        .dropdown-menu .dropdown-item:hover,
+        .dropdown-menu .dropdown-item:focus {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .dropdown-menu .dropdown-divider {
+            border-color: var(--border-color) !important;
+        }
+
+        /* Input Groups */
+        .input-group-text {
+            background-color: var(--bg-card) !important;
+            color: var(--text-secondary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* Form Controls */
+        .form-control {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .form-control:focus {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Textarea */
+        textarea.form-control {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* Number Input Arrows (for Webkit) */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            opacity: 1;
+        }
+
+        /* Custom Scrollbar for Dropdowns */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+
+
+        /* --- DARK MODE ALERTS --- */
+        .alert {
+            border-radius: 8px;
+            border-width: 1px;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+            color: var(--accent-green) !important;
+        }
+
+        .alert-danger,
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+            color: var(--accent-red) !important;
+        }
+
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            border-color: rgba(245, 158, 11, 0.3) !important;
+            color: #f59e0b !important;
+        }
+
+        .alert-info {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+            border-color: rgba(59, 130, 246, 0.3) !important;
+            color: var(--accent-blue) !important;
+        }
+
+        .alert .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* --- FORM VALIDATION STYLES --- */
+        .was-validated .form-control:invalid,
+        .form-control.is-invalid {
+            border-color: var(--accent-red) !important;
+            background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        .was-validated .form-control:valid,
+        .form-control.is-valid {
+            border-color: var(--accent-green) !important;
+            background-color: rgba(16, 185, 129, 0.05) !important;
+        }
+
+        .was-validated .form-select:invalid,
+        .form-select.is-invalid {
+            border-color: var(--accent-red) !important;
+            background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        .invalid-feedback {
+            color: var(--accent-red) !important;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .valid-feedback {
+            color: var(--accent-green) !important;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Highlight field label when error */
+        .form-label.has-error {
+            color: var(--accent-red) !important;
+        }
+
+        /* --- SIDEBAR STYLES --- */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            z-index: 1050;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+
+        .sidebar .logo {
+            padding: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-secondary);
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            border-radius: 0;
+            transition: all 0.2s;
+        }
+
+        .sidebar .nav-link:hover {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar .nav-link.active {
+            color: var(--accent-blue);
+            background-color: rgba(59, 130, 246, 0.1);
+            border-right: 3px solid var(--accent-blue);
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* --- MOBILE SIDEBAR BACKDROP --- */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Dark semi-transparent overlay */
+            z-index: 1040; /* Just below the sidebar (which is 1000) */
+            transition: opacity 0.3s;
+        }
+
+        /* When the sidebar is active, show the backdrop */
+        .sidebar-backdrop.active {
+            display: block;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        /* --- TOP NAVBAR --- */
+        .top-navbar {
+            background-color: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .top-navbar .user-profile img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-blue);
+        }
+
+        /* --- CARDS & UTILITIES --- */
+        .card-custom {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth animation */
+        }
+
+        /* The magic hover effect! */
+        .card-custom:hover {
+            transform: translateY(-5px); /* Lifts the card up slightly */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25); /* Adds a soft dark shadow */
+            border-color: #4b5563; /* Brightens the border slightly */
+        }
+
+        .text-profit { color: var(--accent-green) !important; }
+        .text-loss { color: var(--accent-red) !important; }
+
+        /* Custom Scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .sidebar { margin-left: -260px; }
+            .sidebar.active { margin-left: 0; }
+            .main-content { margin-left: 0; }
+        }
+
+        /* --- CUSTOM TABLE STYLES --- */
+        .custom-table thead th {
+            background-color: transparent !important;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0.75rem;
+            font-weight: 600;
+        }
+
+        .custom-table tbody td {
+            padding: 1.2rem 0.75rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .custom-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Subtle row hover effect */
+        .custom-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+        }
+
+        /* Custom Status Badges */
+        .badge-status {
+            padding: 0.4em 0.8em;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-active { 
+            background-color: rgba(16, 185, 129, 0.15); 
+            color: var(--accent-green); 
+        }
+
+        .badge-paused { 
+            background-color: rgba(239, 68, 68, 0.15); 
+            color: var(--accent-red); 
+        }
+
+
+        /* --- CHART LEGEND DOTS --- */
+        .legend-color {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+
+        /* --- STRATEGY CARDS --- */
+        .strategy-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue) !important; /* Glows blue on hover */
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15); /* Blue tinted shadow */
+        }
+
+        /* Custom Risk Badges */
+        .badge-low-risk { 
+            background-color: rgba(16, 185, 129, 0.15); 
+            color: var(--accent-green); 
+        }
+
+        .badge-high-risk { 
+            background-color: rgba(239, 68, 68, 0.15); 
+            color: var(--accent-red); 
+        }
+
+        /* Make the filter dropdown look good in dark mode */
+        .form-select.bg-transparent {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        }
+
+        /* --- PORTFOLIO INVESTMENT ITEMS --- */
+        .investment-item {
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .investment-item:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-color: #4b5563;
+        }
+
+        /* --- DEPOSIT ITEMS --- */
+        .deposit-item {
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .deposit-item:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        /* Pending badge */
+        .badge-pending {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        /* --- KYC STEP TRACKER --- */
+        .kyc-step-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .kyc-step-icon.completed {
+            background-color: var(--accent-green);
+            color: white;
+        }
+
+        .kyc-step-icon.active {
+            background-color: var(--accent-blue);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .kyc-step-icon.pending {
+            background-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* --- UPLOAD ZONE --- */
+        .upload-zone {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-style: dashed !important;
+            border-width: 2px !important;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent-blue) !important;
+            background-color: rgba(59, 130, 246, 0.03);
+        }
+
+        .upload-zone.border-success {
+            border-style: solid !important;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="bi bi-graph-up-arrow"></i> LuminaWealth
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'customer:dashboard' %}">
+                    <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'customer:portfolio' %}">
+                    <i class="bi bi-wallet2"></i> My Portfolio
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'customer:strategies' %}">
+                    <i class="bi bi-arrow-left-right"></i> Investments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'customer:deposit' %}">
+                    <i class="bi bi-credit-card"></i> Deposit
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'customer:withdraw' %}">
+                    <i class="bi bi-arrow-up-circle"></i> Withdraw
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-clock-history"></i> Transaction History
+                </a>
+            </li>
+            
+            <li class="nav-item mt-4">
+                <small class="text-secondary px-3 text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Account</small>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-person-circle"></i> Profile Settings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'customer:kyc' %}">
+                    <i class="bi bi-shield-check"></i> KYC Verification
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="#">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </li>
+        </ul>
+
+    </nav>
+
+    <!-- Add this right after the </nav> of the sidebar -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- TOP NAVBAR -->
+        <nav class="top-navbar d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-link text-light d-lg-none me-3" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 fw-normal">Welcome back, <span class="fw-bold">John Doe</span></h5>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3">
+                <!-- Notification Bell -->
+                <button class="btn btn-link text-light position-relative">
+                    <!-- Wrap the icon in a relative span -->
+                    <span class="position-relative">
+                        <i class="bi bi-bell fs-5"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                            3
+                        </span>
+                    </span>
+                </button>
+                
+                <!-- User Profile -->
+                <div class="dropdown user-profile">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-light" data-bs-toggle="dropdown">
+                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=3b82f6&color=fff" alt="Profile">
+                        <span class="ms-2 d-none d-md-inline">John Doe</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><a class="dropdown-item" href="{% url 'customer:profile' %}">Profile</a></li>
+                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- PAGE CONTENT -->
+        <main class="p-4">
+            <!-- Include reusable alerts -->
+            {% include '../alerts/messages.html' %}
+
+            {% block content %}
+            <!-- Child templates will inject their content here -->
+            <!-- <h2>Dashboard Content Goes Here</h2> -->
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ADD THIS: Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+        // Function to toggle sidebar and backdrop
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            backdrop.classList.toggle('active');
+        }
+
+        // Function to close sidebar and backdrop
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            backdrop.classList.remove('active');
+        }
+
+        // 1. Toggle button opens/closes the menu
+        toggleBtn.addEventListener('click', toggleSidebar);
+
+        // 2. Clicking the dark backdrop closes the menu
+        backdrop.addEventListener('click', closeSidebar);
+
+        // 3. Clicking any link inside the sidebar closes the menu (on mobile only)
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 992) { 
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000); // 5 seconds
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

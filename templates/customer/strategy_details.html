@@ -1,0 +1,456 @@
+{% extends './base.html' %}
+
+{% block title %}Conservative BTC Strategy{% endblock %}
+
+{% block content %}
+<!-- 1. STRATEGY HEADER -->
+<div class="card card-custom p-4 mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-3">
+                <div class="bg-warning bg-opacity-10 p-3 rounded me-3">
+                    <i class="bi bi-currency-bitcoin text-warning fs-2"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1">Conservative BTC Strategy</h2>
+                    <p class="text-secondary mb-0">Dollar-Cost Averaging • Low Risk • Managed by TradePro</p>
+                </div>
+            </div>
+            
+            <!-- Key Stats -->
+            <div class="row g-3 mt-2">
+                <div class="col-6 col-md-3">
+                    <small class="text-secondary d-block">30D ROI</small>
+                    <span class="fw-bold text-profit fs-5">+12.4%</span>
+                </div>
+                <div class="col-6 col-md-3">
+                    <small class="text-secondary d-block">All-Time ROI</small>
+                    <span class="fw-bold text-profit fs-5">+145.8%</span>
+                </div>
+                <div class="col-6 col-md-3">
+                    <small class="text-secondary d-block">Active Investors</small>
+                    <span class="fw-bold fs-5">1,204</span>
+                </div>
+                <div class="col-6 col-md-3">
+                    <small class="text-secondary d-block">Min. Investment</small>
+                    <span class="fw-bold fs-5">$100</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="badge-status badge-low-risk fs-6 px-3 py-2">Low Risk</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT COLUMN: Chart & Details -->
+    <div class="col-lg-8">
+        
+        <!-- 2. PERFORMANCE CHART -->
+        <div class="card card-custom p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">BTC Price Performance</h5>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary">1W</button>
+                    <button type="button" class="btn btn-outline-secondary active">1M</button>
+                    <button type="button" class="btn btn-outline-secondary">3M</button>
+                    <button type="button" class="btn btn-outline-secondary">1Y</button>
+                    <button type="button" class="btn btn-outline-secondary">All</button>
+                </div>
+            </div>
+            
+            <div style="position: relative; height: 350px;">
+                <canvas id="strategyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 3. STRATEGY DETAILS -->
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">About This Strategy</h5>
+            
+            <p class="text-secondary mb-4">
+                The Conservative BTC Strategy uses a proven Dollar-Cost Averaging (DCA) approach to build a Bitcoin position over time. By investing fixed amounts at regular intervals, this strategy reduces the impact of volatility and captures long-term growth potential.
+            </p>
+
+            <h6 class="fw-bold mb-3">How It Works</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                            <i class="bi bi-calendar-check text-primary"></i>
+                        </div>
+                        <div>
+                            <strong>Weekly Investments</strong>
+                            <p class="text-secondary small mb-0">Your funds are automatically invested every Monday at market open.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                            <i class="bi bi-shield-check text-primary"></i>
+                        </div>
+                        <div>
+                            <strong>Risk Management</strong>
+                            <p class="text-secondary small mb-0">Stop-loss protection at -15% and automatic rebalancing to maintain target allocation.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                            <i class="bi bi-graph-up text-primary"></i>
+                        </div>
+                        <div>
+                            <strong>Long-Term Focus</strong>
+                            <p class="text-secondary small mb-0">Designed for 6+ month holding periods to capture Bitcoin's growth cycle.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                            <i class="bi bi-percent text-primary"></i>
+                        </div>
+                        <div>
+                            <strong>Transparent Fees</strong>
+                            <p class="text-secondary small mb-0">1.5% annual management fee, deducted monthly. No hidden costs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3">Risk Factors</h6>
+            <ul class="text-secondary">
+                <li>Cryptocurrency markets are highly volatile and can experience significant price swings</li>
+                <li>Past performance does not guarantee future results</li>
+                <li>Bitcoin is subject to regulatory changes and market sentiment shifts</li>
+                <li>This strategy is not suitable for short-term trading or money you need within 6 months</li>
+            </ul>
+        </div>
+
+        <!-- 4. HISTORICAL PERFORMANCE TABLE -->
+        <div class="card card-custom p-4">
+            <h5 class="fw-bold mb-3">Historical Performance</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0 custom-table">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Strategy Return</th>
+                            <th>BTC Return</th>
+                            <th>Outperformance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fw-semibold">Last 30 Days</td>
+                            <td class="text-profit">+12.4%</td>
+                            <td class="text-profit">+10.8%</td>
+                            <td class="text-profit">+1.6%</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Last 90 Days</td>
+                            <td class="text-profit">+28.5%</td>
+                            <td class="text-profit">+25.2%</td>
+                            <td class="text-profit">+3.3%</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Last Year</td>
+                            <td class="text-profit">+145.8%</td>
+                            <td class="text-profit">+132.4%</td>
+                            <td class="text-profit">+13.4%</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">Since Inception (2023)</td>
+                            <td class="text-profit">+312.5%</td>
+                            <td class="text-profit">+285.7%</td>
+                            <td class="text-profit">+26.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Investment Panel -->
+    <div class="col-lg-4">
+        
+        <!-- YOUR POSITION (If Already Invested) -->
+        <div class="card card-custom p-4 mb-4 border-success" style="border-width: 2px !important;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Your Position</h5>
+                <span class="badge-status badge-active">Active</span>
+            </div>
+
+            <div class="mb-3">
+                <small class="text-secondary d-block">Invested Amount</small>
+                <span class="fw-bold fs-4">$5,000.00</span>
+            </div>
+
+            <div class="mb-3">
+                <small class="text-secondary d-block">Current Value</small>
+                <span class="fw-bold fs-4 text-profit">$5,620.00</span>
+            </div>
+
+            <div class="mb-4 p-3 rounded" style="background-color: rgba(16, 185, 129, 0.1);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-secondary d-block">Total Profit</small>
+                        <span class="fw-bold text-profit fs-5">+$620.00</span>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-secondary d-block">ROI</small>
+                        <span class="fw-bold text-profit fs-5">+12.4%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button class="btn btn-success fw-semibold">
+                    <i class="bi bi-plus-circle me-2"></i>Add More Funds
+                </button>
+                <button class="btn btn-outline-danger fw-semibold" data-bs-toggle="modal" data-bs-target="#liquidateModal">
+                    <i class="bi bi-x-circle me-2"></i>Stop & Liquidate
+                </button>
+            </div>
+        </div>
+
+        <!-- OR: START INVESTING (If Not Invested Yet) -->
+        <!--
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">Start Investing</h5>
+            
+            <div class="mb-3">
+                <label class="form-label text-secondary">Investment Amount</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary">$</span>
+                    <input type="number" class="form-control bg-transparent border-secondary text-light" placeholder="100.00" min="100">
+                </div>
+                <small class="text-secondary">Minimum: $100</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-secondary">Available Balance</label>
+                <div class="p-2 rounded bg-dark">
+                    <span class="fw-bold">$12,000.00</span>
+                </div>
+            </div>
+
+            <div class="alert alert-warning border-warning bg-transparent mb-3" role="alert">
+                <i class="bi bi-info-circle me-2"></i>
+                <small>By investing, you agree to the 1.5% annual management fee and understand the risks involved.</small>
+            </div>
+
+            <div class="d-grid">
+                <button class="btn btn-primary fw-semibold py-2">
+                    <i class="bi bi-lightning-charge-fill me-2"></i>Start Strategy
+                </button>
+            </div>
+        </div>
+        -->
+
+        <!-- QUICK INFO CARD -->
+        <div class="card card-custom p-4">
+            <h6 class="fw-bold mb-3">Quick Info</h6>
+            
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary">Strategy Type</span>
+                <span class="fw-semibold">DCA</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary">Investment Frequency</span>
+                <span class="fw-semibold">Weekly</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary">Management Fee</span>
+                <span class="fw-semibold">1.5% / year</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary">Min. Holding Period</span>
+                <span class="fw-semibold">6 months</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary">Stop-Loss Protection</span>
+                <span class="fw-semibold text-profit">Yes (-15%)</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-secondary">Inception Date</span>
+                <span class="fw-semibold">Jan 2023</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LIQUIDATE MODAL -->
+<div class="modal fade" id="liquidateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold">Stop & Liquidate Position</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger border-danger bg-transparent" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Warning:</strong> This action will close your position and return funds to your wallet. You may realize a profit or loss depending on current market conditions.
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-secondary d-block">Current Position Value</small>
+                    <span class="fw-bold fs-4">$5,620.00</span>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-secondary d-block">Estimated Return to Wallet</small>
+                    <span class="fw-bold fs-4 text-profit">$5,620.00</span>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-secondary d-block">Realized Profit</small>
+                    <span class="fw-bold fs-5 text-profit">+$620.00 (+12.4%)</span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="confirmLiquidate">
+                    <label class="form-check-label text-secondary" for="confirmLiquidate">
+                        I understand this action cannot be undone and I want to liquidate my position.
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger fw-semibold" id="confirmLiquidateBtn" disabled>
+                    <i class="bi bi-x-circle me-2"></i>Confirm Liquidation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ==========================================
+    // STRATEGY PERFORMANCE CHART
+    // ==========================================
+    const ctxStrategy = document.getElementById('strategyChart').getContext('2d');
+    
+    const gradientStrategy = ctxStrategy.createLinearGradient(0, 0, 0, 350);
+    gradientStrategy.addColorStop(0, 'rgba(245, 158, 11, 0.3)');
+    gradientStrategy.addColorStop(0.5, 'rgba(245, 158, 11, 0.1)');
+    gradientStrategy.addColorStop(1, 'rgba(245, 158, 11, 0)');
+
+    const crosshairPlugin = {
+        id: 'crosshair',
+        afterDraw: (chart) => {
+            if (chart.tooltip?._active?.length) {
+                const activePoint = chart.tooltip._active[0];
+                const ctx = chart.ctx;
+                const x = activePoint.element.x;
+                const topY = chart.scales.y.top;
+                const bottomY = chart.scales.y.bottom;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(x, topY);
+                ctx.lineTo(x, bottomY);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+    };
+
+    new Chart(ctxStrategy, {
+        type: 'line',
+        data: {
+            labels: ['Sep 1', 'Sep 5', 'Sep 10', 'Sep 15', 'Sep 20', 'Sep 25', 'Sep 30', 'Oct 5', 'Oct 10', 'Oct 15', 'Oct 20', 'Oct 25', 'Oct 30'],
+            datasets: [{
+                label: 'BTC Price',
+                data: [42000, 43500, 42800, 45000, 47500, 46800, 49000, 51000, 50200, 52500, 54000, 53200, 55000],
+                borderColor: '#f59e0b',
+                backgroundColor: gradientStrategy,
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#f59e0b',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: { 
+                legend: { display: false },
+                crosshair: {},
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                    titleColor: '#9ca3af',
+                    bodyColor: '#f3f4f6',
+                    bodyFont: { size: 14, weight: 'bold' },
+                    borderColor: '#374151',
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return '  $ ' + context.raw.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { 
+                    grid: { display: false, drawBorder: false }, 
+                    ticks: { color: '#6b7280', font: { size: 11 }, padding: 10 },
+                    border: { display: false }
+                },
+                y: { 
+                    position: 'right',
+                    grid: { 
+                        color: 'rgba(255, 255, 255, 0.05)', 
+                        drawBorder: false,
+                        borderDash: [4, 4]
+                    }, 
+                    ticks: { 
+                        color: '#6b7280', 
+                        font: { size: 11 }, 
+                        padding: 10,
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    },
+                    border: { display: false }
+                }
+            }
+        },
+        plugins: [crosshairPlugin]
+    });
+
+    // ==========================================
+    // LIQUIDATE MODAL LOGIC
+    // ==========================================
+    const confirmCheckbox = document.getElementById('confirmLiquidate');
+    const confirmBtn = document.getElementById('confirmLiquidateBtn');
+
+    if (confirmCheckbox && confirmBtn) {
+        confirmCheckbox.addEventListener('change', function() {
+            confirmBtn.disabled = !this.checked;
+        });
+    }
+</script>
+{% endblock %}

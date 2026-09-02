@@ -1,0 +1,192 @@
+{% extends './base.html' %}
+
+{% block title %}Investment Strategies{% endblock %}
+
+{% block content %}
+<!-- 1. PAGE HEADER -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+        <h3 class="fw-bold mb-1">Investment Strategies</h3>
+        <p class="text-secondary mb-0">Choose a proven, automated strategy to grow your portfolio.</p>
+    </div>
+    <a href="#" class="btn btn-primary d-flex align-items-center gap-2">
+        <i class="bi bi-lightning-charge-fill"></i> My Active Strategies
+    </a>
+</div>
+
+<!-- 2. FILTER BAR -->
+<div class="card card-custom p-3 mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="text-secondary me-2 fw-semibold" style="font-size: 0.9rem;">Filter by Risk:</span>
+        
+        <!-- Active Filter -->
+        <button class="btn btn-sm btn-primary px-3">All Strategies</button>
+        
+        <!-- Inactive Filters -->
+        <button class="btn btn-sm btn-outline-secondary px-3">
+            <i class="bi bi-shield-check me-1"></i> Low Risk
+        </button>
+        <button class="btn btn-sm btn-outline-secondary px-3">
+            <i class="bi bi-shield-exclamation me-1"></i> Medium Risk
+        </button>
+        <button class="btn btn-sm btn-outline-secondary px-3">
+            <i class="bi bi-shield-x me-1"></i> High Risk
+        </button>
+
+        <!-- Sort Dropdown on the right -->
+        <div class="ms-auto">
+            <select class="form-select form-select-sm bg-transparent text-light border-secondary" style="width: auto;">
+                <option>Sort by: Highest ROI</option>
+                <option>Sort by: Most Popular</option>
+                <option>Sort by: Lowest Minimum</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- 3. STRATEGIES GRID -->
+<div class="row g-4">
+    
+    <!-- STRATEGY CARD 1: Low Risk / BTC -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-custom strategy-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 p-2 rounded me-3">
+                        <i class="bi bi-currency-bitcoin text-warning fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Conservative BTC</h5>
+                        <small class="text-secondary">Dollar-Cost Averaging</small>
+                    </div>
+                </div>
+                <span class="badge-status badge-low-risk">Low Risk</span>
+            </div>
+
+            <!-- Mini Sparkline Chart (Pure SVG - No JS needed!) -->
+            <div class="my-3">
+                <svg width="100%" height="50" viewBox="0 0 300 50" preserveAspectRatio="none">
+                    <path d="M0,40 C50,35 80,45 120,30 C160,15 200,25 250,10 L300,5" 
+                          fill="none" stroke="#10b981" stroke-width="2" />
+                </svg>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="row text-center border-top border-bottom py-3 my-3" style="border-color: var(--border-color) !important;">
+                <div class="col-4">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">30D ROI</small>
+                    <span class="fw-bold text-profit">+12.4%</span>
+                </div>
+                <div class="col-4 border-start border-end" style="border-color: var(--border-color) !important;">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">INVESTORS</small>
+                    <span class="fw-bold">1,204</span>
+                </div>
+                <div class="col-4">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">MIN. DEPOSIT</small>
+                    <span class="fw-bold">$100</span>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <a href="{% url 'customer:strategy_details' %}" class="btn btn-outline-primary w-100 d-flex justify-content-center align-items-center gap-2">
+                View Details & Invest <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- STRATEGY CARD 2: High Risk / ETH -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-custom strategy-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                        <i class="bi bi-ethereum text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Aggressive ETH</h5>
+                        <small class="text-secondary">Momentum Trading</small>
+                    </div>
+                </div>
+                <span class="badge-status badge-high-risk">High Risk</span>
+            </div>
+
+            <!-- Mini Sparkline Chart (Volatile) -->
+            <div class="my-3">
+                <svg width="100%" height="50" viewBox="0 0 300 50" preserveAspectRatio="none">
+                    <path d="M0,25 C30,40 60,10 100,30 C140,50 180,5 220,20 C260,35 280,10 300,15" 
+                          fill="none" stroke="#3b82f6" stroke-width="2" />
+                </svg>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="row text-center border-top border-bottom py-3 my-3" style="border-color: var(--border-color) !important;">
+                <div class="col-4">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">30D ROI</small>
+                    <span class="fw-bold text-profit">+34.8%</span>
+                </div>
+                <div class="col-4 border-start border-end" style="border-color: var(--border-color) !important;">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">INVESTORS</small>
+                    <span class="fw-bold">856</span>
+                </div>
+                <div class="col-4">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">MIN. DEPOSIT</small>
+                    <span class="fw-bold">$500</span>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <a href="{% url 'customer:strategy_details' %}" class="btn btn-outline-primary w-100 d-flex justify-content-center align-items-center gap-2">
+                View Details & Invest <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- STRATEGY CARD 3: Very Low Risk / Stablecoin -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-custom strategy-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 p-2 rounded me-3">
+                        <i class="bi bi-shield-check text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Stablecoin Yield</h5>
+                        <small class="text-secondary">DeFi Lending</small>
+                    </div>
+                </div>
+                <span class="badge-status badge-low-risk">Very Low</span>
+            </div>
+
+            <!-- Mini Sparkline Chart (Steady upward) -->
+            <div class="my-3">
+                <svg width="100%" height="50" viewBox="0 0 300 50" preserveAspectRatio="none">
+                    <path d="M0,45 C100,40 200,30 300,15" 
+                          fill="none" stroke="#10b981" stroke-width="2" />
+                </svg>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="row text-center border-top border-bottom py-3 my-3" style="border-color: var(--border-color) !important;">
+                <div class="col-4">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">APY</small>
+                    <span class="fw-bold text-profit">+8.5%</span>
+                </div>
+                <div class="col-4 border-start border-end" style="border-color: var(--border-color) !important;">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">INVESTORS</small>
+                    <span class="fw-bold">3,412</span>
+                </div>
+                <div class="col-4">
+                    <small class="text-secondary d-block" style="font-size: 0.7rem;">MIN. DEPOSIT</small>
+                    <span class="fw-bold">$50</span>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <a href="{% url 'customer:strategy_details' %}" class="btn btn-outline-primary w-100 d-flex justify-content-center align-items-center gap-2">
+                View Details & Invest <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% if field.errors %}
+    {% for error in field.errors %}
+        <div class="invalid-feedback d-block">
+            <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
+        </div>
+    {% endfor %}
+{% endif %}
