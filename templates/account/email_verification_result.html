@@ -1,0 +1,288 @@
+{% extends '../frontend/base_two.html' %}
+
+{% block title %}Email Verification - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verification-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .verification-card {
+        max-width: 600px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 24px;
+        padding: 3rem;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .verification-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        margin: 0 auto 2rem;
+        animation: iconPop 0.6s ease 0.3s both;
+    }
+
+    @keyframes iconPop {
+        0% {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        60% {
+            transform: scale(1.1);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .verification-icon.success {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .verification-icon.danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
+    }
+
+    .verification-icon.warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        box-shadow: 0 0 40px rgba(245, 158, 11, 0.3);
+    }
+
+    .verification-icon.info {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+        box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+    }
+
+    .verification-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .verification-message {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .verification-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .resend-form {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .resend-form input {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .resend-form input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+
+    /* Success confetti effect */
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        opacity: 0;
+    }
+
+    .verification-card.success-state .confetti {
+        animation: confettiFall 3s ease-in-out forwards;
+    }
+
+    @keyframes confettiFall {
+        0% {
+            opacity: 1;
+            transform: translateY(-100px) rotate(0deg);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(400px) rotate(720deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="verification-container">
+    <!-- Background decorations -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="particle-bg" id="particles"></div>
+
+    <div class="verification-card {% if status == 'success' %}success-state{% endif %}">
+        <!-- Confetti for success -->
+        {% if status == 'success' %}
+            <div class="confetti" style="top: 0; left: 20%; background: #667eea; animation-delay: 0s;"></div>
+            <div class="confetti" style="top: 0; left: 40%; background: #f093fb; animation-delay: 0.2s;"></div>
+            <div class="confetti" style="top: 0; left: 60%; background: #10b981; animation-delay: 0.4s;"></div>
+            <div class="confetti" style="top: 0; left: 80%; background: #f59e0b; animation-delay: 0.6s;"></div>
+        {% endif %}
+
+        <!-- Icon -->
+        <div class="verification-icon {{ icon_color }}">
+            <i class="bi {{ icon }}"></i>
+        </div>
+
+        <!-- Title -->
+        <h1 class="verification-title">{{ title }}</h1>
+
+        <!-- Message -->
+        <p class="verification-message">{{ message }}</p>
+
+        <!-- Actions based on status -->
+        {% if status == 'success' %}
+            <div class="verification-actions">
+                <a href="{% url 'account:login' %}" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Continue to Login
+                </a>
+            </div>
+
+            <div class="mt-4">
+                <p class="text-secondary small mb-0">
+                    You'll be redirected to login in <span id="countdown">10</span> seconds...
+                </p>
+            </div>
+
+        {% elif status == 'expired' %}
+            <div class="verification-actions">
+                <a href="{% url 'account:login' %}" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Go to Login
+                </a>
+            </div>
+
+            <!-- Resend form -->
+            <div class="resend-form">
+                <h5 class="fw-bold mb-3">Need a new verification link?</h5>
+                <form method="POST" action="{% url 'resend_verification' %}">
+                    {% csrf_token %}
+                    <input type="email" name="email" value="{{ user_email }}" 
+                           placeholder="Enter your email address" required>
+                    <button type="submit" class="btn btn-outline-custom w-100 rounded-pill py-3">
+                        <i class="bi bi-envelope-fill me-2"></i> Resend Verification Email
+                    </button>
+                </form>
+            </div>
+
+        {% elif status == 'invalid' %}
+            <div class="verification-actions">
+                <a href="{% url 'account:login' %}" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Go to Login
+                </a>
+                <a href="{% url 'account:register' %}" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                    <i class="bi bi-person-plus me-2"></i> Create New Account
+                </a>
+            </div>
+
+        {% elif status == 'already_verified' %}
+            <div class="verification-actions">
+                <a href="{% url 'account:login' %}" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Continue to Login
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Help section -->
+        <div class="mt-4 pt-4 border-top border-secondary">
+            <p class="text-secondary small mb-0">
+                <i class="bi bi-question-circle me-1"></i>
+                Need help? <a href="{% url 'frontend:contact' %}" class="text-decoration-none" style="color: #667eea;">Contact support</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-redirect after success
+    {% if status == 'success' %}
+        let countdown = 10;
+        const countdownEl = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            if (countdownEl) {
+                countdownEl.textContent = countdown;
+            }
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                window.location.href = '{% url "account:login" %}';
+            }
+        }, 1000);
+    {% endif %}
+
+    // Create particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', createParticles);
+</script>
+{% endblock %}

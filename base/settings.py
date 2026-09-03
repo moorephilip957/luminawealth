@@ -131,3 +131,32 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# ===== AUTHENTICATION SETTINGS =====
+
+# Use custom user model
+AUTH_USER_MODEL = 'account.User'
+
+# Login/Logout URLs
+LOGIN_URL = 'account:login'
+LOGIN_REDIRECT_URL = 'customer:dashboard'
+LOGOUT_REDIRECT_URL = 'frontend:home'
+
+# Session settings
+SESSION_COOKIE_AGE = 86400  # 24 hours (default session length)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session after browser close
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+# Trusted device cookie settings
+TRUSTED_DEVICE_COOKIE_NAME = 'trusted_device'
+TRUSTED_DEVICE_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
+TRUSTED_DEVICE_COOKIE_SECURE = False  # Set to True in production with HTTPS
+TRUSTED_DEVICE_COOKIE_HTTPONLY = True
+
+# OTP settings
+OTP_EXPIRY_MINUTES = 10
+OTP_MAX_ATTEMPTS = 3  # Max wrong attempts before lockout
+OTP_RATE_LIMIT_MINUTES = 1  # Min time between OTP requests
+

@@ -572,38 +572,40 @@
                     <span>or sign up with email</span>
                 </div>
 
+                {% include '../alerts/messages.html' %}
+
                 <!-- Register Form -->
-                <form method="POST" action="#" id="registerForm">
+                <form method="POST" action="{% url 'account:register' %}" id="registerForm">
                     {% csrf_token %}
 
                     <div class="row g-2">
                         <div class="col-6">
                             <div class="auth-input-group">
                                 <i class="bi bi-person input-icon"></i>
-                                <input type="text" class="auth-input" name="first_name" placeholder="First name" required>
+                                {{ form.first_name }}
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="auth-input-group">
                                 <i class="bi bi-person input-icon"></i>
-                                <input type="text" class="auth-input" name="last_name" placeholder="Last name" required>
+                                {{ form.last_name }}
                             </div>
                         </div>
                     </div>
 
                     <div class="auth-input-group">
                         <i class="bi bi-envelope input-icon"></i>
-                        <input type="email" class="auth-input" name="email" placeholder="Email address" required>
+                        {{ form.email }}
                     </div>
 
                     <div class="auth-input-group">
                         <i class="bi bi-telephone input-icon"></i>
-                        <input type="tel" class="auth-input" name="phone" placeholder="Phone number (optional)">
+                        {{ form.phone }}
                     </div>
 
                     <div class="auth-input-group">
                         <i class="bi bi-lock input-icon"></i>
-                        <input type="password" class="auth-input" name="password" id="registerPassword" placeholder="Create password" required oninput="checkPasswordStrength(this.value)">
+                        {{ form.password }}
                         <button type="button" class="password-toggle" onclick="togglePassword('registerPassword', this)">
                             <i class="bi bi-eye"></i>
                         </button>
@@ -635,7 +637,7 @@
 
                     <div class="auth-input-group">
                         <i class="bi bi-lock-fill input-icon"></i>
-                        <input type="password" class="auth-input" name="confirm_password" id="confirmPassword" placeholder="Confirm password" required>
+                        {{ form.confirm_password }}
                         <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">
                             <i class="bi bi-eye"></i>
                         </button>
@@ -644,7 +646,8 @@
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" name="terms" id="agreeTerms" required>
                         <label class="form-check-label text-secondary small" for="agreeTerms">
-                            I agree to the <a href="#" class="auth-link">Terms of Service</a> and <a href="#" class="auth-link">Privacy Policy</a>
+                            I agree to the <a href="{% url 'frontend:terms' %}" class="auth-link">Terms of Service</a> 
+                            and <a href="{% url 'frontend:privacy' %}" class="auth-link">Privacy Policy</a>
                         </label>
                     </div>
 

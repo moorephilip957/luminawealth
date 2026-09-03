@@ -493,6 +493,8 @@
                     <span>or sign in with email</span>
                 </div>
 
+                {% include '../alerts/messages.html' %}
+
                 <!-- Login Form -->
                 <form method="POST" action="#">
                     {% csrf_token %}

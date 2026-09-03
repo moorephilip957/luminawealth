@@ -1,0 +1,10 @@
+=== REGISTRATION DEBUG ===
+User created: charlottecampbell128@gmail.com
+User ID: 6
+Email verified before token: False
+Token generated: 8LVuAP9fqBvBfT6ASDlMK1FGmubqvrSBG543-DEcn9r6p9mZr5P9TljJopV9yrtz
+Token in DB: 8LVuAP9fqBvBfT6ASDlMK1FGmubqvrSBG543-DEcn9r6p9mZr5P9TljJopV9yrtz
+Token created at: 2026-09-03 18:13:19.765199+00:00
+===========================
+
+Verification URL: http://localhost:8000/account/verify-email/8LVuAP9fqBvBfT6ASDlMK1FGmubqvrSBG543-DEcn9r6p9mZr5P9TljJopV9yrtz/
