@@ -1,0 +1,1152 @@
+{% extends './base.html' %}
+
+{% block title %}Transaction History{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Transaction Stats Cards */
+    .txn-stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .txn-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+    }
+
+    .txn-stat-card.deposits::before { background: var(--accent-green); }
+    .txn-stat-card.withdrawals::before { background: var(--accent-red); }
+    .txn-stat-card.investments::before { background: var(--accent-blue); }
+    .txn-stat-card.profit::before { background: var(--accent-orange); }
+
+    .txn-stat-card:hover {
+        transform: translateY(-3px);
+        border-color: #4b5563;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .txn-stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .txn-stat-icon.deposits {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent-green);
+    }
+
+    .txn-stat-icon.withdrawals {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--accent-red);
+    }
+
+    .txn-stat-icon.investments {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent-blue);
+    }
+
+    .txn-stat-icon.profit {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--accent-orange);
+    }
+
+    .txn-stat-number {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .txn-stat-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .txn-stat-change {
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Filter Bar */
+    .txn-filter-bar {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .txn-filter-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .txn-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .txn-filter-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    .txn-filter-select,
+    .txn-filter-input {
+        padding: 0.6rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .txn-filter-select:focus,
+    .txn-filter-input:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    /* Search & Actions Bar */
+    .txn-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .txn-search {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+    .txn-search i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+    }
+
+    .txn-search input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 50px;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .txn-search input:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    /* Transaction Item */
+    .transaction-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .transaction-item:hover {
+        border-color: #4b5563;
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Transaction Icon */
+    .txn-icon {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .txn-icon.deposit {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent-green);
+    }
+
+    .txn-icon.withdrawal {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--accent-red);
+    }
+
+    .txn-icon.investment {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent-blue);
+    }
+
+    .txn-icon.return {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent-green);
+    }
+
+    .txn-icon.fee {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--accent-orange);
+    }
+
+    .txn-icon.liquidation {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--accent-red);
+    }
+
+    /* Transaction Content */
+    .txn-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .txn-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .txn-title {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .txn-time {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    .txn-details {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .txn-meta {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .txn-badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .txn-badge.deposit { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+    .txn-badge.withdrawal { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+    .txn-badge.investment { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .txn-badge.return { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+    .txn-badge.fee { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
+    .txn-badge.liquidation { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+    .txn-badge.completed { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+    .txn-badge.pending { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
+    .txn-badge.failed { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+
+    /* Amount Display */
+    .txn-amount {
+        text-align: right;
+        min-width: 120px;
+    }
+
+    .txn-amount-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .txn-amount-value.positive { color: var(--accent-green); }
+    .txn-amount-value.negative { color: var(--accent-red); }
+
+    .txn-amount-ref {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-family: 'Courier New', monospace;
+    }
+
+    /* Date Group Header */
+    .txn-date-group {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 1.5rem 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .txn-date-group::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+    }
+
+    /* Empty State */
+    .txn-empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-card);
+        border: 1px dashed var(--border-color);
+        border-radius: 16px;
+    }
+
+    .txn-empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        background: rgba(59, 130, 246, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: var(--accent-blue);
+    }
+
+    /* Detail Modal */
+    .txn-detail-modal .modal-content {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+    }
+
+    .txn-detail-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .txn-detail-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+    }
+
+    .txn-detail-info {
+        flex: 1;
+    }
+
+    .txn-detail-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .txn-detail-time {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .txn-detail-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .txn-detail-section-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+    }
+
+    .txn-detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .txn-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .txn-detail-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .txn-detail-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .txn-detail-amount {
+        text-align: center;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .txn-detail-amount-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .txn-detail-amount-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    /* Pagination */
+    .txn-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .transaction-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .txn-amount {
+            text-align: left;
+            width: 100%;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .txn-filter-row {
+            flex-direction: column;
+        }
+        .txn-filter-group {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+        <h3 class="fw-bold mb-1">Transaction History</h3>
+        <p class="text-secondary mb-0">View all your deposits, withdrawals, investments, and more</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-light d-flex align-items-center gap-2" id="exportBtn">
+            <i class="bi bi-download"></i> Export CSV
+        </button>
+        <button class="btn btn-primary d-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle-fill"></i> New Transaction
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="txn-stat-card deposits">
+            <div class="txn-stat-icon deposits">
+                <i class="bi bi-arrow-down-circle-fill"></i>
+            </div>
+            <div class="txn-stat-number text-success">$45,000</div>
+            <div class="txn-stat-label">Total Deposits</div>
+            <div class="txn-stat-change text-success">
+                <i class="bi bi-arrow-up-right"></i> +$5,000 this month
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="txn-stat-card withdrawals">
+            <div class="txn-stat-icon withdrawals">
+                <i class="bi bi-arrow-up-circle-fill"></i>
+            </div>
+            <div class="txn-stat-number text-danger">$28,500</div>
+            <div class="txn-stat-label">Total Withdrawals</div>
+            <div class="txn-stat-change text-secondary">
+                <i class="bi bi-dash"></i> -$3,000 this month
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="txn-stat-card investments">
+            <div class="txn-stat-icon investments">
+                <i class="bi bi-piggy-bank-fill"></i>
+            </div>
+            <div class="txn-stat-number">$17,000</div>
+            <div class="txn-stat-label">Total Invested</div>
+            <div class="txn-stat-change text-secondary">
+                Across 3 strategies
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="txn-stat-card profit">
+            <div class="txn-stat-icon profit">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="txn-stat-number text-success">+$2,420</div>
+            <div class="txn-stat-label">Total Profit</div>
+            <div class="txn-stat-change text-success">
+                <i class="bi bi-arrow-up-right"></i> +14.2% all-time
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="txn-filter-bar">
+    <div class="txn-filter-row">
+        <div class="txn-filter-group">
+            <label class="txn-filter-label">Transaction Type</label>
+            <select class="txn-filter-select" id="typeFilter">
+                <option value="all">All Types</option>
+                <option value="deposit">Deposits</option>
+                <option value="withdrawal">Withdrawals</option>
+                <option value="investment">Investments</option>
+                <option value="return">Strategy Returns</option>
+                <option value="fee">Fees</option>
+                <option value="liquidation">Liquidations</option>
+            </select>
+        </div>
+        <div class="txn-filter-group">
+            <label class="txn-filter-label">Status</label>
+            <select class="txn-filter-select" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Failed</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+        <div class="txn-filter-group">
+            <label class="txn-filter-label">Date Range</label>
+            <select class="txn-filter-select" id="dateFilter">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+                <option value="custom">Custom Range</option>
+            </select>
+        </div>
+        <div class="txn-filter-group">
+            <label class="txn-filter-label">Amount Range</label>
+            <select class="txn-filter-select" id="amountFilter">
+                <option value="all">Any Amount</option>
+                <option value="small">Under $1,000</option>
+                <option value="medium">$1,000 - $10,000</option>
+                <option value="large">$10,000 - $50,000</option>
+                <option value="whale">Over $50,000</option>
+            </select>
+        </div>
+        <div class="txn-filter-group" style="flex: 0;">
+            <label class="txn-filter-label">&nbsp;</label>
+            <button class="btn btn-outline-primary" id="applyFilters">
+                <i class="bi bi-funnel"></i> Apply
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Actions -->
+<div class="txn-actions-bar">
+    <div class="txn-search">
+        <i class="bi bi-search"></i>
+        <input type="text" id="txnSearch" placeholder="Search by reference, amount, or description...">
+    </div>
+    <div class="d-flex gap-2">
+        <select class="form-select form-select-sm bg-transparent border-secondary text-light" id="sortSelect" style="width: auto;">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="highest">Highest Amount</option>
+            <option value="lowest">Lowest Amount</option>
+        </select>
+    </div>
+</div>
+
+<!-- Transactions List -->
+<div class="card card-custom p-4">
+    <div id="transactionsList">
+        <!-- Today Group -->
+        <div class="txn-date-group">Today</div>
+
+        <!-- Transaction 1: Deposit -->
+        <div class="transaction-item" data-type="deposit" data-status="completed" data-amount="5000" onclick="showTransactionDetail(1)">
+            <div class="txn-icon deposit">
+                <i class="bi bi-arrow-down-circle-fill"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Deposit via Bitcoin</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 2:45 PM
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Bitcoin deposit successfully processed and added to your account
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge deposit">Deposit</span>
+                    <span class="txn-badge completed">Completed</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value positive">+$5,000.00</div>
+                <div class="txn-amount-ref">#DEP-001234</div>
+            </div>
+        </div>
+
+        <!-- Transaction 2: Investment -->
+        <div class="transaction-item" data-type="investment" data-status="completed" data-amount="2500" onclick="showTransactionDetail(2)">
+            <div class="txn-icon investment">
+                <i class="bi bi-piggy-bank-fill"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Investment in Conservative BTC</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 11:15 AM
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Invested in Conservative BTC strategy (Low Risk, DCA)
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge investment">Investment</span>
+                    <span class="txn-badge completed">Completed</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value negative">-$2,500.00</div>
+                <div class="txn-amount-ref">#INV-001233</div>
+            </div>
+        </div>
+
+        <!-- Yesterday Group -->
+        <div class="txn-date-group">Yesterday</div>
+
+        <!-- Transaction 3: Withdrawal -->
+        <div class="transaction-item" data-type="withdrawal" data-status="completed" data-amount="3000" onclick="showTransactionDetail(3)">
+            <div class="txn-icon withdrawal">
+                <i class="bi bi-arrow-up-circle-fill"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Withdrawal to Bitcoin Wallet</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 4:30 PM
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Withdrawal completed to your Bitcoin wallet (bc1qxy...0wlh)
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge withdrawal">Withdrawal</span>
+                    <span class="txn-badge completed">Completed</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value negative">-$3,000.00</div>
+                <div class="txn-amount-ref">#WDR-001232</div>
+            </div>
+        </div>
+
+        <!-- Transaction 4: Strategy Return -->
+        <div class="transaction-item" data-type="return" data-status="completed" data-amount="620" onclick="showTransactionDetail(4)">
+            <div class="txn-icon return">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Strategy Profit - Conservative BTC</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 12:00 AM
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Daily profit from Conservative BTC strategy (+12.4% ROI)
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge return">Return</span>
+                    <span class="txn-badge completed">Completed</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value positive">+$620.00</div>
+                <div class="txn-amount-ref">#RET-001231</div>
+            </div>
+        </div>
+
+        <!-- This Week Group -->
+        <div class="txn-date-group">This Week</div>
+
+        <!-- Transaction 5: Fee -->
+        <div class="transaction-item" data-type="fee" data-status="completed" data-amount="37.50" onclick="showTransactionDetail(5)">
+            <div class="txn-icon fee">
+                <i class="bi bi-cash-coin"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Management Fee - Conservative BTC</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 3 days ago
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Monthly management fee (1.5% annual, 0.125% monthly)
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge fee">Fee</span>
+                    <span class="txn-badge completed">Completed</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value negative">-$37.50</div>
+                <div class="txn-amount-ref">#FEE-001230</div>
+            </div>
+        </div>
+
+        <!-- Transaction 6: Deposit (Pending) -->
+        <div class="transaction-item" data-type="deposit" data-status="pending" data-amount="10000" onclick="showTransactionDetail(6)">
+            <div class="txn-icon deposit">
+                <i class="bi bi-arrow-down-circle-fill"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Deposit via Bank Wire</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 4 days ago
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Bank wire deposit received, awaiting confirmation
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge deposit">Deposit</span>
+                    <span class="txn-badge pending">Pending</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value positive">+$10,000.00</div>
+                <div class="txn-amount-ref">#DEP-001229</div>
+            </div>
+        </div>
+
+        <!-- Transaction 7: Investment -->
+        <div class="transaction-item" data-type="investment" data-status="completed" data-amount="5000" onclick="showTransactionDetail(7)">
+            <div class="txn-icon investment">
+                <i class="bi bi-piggy-bank-fill"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Investment in Aggressive ETH</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 5 days ago
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Invested in Aggressive ETH strategy (High Risk, Momentum)
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge investment">Investment</span>
+                    <span class="txn-badge completed">Completed</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value negative">-$5,000.00</div>
+                <div class="txn-amount-ref">#INV-001228</div>
+            </div>
+        </div>
+
+        <!-- Last Month Group -->
+        <div class="txn-date-group">Last Month</div>
+
+        <!-- Transaction 8: Liquidation -->
+        <div class="transaction-item" data-type="liquidation" data-status="completed" data-amount="10120.50" onclick="showTransactionDetail(8)">
+            <div class="txn-icon liquidation">
+                <i class="bi bi-x-circle-fill"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Strategy Liquidation - Stablecoin Yield</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 2 weeks ago
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Liquidated Stablecoin Yield strategy, funds returned to wallet
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge liquidation">Liquidation</span>
+                    <span class="txn-badge completed">Completed</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value positive">+$10,120.50</div>
+                <div class="txn-amount-ref">#LIQ-001227</div>
+            </div>
+        </div>
+
+        <!-- Transaction 9: Withdrawal (Failed) -->
+        <div class="transaction-item" data-type="withdrawal" data-status="failed" data-amount="5000" onclick="showTransactionDetail(9)">
+            <div class="txn-icon withdrawal">
+                <i class="bi bi-arrow-up-circle-fill"></i>
+            </div>
+            <div class="txn-content">
+                <div class="txn-header">
+                    <div>
+                        <div class="txn-title">Withdrawal to Bank Account</div>
+                        <div class="txn-time">
+                            <i class="bi bi-clock"></i> 3 weeks ago
+                        </div>
+                    </div>
+                </div>
+                <div class="txn-details">
+                    Withdrawal failed - insufficient funds at time of processing
+                </div>
+                <div class="txn-meta">
+                    <span class="txn-badge withdrawal">Withdrawal</span>
+                    <span class="txn-badge failed">Failed</span>
+                </div>
+            </div>
+            <div class="txn-amount">
+                <div class="txn-amount-value negative">-$5,000.00</div>
+                <div class="txn-amount-ref">#WDR-001226</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State (Hidden by default) -->
+    <div class="txn-empty-state" id="emptyState" style="display: none;">
+        <div class="txn-empty-icon">
+            <i class="bi bi-receipt"></i>
+        </div>
+        <h5 class="fw-bold mb-2">No transactions found</h5>
+        <p class="text-secondary mb-0">Try adjusting your filters or search terms</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="txn-pagination">
+        <div class="text-secondary small">
+            Showing <strong>1-9</strong> of <strong>47</strong> transactions
+        </div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">...</a></li>
+                <li class="page-item"><a class="page-link" href="#">6</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Transaction Detail Modal -->
+<div class="modal fade txn-detail-modal" id="txnDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold">Transaction Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="txn-detail-header">
+                    <div class="txn-detail-icon deposit" id="modalIcon">
+                        <i class="bi bi-arrow-down-circle-fill"></i>
+                    </div>
+                    <div class="txn-detail-info">
+                        <div class="txn-detail-title" id="modalTitle">Deposit via Bitcoin</div>
+                        <div class="txn-detail-time" id="modalTime">
+                            <i class="bi bi-clock"></i> Sep 3, 2026 at 2:45 PM
+                        </div>
+                    </div>
+                </div>
+
+                <div class="txn-detail-amount">
+                    <div class="txn-detail-amount-label">Amount</div>
+                    <div class="txn-detail-amount-value text-success" id="modalAmount">+$5,000.00</div>
+                </div>
+
+                <div class="txn-detail-section">
+                    <div class="txn-detail-section-title">Transaction Information</div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Transaction ID</span>
+                        <span class="txn-detail-value" id="modalTxnId">#DEP-2026-001234</span>
+                    </div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Type</span>
+                        <span class="txn-detail-value" id="modalType">Deposit</span>
+                    </div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Status</span>
+                        <span class="txn-detail-value" id="modalStatus">
+                            <span class="txn-badge completed">Completed</span>
+                        </span>
+                    </div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Method</span>
+                        <span class="txn-detail-value" id="modalMethod">Bitcoin (BTC)</span>
+                    </div>
+                </div>
+
+                <div class="txn-detail-section">
+                    <div class="txn-detail-section-title">Additional Details</div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Network Fee</span>
+                        <span class="txn-detail-value">$0.00</span>
+                    </div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Processing Time</span>
+                        <span class="txn-detail-value">15 minutes</span>
+                    </div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Transaction Hash</span>
+                        <span class="txn-detail-value small" style="font-family: 'Courier New', monospace;">
+                            0x7a8b...a6b
+                        </span>
+                    </div>
+                </div>
+
+                <div class="txn-detail-section">
+                    <div class="txn-detail-section-title">Balance Impact</div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Previous Balance</span>
+                        <span class="txn-detail-value">$7,000.00</span>
+                    </div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">Amount</span>
+                        <span class="txn-detail-value text-success">+$5,000.00</span>
+                    </div>
+                    <div class="txn-detail-row">
+                        <span class="txn-detail-label">New Balance</span>
+                        <span class="txn-detail-value fw-bold">$12,000.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">
+                    <i class="bi bi-download me-2"></i> Download Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const transactions = document.querySelectorAll('.transaction-item');
+    const dateGroups = document.querySelectorAll('.txn-date-group');
+    const emptyState = document.getElementById('emptyState');
+
+    // Filter Functionality
+    document.getElementById('applyFilters').addEventListener('click', applyFilters);
+
+    function applyFilters() {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const dateFilter = document.getElementById('dateFilter').value;
+        const amountFilter = document.getElementById('amountFilter').value;
+
+        let visibleCount = 0;
+
+        transactions.forEach(txn => {
+            const type = txn.getAttribute('data-type');
+            const status = txn.getAttribute('data-status');
+            const amount = parseFloat(txn.getAttribute('data-amount'));
+
+            let show = true;
+
+            // Type filter
+            if (typeFilter !== 'all' && type !== typeFilter) show = false;
+
+            // Status filter
+            if (statusFilter !== 'all' && status !== statusFilter) show = false;
+
+            // Amount filter
+            if (amountFilter !== 'all') {
+                if (amountFilter === 'small' && amount >= 1000) show = false;
+                if (amountFilter === 'medium' && (amount < 1000 || amount > 10000)) show = false;
+                if (amountFilter === 'large' && (amount < 10000 || amount > 50000)) show = false;
+                if (amountFilter === 'whale' && amount < 50000) show = false;
+            }
+
+            // Date filter (simplified - in real app, compare actual dates)
+            // For demo, we'll just show all for "all" and "month"
+
+            if (show) {
+                txn.style.display = 'flex';
+                visibleCount++;
+            } else {
+                txn.style.display = 'none';
+            }
+        });
+
+        // Show/hide empty state
+        if (visibleCount === 0) {
+            emptyState.style.display = 'block';
+            dateGroups.forEach(g => g.style.display = 'none');
+        } else {
+            emptyState.style.display = 'none';
+            dateGroups.forEach(g => g.style.display = 'flex');
+        }
+    }
+
+    // Search Functionality
+    document.getElementById('txnSearch').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        let visibleCount = 0;
+
+        transactions.forEach(txn => {
+            const text = txn.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                txn.style.display = 'flex';
+                visibleCount++;
+            } else {
+                txn.style.display = 'none';
+            }
+        });
+
+        if (visibleCount === 0) {
+            emptyState.style.display = 'block';
+            dateGroups.forEach(g => g.style.display = 'none');
+        } else {
+            emptyState.style.display = 'none';
+            dateGroups.forEach(g => g.style.display = 'flex');
+        }
+    });
+
+    // Sort Functionality
+    document.getElementById('sortSelect').addEventListener('change', function() {
+        const sortType = this.value;
+        const list = document.getElementById('transactionsList');
+        const txnArray = Array.from(transactions);
+
+        txnArray.sort((a, b) => {
+            const amountA = parseFloat(a.getAttribute('data-amount'));
+            const amountB = parseFloat(b.getAttribute('data-amount'));
+
+            if (sortType === 'highest') return amountB - amountA;
+            if (sortType === 'lowest') return amountA - amountB;
+            return 0; // Keep original order for newest/oldest
+        });
+
+        // Re-append in sorted order
+        txnArray.forEach(txn => list.appendChild(txn));
+    });
+
+    // Show Transaction Detail Modal
+    function showTransactionDetail(txnId) {
+        const modal = new bootstrap.Modal(document.getElementById('txnDetailModal'));
+        
+        // In real app, fetch transaction details from server
+        // For demo, we'll just show the modal with dummy data
+        
+        modal.show();
+    }
+
+    // Export CSV
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        // In real app, generate CSV from transaction data
+        alert('Export functionality - would download CSV file with all transactions');
+    });
+
+    // Reset filters
+    function resetFilters() {
+        document.getElementById('typeFilter').value = 'all';
+        document.getElementById('statusFilter').value = 'all';
+        document.getElementById('dateFilter').value = 'all';
+        document.getElementById('amountFilter').value = 'all';
+        document.getElementById('txnSearch').value = '';
+        
+        transactions.forEach(txn => txn.style.display = 'flex');
+        dateGroups.forEach(g => g.style.display = 'flex');
+        emptyState.style.display = 'none';
+    }
+</script>
+{% endblock %}

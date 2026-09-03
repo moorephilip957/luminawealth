@@ -1,0 +1,1594 @@
+{% extends './base_two.html' %}
+
+{% block title %}AI Strategies - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Strategy Hero Stats */
+    .strategy-hero-stat {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .strategy-hero-stat:hover {
+        transform: translateY(-5px);
+        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    }
+
+    .strategy-hero-stat-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    .strategy-hero-stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Filter Bar */
+    .strategy-filter-bar {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: 1.5rem;
+    }
+
+    .filter-chip {
+        padding: 0.5rem 1.25rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 50px;
+        color: var(--text-secondary);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .filter-chip:hover {
+        border-color: rgba(102, 126, 234, 0.5);
+        color: var(--text-primary);
+    }
+
+    .filter-chip.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Strategy Card */
+    .strategy-card-premium {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.15);
+        border-radius: 24px;
+        padding: 2rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .strategy-card-premium::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+        transform-origin: left;
+    }
+
+    .strategy-card-premium:hover {
+        transform: translateY(-10px);
+        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 25px 60px rgba(102, 126, 234, 0.25);
+    }
+
+    .strategy-card-premium:hover::before {
+        transform: scaleX(1);
+    }
+
+    .strategy-card-premium.featured {
+        border-color: rgba(102, 126, 234, 0.5);
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    }
+
+    .strategy-card-premium.featured::after {
+        content: '⭐ MOST POPULAR';
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .strategy-icon-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    .strategy-icon-large::after {
+        content: '';
+        position: absolute;
+        inset: -8px;
+        border-radius: 20px;
+        background: inherit;
+        opacity: 0.3;
+        filter: blur(15px);
+        transition: all 0.4s ease;
+    }
+
+    .strategy-card-premium:hover .strategy-icon-large {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .strategy-icon-large.btc {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(240, 147, 251, 0.2));
+        color: #f59e0b;
+    }
+
+    .strategy-icon-large.eth {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    .strategy-icon-large.stable {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 242, 254, 0.2));
+        color: #10b981;
+    }
+
+    .strategy-icon-large.defi {
+        background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));
+        color: #f093fb;
+    }
+
+    .strategy-icon-large.balanced {
+        background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+        color: #4facfe;
+    }
+
+    /* Risk Badge */
+    .risk-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .risk-badge.very-low {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .risk-badge.low {
+        background: rgba(0, 242, 254, 0.15);
+        color: #00f2fe;
+        border: 1px solid rgba(0, 242, 254, 0.3);
+    }
+
+    .risk-badge.medium {
+        background: rgba(102, 126, 234, 0.15);
+        color: #667eea;
+        border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+
+    .risk-badge.high {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .risk-badge.very-high {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Strategy Stats Grid */
+    .strategy-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1.5rem 0;
+        padding: 1.5rem 0;
+        border-top: 1px solid rgba(102, 126, 234, 0.1);
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .strategy-stat-item {
+        text-align: center;
+    }
+
+    .strategy-stat-item:not(:last-child) {
+        border-right: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .strategy-stat-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.4rem;
+    }
+
+    .strategy-stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    /* Mini Chart */
+    .mini-chart-container {
+        height: 80px;
+        margin: 1rem 0;
+        position: relative;
+    }
+
+    /* Strategy Features List */
+    .strategy-features {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+    }
+
+    .strategy-features li {
+        padding: 0.5rem 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .strategy-features li i {
+        color: #10b981;
+        font-size: 1rem;
+    }
+
+    /* Comparison Table */
+    .comparison-table-modern {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .comparison-row-modern {
+        display: grid;
+        grid-template-columns: 2fr repeat(5, 1fr);
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .comparison-row-modern:last-child {
+        border-bottom: none;
+    }
+
+    .comparison-row-modern:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .comparison-cell-modern {
+        padding: 1.25rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .comparison-cell-modern:first-child {
+        justify-content: flex-start;
+        font-weight: 600;
+    }
+
+    .comparison-header-modern {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Performance Chart */
+    .chart-card-modern {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 24px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .chart-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    }
+
+    /* Risk Meter */
+    .risk-meter {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .risk-meter-fill {
+        height: 100%;
+        border-radius: 50px;
+        transition: width 1s ease;
+    }
+
+    .risk-meter-fill.very-low {
+        width: 20%;
+        background: linear-gradient(90deg, #10b981, #00f2fe);
+    }
+
+    .risk-meter-fill.low {
+        width: 35%;
+        background: linear-gradient(90deg, #00f2fe, #4facfe);
+    }
+
+    .risk-meter-fill.medium {
+        width: 55%;
+        background: linear-gradient(90deg, #4facfe, #667eea);
+    }
+
+    .risk-meter-fill.high {
+        width: 75%;
+        background: linear-gradient(90deg, #667eea, #f59e0b);
+    }
+
+    .risk-meter-fill.very-high {
+        width: 95%;
+        background: linear-gradient(90deg, #f59e0b, #ef4444);
+    }
+
+    /* How to Choose Section */
+    .choose-step {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .choose-step:hover {
+        transform: translateY(-10px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+    }
+
+    .choose-step-number {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .comparison-row-modern {
+            grid-template-columns: 1fr 1fr;
+        }
+        .comparison-row-modern > *:nth-child(n+3) {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .strategy-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        .strategy-stat-item:not(:last-child) {
+            border-right: none;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            padding-bottom: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden" style="min-height: 70vh; padding-top: 120px;">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="particle-bg" id="particles"></div>
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.1;"></div>
+
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-duration="1200">
+                <span class="ai-badge mb-4">
+                    <i class="bi bi-diagram-3-fill"></i>
+                    <span>AI-Powered Investment Strategies</span>
+                </span>
+
+                <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1;">
+                    Choose Your
+                    <span class="gradient-text-animated">AI Strategy</span>
+                </h1>
+
+                <p class="lead text-secondary mb-5" style="font-size: 1.3rem; max-width: 800px; margin: 0 auto;">
+                    From conservative to aggressive, our AI bots are optimized for every risk profile. 
+                    Let advanced algorithms work 24/7 to grow your wealth.
+                </p>
+
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#strategies" class="btn btn-shiny btn-lg px-5 py-3 rounded-pill text-white glow-effect">
+                        View Strategies <i class="bi bi-arrow-down ms-2"></i>
+                    </a>
+                    <a href="#comparison" class="btn btn-outline-custom btn-lg px-5 py-3 rounded-pill">
+                        Compare Strategies <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Stats -->
+        <div class="row g-4 mt-5">
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="100">
+                <div class="strategy-hero-stat">
+                    <div class="strategy-hero-stat-icon">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div class="strategy-hero-stat-number" data-target="12">0</div>
+                    <div class="text-secondary">AI Bots Active</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="200">
+                <div class="strategy-hero-stat">
+                    <div class="strategy-hero-stat-icon">
+                        <i class="bi bi-bullseye"></i>
+                    </div>
+                    <div class="strategy-hero-stat-number" data-target="94.7">0</div>
+                    <div class="text-secondary">% AI Accuracy</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="300">
+                <div class="strategy-hero-stat">
+                    <div class="strategy-hero-stat-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <div class="strategy-hero-stat-number" data-target="145.8">0</div>
+                    <div class="text-secondary">% Avg ROI</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="400">
+                <div class="strategy-hero-stat">
+                    <div class="strategy-hero-stat-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="strategy-hero-stat-number" data-target="1234">0</div>
+                    <div class="text-secondary">Active Investors</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Bar -->
+<section class="section pt-0" id="strategies">
+    <div class="container">
+        <div class="strategy-filter-bar" data-aos="fade-up">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="filter-chip active" data-filter="all">
+                        <i class="bi bi-grid-fill"></i> All Strategies
+                    </button>
+                    <button class="filter-chip" data-filter="very-low">
+                        <i class="bi bi-shield-check"></i> Very Low Risk
+                    </button>
+                    <button class="filter-chip" data-filter="low">
+                        <i class="bi bi-shield"></i> Low Risk
+                    </button>
+                    <button class="filter-chip" data-filter="medium">
+                        <i class="bi bi-shield-exclamation"></i> Medium Risk
+                    </button>
+                    <button class="filter-chip" data-filter="high">
+                        <i class="bi bi-shield-x"></i> High Risk
+                    </button>
+                    <button class="filter-chip" data-filter="very-high">
+                        <i class="bi bi-fire"></i> Very High Risk
+                    </button>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-secondary small">Sort by:</span>
+                    <select class="form-select form-select-sm bg-transparent border-secondary text-light" style="width: auto;">
+                        <option>Most Popular</option>
+                        <option>Highest ROI</option>
+                        <option>Lowest Risk</option>
+                        <option>Lowest Minimum</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Strategies Grid -->
+<section class="section pt-0">
+    <div class="container">
+        <div class="row g-4">
+
+            <!-- Strategy 1: Stablecoin Yield Bot -->
+            <div class="col-md-6 col-lg-4 strategy-item" data-risk="very-low" data-aos="fade-up" data-aos-delay="100">
+                <div class="strategy-card-premium">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="strategy-icon-large stable">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <span class="risk-badge very-low">
+                            <i class="bi bi-shield-fill-check"></i> Very Low Risk
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">Stablecoin Yield Bot</h4>
+                    <p class="text-secondary small mb-3">AI-Optimized DeFi Lending Strategy</p>
+
+                    <div class="mini-chart-container">
+                        <canvas id="chart1"></canvas>
+                    </div>
+
+                    <div class="strategy-stats-grid">
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">APY</div>
+                            <div class="strategy-stat-value text-success">+8.5%</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">Min. Invest</div>
+                            <div class="strategy-stat-value">$50</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">AI Accuracy</div>
+                            <div class="strategy-stat-value text-info">98.1%</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-secondary">Risk Level</span>
+                            <span class="text-success fw-bold">Very Low</span>
+                        </div>
+                        <div class="risk-meter">
+                            <div class="risk-meter-fill very-low"></div>
+                        </div>
+                    </div>
+
+                    <ul class="strategy-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Stable returns with minimal volatility</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 24/7 automated DeFi optimization</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Instant withdrawals anytime</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 3,412 active investors</li>
+                    </ul>
+
+                    <a href="#" class="btn btn-shiny w-100 rounded-pill py-3 text-white">
+                        Invest Now <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Strategy 2: Conservative BTC Bot (FEATURED) -->
+            <div class="col-md-6 col-lg-4 strategy-item" data-risk="low" data-aos="fade-up" data-aos-delay="200">
+                <div class="strategy-card-premium featured">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="strategy-icon-large btc">
+                            <i class="bi bi-currency-bitcoin"></i>
+                        </div>
+                        <span class="risk-badge low">
+                            <i class="bi bi-shield-fill"></i> Low Risk
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">Conservative BTC Bot</h4>
+                    <p class="text-secondary small mb-3">AI-Powered Dollar-Cost Averaging</p>
+
+                    <div class="mini-chart-container">
+                        <canvas id="chart2"></canvas>
+                    </div>
+
+                    <div class="strategy-stats-grid">
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">30D ROI</div>
+                            <div class="strategy-stat-value text-success">+12.4%</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">Min. Invest</div>
+                            <div class="strategy-stat-value">$100</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">AI Accuracy</div>
+                            <div class="strategy-stat-value text-info">96.2%</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-secondary">Risk Level</span>
+                            <span class="text-info fw-bold">Low</span>
+                        </div>
+                        <div class="risk-meter">
+                            <div class="risk-meter-fill low"></div>
+                        </div>
+                    </div>
+
+                    <ul class="strategy-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Proven DCA strategy with AI optimization</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Weekly automated investments</li>
+                        <li><i class="bi bi-check-circle-fill"></i> -15% stop-loss protection</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 1,204 active investors</li>
+                    </ul>
+
+                    <a href="#" class="btn btn-shiny w-100 rounded-pill py-3 text-white">
+                        Invest Now <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Strategy 3: Balanced Portfolio Bot -->
+            <div class="col-md-6 col-lg-4 strategy-item" data-risk="medium" data-aos="fade-up" data-aos-delay="300">
+                <div class="strategy-card-premium">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="strategy-icon-large balanced">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <span class="risk-badge medium">
+                            <i class="bi bi-shield-fill-exclamation"></i> Medium Risk
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">Balanced Portfolio Bot</h4>
+                    <p class="text-secondary small mb-3">AI Multi-Asset Diversification</p>
+
+                    <div class="mini-chart-container">
+                        <canvas id="chart3"></canvas>
+                    </div>
+
+                    <div class="strategy-stats-grid">
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">30D ROI</div>
+                            <div class="strategy-stat-value text-success">+18.5%</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">Min. Invest</div>
+                            <div class="strategy-stat-value">$250</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">AI Accuracy</div>
+                            <div class="strategy-stat-value text-info">94.7%</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-secondary">Risk Level</span>
+                            <span class="text-primary fw-bold">Medium</span>
+                        </div>
+                        <div class="risk-meter">
+                            <div class="risk-meter-fill medium"></div>
+                        </div>
+                    </div>
+
+                    <ul class="strategy-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Diversified across BTC, ETH, altcoins</li>
+                        <li><i class="bi bi-check-circle-fill"></i> AI rebalancing based on market conditions</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Optimal risk/reward ratio</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 856 active investors</li>
+                    </ul>
+
+                    <a href="#" class="btn btn-shiny w-100 rounded-pill py-3 text-white">
+                        Invest Now <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Strategy 4: Aggressive ETH Bot -->
+            <div class="col-md-6 col-lg-4 strategy-item" data-risk="high" data-aos="fade-up" data-aos-delay="400">
+                <div class="strategy-card-premium">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="strategy-icon-large eth">
+                            <i class="bi bi-ethereum"></i>
+                        </div>
+                        <span class="risk-badge high">
+                            <i class="bi bi-shield-fill-x"></i> High Risk
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">Aggressive ETH Bot</h4>
+                    <p class="text-secondary small mb-3">AI Momentum Trading Strategy</p>
+
+                    <div class="mini-chart-container">
+                        <canvas id="chart4"></canvas>
+                    </div>
+
+                    <div class="strategy-stats-grid">
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">30D ROI</div>
+                            <div class="strategy-stat-value text-success">+34.8%</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">Min. Invest</div>
+                            <div class="strategy-stat-value">$500</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">AI Accuracy</div>
+                            <div class="strategy-stat-value text-info">92.5%</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-secondary">Risk Level</span>
+                            <span class="text-warning fw-bold">High</span>
+                        </div>
+                        <div class="risk-meter">
+                            <div class="risk-meter-fill high"></div>
+                        </div>
+                    </div>
+
+                    <ul class="strategy-features">
+                        <li><i class="bi bi-check-circle-fill"></i> High-frequency momentum trading</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Captures short-term price movements</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Advanced technical analysis</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 423 active investors</li>
+                    </ul>
+
+                    <a href="#" class="btn btn-shiny w-100 rounded-pill py-3 text-white">
+                        Invest Now <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Strategy 5: DeFi Alpha Bot -->
+            <div class="col-md-6 col-lg-4 strategy-item" data-risk="very-high" data-aos="fade-up" data-aos-delay="500">
+                <div class="strategy-card-premium">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="strategy-icon-large defi">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <span class="risk-badge very-high">
+                            <i class="bi bi-fire"></i> Very High Risk
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">DeFi Alpha Bot</h4>
+                    <p class="text-secondary small mb-3">AI-Powered Yield Farming</p>
+
+                    <div class="mini-chart-container">
+                        <canvas id="chart5"></canvas>
+                    </div>
+
+                    <div class="strategy-stats-grid">
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">30D ROI</div>
+                            <div class="strategy-stat-value text-success">+45.2%</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">Min. Invest</div>
+                            <div class="strategy-stat-value">$1,000</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">AI Accuracy</div>
+                            <div class="strategy-stat-value text-info">89.3%</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-secondary">Risk Level</span>
+                            <span class="text-danger fw-bold">Very High</span>
+                        </div>
+                        <div class="risk-meter">
+                            <div class="risk-meter-fill very-high"></div>
+                        </div>
+                    </div>
+
+                    <ul class="strategy-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Advanced DeFi yield farming</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Cross-protocol arbitrage</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Maximum profit potential</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 287 active investors</li>
+                    </ul>
+
+                    <a href="#" class="btn btn-shiny w-100 rounded-pill py-3 text-white">
+                        Invest Now <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Strategy 6: AI Index Bot -->
+            <div class="col-md-6 col-lg-4 strategy-item" data-risk="low" data-aos="fade-up" data-aos-delay="600">
+                <div class="strategy-card-premium">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="strategy-icon-large btc">
+                            <i class="bi bi-bar-chart-fill"></i>
+                        </div>
+                        <span class="risk-badge low">
+                            <i class="bi bi-shield-fill"></i> Low Risk
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">AI Index Bot</h4>
+                    <p class="text-secondary small mb-3">AI Market Index Tracking</p>
+
+                    <div class="mini-chart-container">
+                        <canvas id="chart6"></canvas>
+                    </div>
+
+                    <div class="strategy-stats-grid">
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">30D ROI</div>
+                            <div class="strategy-stat-value text-success">+9.8%</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">Min. Invest</div>
+                            <div class="strategy-stat-value">$75</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">AI Accuracy</div>
+                            <div class="strategy-stat-value text-info">97.3%</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-secondary">Risk Level</span>
+                            <span class="text-info fw-bold">Low</span>
+                        </div>
+                        <div class="risk-meter">
+                            <div class="risk-meter-fill low"></div>
+                        </div>
+                    </div>
+
+                    <ul class="strategy-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Tracks top 10 crypto assets</li>
+                        <li><i class="bi bi-check-circle-fill"></i> AI-optimized weight allocation</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Broad market exposure</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 1,567 active investors</li>
+                    </ul>
+
+                    <a href="#" class="btn btn-shiny w-100 rounded-pill py-3 text-white">
+                        Invest Now <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Performance Comparison Chart -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);" id="comparison">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-graph-up"></i>
+                <span>Performance Comparison</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Compare Strategy <span class="gradient-text-animated">Performance</span>
+            </h2>
+            <p class="section-subtitle">
+                See how each strategy has performed over the past year
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8" data-aos="fade-right">
+                <div class="chart-card-modern">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Strategy Performance (1 Year)</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary">1M</button>
+                            <button class="btn btn-sm btn-outline-secondary">3M</button>
+                            <button class="btn btn-sm btn-outline-secondary active">1Y</button>
+                            <button class="btn btn-sm btn-outline-secondary">All</button>
+                        </div>
+                    </div>
+                    <div style="position: relative; height: 400px;">
+                        <canvas id="performanceComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4" data-aos="fade-left">
+                <div class="chart-card-modern h-100">
+                    <h5 class="fw-bold mb-4">Strategy Breakdown</h5>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width: 12px; height: 12px; background: #10b981; border-radius: 3px;"></div>
+                                <span class="small">Stablecoin Yield</span>
+                            </div>
+                            <span class="fw-bold text-success">+8.5%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" style="width: 19%; background: #10b981;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width: 12px; height: 12px; background: #f59e0b; border-radius: 3px;"></div>
+                                <span class="small">Conservative BTC</span>
+                            </div>
+                            <span class="fw-bold text-success">+12.4%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" style="width: 28%; background: #f59e0b;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width: 12px; height: 12px; background: #4facfe; border-radius: 3px;"></div>
+                                <span class="small">Balanced Portfolio</span>
+                            </div>
+                            <span class="fw-bold text-success">+18.5%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" style="width: 41%; background: #4facfe;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width: 12px; height: 12px; background: #667eea; border-radius: 3px;"></div>
+                                <span class="small">Aggressive ETH</span>
+                            </div>
+                            <span class="fw-bold text-success">+34.8%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" style="width: 77%; background: #667eea;"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width: 12px; height: 12px; background: #f093fb; border-radius: 3px;"></div>
+                                <span class="small">DeFi Alpha</span>
+                            </div>
+                            <span class="fw-bold text-success">+45.2%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" style="width: 100%; background: #f093fb;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comparison Table -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-table"></i>
+                <span>Side-by-Side Comparison</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Strategy <span class="gradient-text-animated">Comparison Table</span>
+            </h2>
+            <p class="section-subtitle">
+                Compare all strategies at a glance to find your perfect match
+            </p>
+        </div>
+
+        <div class="comparison-table-modern" data-aos="fade-up">
+            <div class="comparison-row-modern comparison-header-modern">
+                <div class="comparison-cell-modern">Feature</div>
+                <div class="comparison-cell-modern">Stablecoin Yield</div>
+                <div class="comparison-cell-modern">Conservative BTC</div>
+                <div class="comparison-cell-modern">Balanced Portfolio</div>
+                <div class="comparison-cell-modern">Aggressive ETH</div>
+                <div class="comparison-cell-modern">DeFi Alpha</div>
+            </div>
+            <div class="comparison-row-modern">
+                <div class="comparison-cell-modern">Risk Level</div>
+                <div class="comparison-cell-modern"><span class="risk-badge very-low">Very Low</span></div>
+                <div class="comparison-cell-modern"><span class="risk-badge low">Low</span></div>
+                <div class="comparison-cell-modern"><span class="risk-badge medium">Medium</span></div>
+                <div class="comparison-cell-modern"><span class="risk-badge high">High</span></div>
+                <div class="comparison-cell-modern"><span class="risk-badge very-high">Very High</span></div>
+            </div>
+            <div class="comparison-row-modern">
+                <div class="comparison-cell-modern">30D ROI</div>
+                <div class="comparison-cell-modern text-success fw-bold">+8.5%</div>
+                <div class="comparison-cell-modern text-success fw-bold">+12.4%</div>
+                <div class="comparison-cell-modern text-success fw-bold">+18.5%</div>
+                <div class="comparison-cell-modern text-success fw-bold">+34.8%</div>
+                <div class="comparison-cell-modern text-success fw-bold">+45.2%</div>
+            </div>
+            <div class="comparison-row-modern">
+                <div class="comparison-cell-modern">Min. Investment</div>
+                <div class="comparison-cell-modern">$50</div>
+                <div class="comparison-cell-modern">$100</div>
+                <div class="comparison-cell-modern">$250</div>
+                <div class="comparison-cell-modern">$500</div>
+                <div class="comparison-cell-modern">$1,000</div>
+            </div>
+            <div class="comparison-row-modern">
+                <div class="comparison-cell-modern">AI Accuracy</div>
+                <div class="comparison-cell-modern">98.1%</div>
+                <div class="comparison-cell-modern">96.2%</div>
+                <div class="comparison-cell-modern">94.7%</div>
+                <div class="comparison-cell-modern">92.5%</div>
+                <div class="comparison-cell-modern">89.3%</div>
+            </div>
+            <div class="comparison-row-modern">
+                <div class="comparison-cell-modern">Active Investors</div>
+                <div class="comparison-cell-modern">3,412</div>
+                <div class="comparison-cell-modern">1,204</div>
+                <div class="comparison-cell-modern">856</div>
+                <div class="comparison-cell-modern">423</div>
+                <div class="comparison-cell-modern">287</div>
+            </div>
+            <div class="comparison-row-modern">
+                <div class="comparison-cell-modern">Stop-Loss Protection</div>
+                <div class="comparison-cell-modern"><i class="bi bi-check-circle-fill text-success fs-5"></i></div>
+                <div class="comparison-cell-modern"><i class="bi bi-check-circle-fill text-success fs-5"></i></div>
+                <div class="comparison-cell-modern"><i class="bi bi-check-circle-fill text-success fs-5"></i></div>
+                <div class="comparison-cell-modern"><i class="bi bi-check-circle-fill text-success fs-5"></i></div>
+                <div class="comparison-cell-modern"><i class="bi bi-check-circle-fill text-success fs-5"></i></div>
+            </div>
+            <div class="comparison-row-modern">
+                <div class="comparison-cell-modern">Withdrawal Speed</div>
+                <div class="comparison-cell-modern">Instant</div>
+                <div class="comparison-cell-modern">1-3 days</div>
+                <div class="comparison-cell-modern">1-3 days</div>
+                <div class="comparison-cell-modern">1-3 days</div>
+                <div class="comparison-cell-modern">1-3 days</div>
+            </div>
+            <div class="comparison-row-modern">
+                <div class="comparison-cell-modern">Best For</div>
+                <div class="comparison-cell-modern small">Conservative investors</div>
+                <div class="comparison-cell-modern small">Long-term BTC holders</div>
+                <div class="comparison-cell-modern small">Balanced growth</div>
+                <div class="comparison-cell-modern small">Active traders</div>
+                <div class="comparison-cell-modern small">Experienced investors</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How to Choose Section -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-lightbulb-fill"></i>
+                <span>Choosing Guide</span>
+            </span>
+            <h2 class="section-title mb-3">
+                How to Choose the <span class="gradient-text-animated">Right Strategy</span>
+            </h2>
+            <p class="section-subtitle">
+                Follow these 4 simple steps to find your perfect AI strategy
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="choose-step">
+                    <div class="choose-step-number">1</div>
+                    <h5 class="fw-bold mb-3">Assess Your Risk</h5>
+                    <p class="text-secondary small mb-0">
+                        How much volatility can you handle? Conservative strategies offer stability, aggressive ones offer higher returns.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="choose-step">
+                    <div class="choose-step-number">2</div>
+                    <h5 class="fw-bold mb-3">Set Your Goals</h5>
+                    <p class="text-secondary small mb-0">
+                        Are you looking for steady income or maximum growth? Your goals determine the best strategy.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="choose-step">
+                    <div class="choose-step-number">3</div>
+                    <h5 class="fw-bold mb-3">Check Your Capital</h5>
+                    <p class="text-secondary small mb-0">
+                        Each strategy has different minimums. Start with what you're comfortable with - from $50 to $1,000.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="choose-step">
+                    <div class="choose-step-number">4</div>
+                    <h5 class="fw-bold mb-3">Diversify</h5>
+                    <p class="text-secondary small mb-0">
+                        Don't put all your eggs in one basket. Spread investments across multiple strategies for optimal results.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="500">
+            <div class="glass-card rounded-4 p-4 d-inline-block">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-robot text-primary" style="font-size: 2rem;"></i>
+                    <div class="text-start">
+                        <div class="fw-bold">Need help choosing?</div>
+                        <small class="text-secondary">Our AI recommendation engine can suggest the best strategy for you.</small>
+                    </div>
+                    <a href="#" class="btn btn-shiny rounded-pill px-4 py-2 text-white">
+                        Get Recommendation <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Strategy Testimonials -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-chat-quote-fill"></i>
+                <span>Strategy Success Stories</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Real Investors, <span class="gradient-text-animated">Real Results</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="testimonial-card-modern rounded-4 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Robert+Kim&background=10b981&color=fff&size=60" 
+                             alt="Robert Kim" class="rounded-circle me-3" width="60" height="60">
+                        <div>
+                            <div class="fw-bold">Robert Kim</div>
+                            <div class="small text-secondary">Stablecoin Yield Bot</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        "The Stablecoin Yield Bot has been perfect for my conservative approach. Steady 8.5% returns with zero stress. Exactly what I was looking for."
+                    </p>
+                    <div class="glass-card rounded-3 p-3">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-secondary">Invested</small>
+                            <span class="fw-bold">$15,000</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-secondary">Annual Return</small>
+                            <span class="fw-bold text-success">+$1,275</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonial-card-modern rounded-4 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Amanda+Lee&background=f59e0b&color=fff&size=60" 
+                             alt="Amanda Lee" class="rounded-circle me-3" width="60" height="60">
+                        <div>
+                            <div class="fw-bold">Amanda Lee</div>
+                            <div class="small text-secondary">Conservative BTC Bot</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        "I've been using the Conservative BTC Bot for 8 months. The AI does all the work while I sleep. Already up 45% on my initial investment!"
+                    </p>
+                    <div class="glass-card rounded-3 p-3">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-secondary">Invested</small>
+                            <span class="fw-bold">$25,000</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-secondary">Total Return</small>
+                            <span class="fw-bold text-success">+$11,250</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="testimonial-card-modern rounded-4 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://ui-avatars.com/api/?name=David+Chen&background=f093fb&color=fff&size=60" 
+                             alt="David Chen" class="rounded-circle me-3" width="60" height="60">
+                        <div>
+                            <div class="fw-bold">David Chen</div>
+                            <div class="small text-secondary">DeFi Alpha Bot</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        "The DeFi Alpha Bot is incredible for experienced investors. High risk, yes, but the returns are phenomenal. My portfolio grew 180% in 6 months."
+                    </p>
+                    <div class="glass-card rounded-3 p-3">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-secondary">Invested</small>
+                            <span class="fw-bold">$50,000</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-secondary">Total Return</small>
+                            <span class="fw-bold text-success">+$90,000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section position-relative overflow-hidden">
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.2;"></div>
+    <div class="container position-relative z-1 text-center" data-aos="zoom-in">
+        <h2 class="display-3 fw-bold mb-4">
+            Ready to Let AI <span class="gradient-text-animated">Grow Your Wealth</span>?
+        </h2>
+        <p class="lead mb-5" style="font-size: 1.3rem;">
+            Start with as little as $50. No experience required. Our AI bots do all the work.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+            <a href="#" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+                Start Investing Now <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="#" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                <i class="bi bi-robot me-2"></i> Get AI Recommendation
+            </a>
+        </div>
+        <div class="d-flex justify-content-center gap-4 flex-wrap">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Start with $50</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>No lock-in periods</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>94.7% AI accuracy</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Mini Chart Configuration
+    function createMiniChart(canvasId, data, color) {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+
+        const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 80);
+        gradient.addColorStop(0, color + '40');
+        gradient.addColorStop(1, color + '00');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map((_, i) => i),
+                datasets: [{
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                }
+            }
+        });
+    }
+
+    // Performance Comparison Chart
+    function createPerformanceChart() {
+        const ctx = document.getElementById('performanceComparisonChart');
+        if (!ctx) return;
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'Stablecoin Yield',
+                        data: [100, 100.7, 101.4, 102.1, 102.8, 103.5, 104.2, 104.9, 105.6, 106.3, 107.0, 108.5],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Conservative BTC',
+                        data: [100, 102, 105, 108, 106, 110, 115, 118, 122, 128, 135, 145],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Balanced Portfolio',
+                        data: [100, 103, 108, 115, 112, 120, 130, 140, 150, 165, 180, 200],
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Aggressive ETH',
+                        data: [100, 108, 115, 130, 125, 145, 165, 185, 210, 240, 275, 320],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'DeFi Alpha',
+                        data: [100, 115, 130, 160, 150, 185, 220, 260, 310, 360, 420, 480],
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            color: '#9ca3af',
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                        titleColor: '#f3f4f6',
+                        bodyColor: '#f3f4f6',
+                        borderColor: '#374151',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#9ca3af' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: {
+                            color: '#9ca3af',
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Filter Functionality
+    function initFilters() {
+        const filterChips = document.querySelectorAll('.filter-chip');
+        const strategyItems = document.querySelectorAll('.strategy-item');
+
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', function() {
+                filterChips.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.getAttribute('data-filter');
+
+                strategyItems.forEach(item => {
+                    if (filter === 'all' || item.getAttribute('data-risk') === filter) {
+                        item.style.display = 'block';
+                        setTimeout(() => {
+                            item.style.opacity = '1';
+                            item.style.transform = 'translateY(0)';
+                        }, 50);
+                    } else {
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            item.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+        });
+    }
+
+    // Animated Counter
+    function animateCounter(element) {
+        const target = parseFloat(element.getAttribute('data-target'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            
+            if (target % 1 !== 0) {
+                element.textContent = current.toFixed(1);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+        initFilters();
+        createPerformanceChart();
+
+        // Mini charts
+        createMiniChart('chart1', [100, 101, 102, 102.5, 103, 104, 105, 106, 107, 108.5], '#10b981');
+        createMiniChart('chart2', [100, 105, 108, 112, 115, 120, 125, 130, 135, 140, 145], '#f59e0b');
+        createMiniChart('chart3', [100, 108, 115, 125, 135, 150, 165, 180, 195, 210, 220], '#4facfe');
+        createMiniChart('chart4', [100, 115, 130, 150, 170, 200, 230, 265, 300, 340, 380], '#667eea');
+        createMiniChart('chart5', [100, 125, 155, 190, 230, 280, 340, 400, 460, 520, 580], '#f093fb');
+        createMiniChart('chart6', [100, 103, 106, 110, 113, 117, 121, 125, 130, 135, 140], '#f59e0b');
+
+        // Animate counters
+        const counters = document.querySelectorAll('.strategy-hero-stat-number');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => observer.observe(counter));
+    });
+</script>
+{% endblock %}

@@ -22,4 +22,7 @@ urlpatterns = [
 
     path('kyc/', views.kyc_view, name='kyc'),
     path('kyc/address/submit/', views.kyc_address_submit, name='kyc_address_submit'),
+
+    path('notifications/', views.notifications_view, name='notifications'),
+    path('transactions/', views.transaction_history, name='transaction_history'),
 ]

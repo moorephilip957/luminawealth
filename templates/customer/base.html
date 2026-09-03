@@ -527,7 +527,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{% url 'customer:transaction_history' %}">
                     <i class="bi bi-clock-history"></i> Transaction History
                 </a>
             </li>
@@ -536,7 +536,7 @@
                 <small class="text-secondary px-3 text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Account</small>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{% url 'customer:profile_settings' %}">
                     <i class="bi bi-person-circle"></i> Profile Settings
                 </a>
             </li>
@@ -570,15 +570,15 @@
             
             <div class="d-flex align-items-center gap-3">
                 <!-- Notification Bell -->
-                <button class="btn btn-link text-light position-relative">
-                    <!-- Wrap the icon in a relative span -->
+                <!-- Replace the notification bell with a link to notifications page -->
+                <a href="{% url 'customer:notifications' %}" class="btn btn-link text-light position-relative">
                     <span class="position-relative">
                         <i class="bi bi-bell fs-5"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                            3
+                            12
                         </span>
                     </span>
-                </button>
+                </a>
                 
                 <!-- User Profile -->
                 <div class="dropdown user-profile">
@@ -588,7 +588,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow">
                         <li><a class="dropdown-item" href="{% url 'customer:profile' %}">Profile</a></li>
-                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'customer:profile_settings' %}">Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
                     </ul>

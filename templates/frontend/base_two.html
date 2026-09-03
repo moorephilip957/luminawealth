@@ -524,24 +524,24 @@
                         <a class="nav-link" href="{% url 'frontend:home' %}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="">About</a>
+                        <a class="nav-link" href="{% url 'frontend:about' %}">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="">Features</a>
+                        <a class="nav-link" href="{% url 'frontend:features' %}">Features</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="">AI Strategies</a>
+                        <a class="nav-link" href="{% url 'frontend:strategies' %}">AI Strategies</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="">Pricing</a>
+                        <a class="nav-link" href="{% url 'frontend:faq' %}">Faq</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="">Contact</a>
+                        <a class="nav-link" href="{% url 'frontend:contact' %}">Contact</a>
                     </li>
                 </ul>
                 <div class="d-flex gap-2">
-                    <a href="" class="btn btn-outline-custom">Login</a>
-                    <a href="" class="btn btn-primary-custom">Get Started</a>
+                    <a href="{% url 'account:login' %}" class="btn btn-outline-custom">Login</a>
+                    <a href="{% url 'account:register' %}" class="btn btn-primary-custom">Get Started</a>
                 </div>
             </div>
         </div>
@@ -573,17 +573,17 @@
                 </div>
                 <div class="col-lg-2 col-md-4">
                     <h6 class="footer-title">Platform</h6>
-                    <a href="" class="footer-link">AI Features</a>
+                    <a href="{% url 'frontend:features' %}" class="footer-link">AI Features</a>
                     <a href="" class="footer-link">AI Strategies</a>
                     <a href="" class="footer-link">Pricing</a>
                     <a href="#" class="footer-link">Security</a>
                 </div>
                 <div class="col-lg-2 col-md-4">
                     <h6 class="footer-title">Company</h6>
-                    <a href="" class="footer-link">About Us</a>
+                    <a href="{% url 'frontend:about' %}" class="footer-link">About Us</a>
                     <a href="#" class="footer-link">Careers</a>
                     <a href="#" class="footer-link">Press</a>
-                    <a href="" class="footer-link">Contact</a>
+                    <a href="{% url 'frontend:contact' %}" class="footer-link">Contact</a>
                 </div>
                 <div class="col-lg-2 col-md-4">
                     <h6 class="footer-title">Resources</h6>
@@ -594,8 +594,8 @@
                 </div>
                 <div class="col-lg-2">
                     <h6 class="footer-title">Legal</h6>
-                    <a href="#" class="footer-link">Privacy Policy</a>
-                    <a href="#" class="footer-link">Terms of Service</a>
+                    <a href="{% url 'frontend:privacy' %}" class="footer-link">Privacy Policy</a>
+                    <a href="{% url 'frontend:terms' %}" class="footer-link">Terms of Service</a>
                     <a href="#" class="footer-link">Cookie Policy</a>
                     <a href="#" class="footer-link">Compliance</a>
                 </div>

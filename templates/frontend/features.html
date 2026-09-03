@@ -1,0 +1,1080 @@
+{% extends './base_two.html' %}
+
+{% block title %}AI Features - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Feature Showcase Styles */
+    .feature-showcase {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 24px;
+        padding: 3rem;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-showcase::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .feature-showcase:hover {
+        transform: translateY(-15px) scale(1.02);
+        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 30px 80px rgba(102, 126, 234, 0.3);
+    }
+
+    .feature-showcase:hover::before {
+        opacity: 1;
+    }
+
+    .feature-icon-large {
+        width: 100px;
+        height: 100px;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin-bottom: 2rem;
+        position: relative;
+        transition: all 0.5s ease;
+    }
+
+    .feature-icon-large::after {
+        content: '';
+        position: absolute;
+        inset: -10px;
+        border-radius: 24px;
+        background: inherit;
+        opacity: 0.3;
+        filter: blur(20px);
+        transition: all 0.5s ease;
+    }
+
+    .feature-showcase:hover .feature-icon-large {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .feature-showcase:hover .feature-icon-large::after {
+        inset: -20px;
+        opacity: 0.5;
+    }
+
+    .feature-icon-large.blue {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    .feature-icon-large.purple {
+        background: linear-gradient(135deg, rgba(118, 75, 162, 0.2), rgba(240, 147, 251, 0.2));
+        color: #764ba2;
+    }
+
+    .feature-icon-large.green {
+        background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(79, 172, 254, 0.2));
+        color: #00f2fe;
+    }
+
+    .feature-icon-large.orange {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(240, 147, 251, 0.2));
+        color: #f59e0b;
+    }
+
+    /* AI Bot Visualization */
+    .ai-bot-visual {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .ai-brain {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: white;
+        box-shadow: 0 0 60px rgba(102, 126, 234, 0.6);
+        animation: pulse-brain 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-brain {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    .ai-node {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #667eea;
+        animation: orbit 10s linear infinite;
+    }
+
+    @keyframes orbit {
+        from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+        to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+    }
+
+    .ai-node:nth-child(2) { animation-delay: -2s; }
+    .ai-node:nth-child(3) { animation-delay: -4s; }
+    .ai-node:nth-child(4) { animation-delay: -6s; }
+    .ai-node:nth-child(5) { animation-delay: -8s; }
+
+    .ai-connection {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 2px;
+        height: 150px;
+        background: linear-gradient(180deg, rgba(102, 126, 234, 0.5), transparent);
+        transform-origin: top center;
+        animation: rotate-connection 10s linear infinite;
+    }
+
+    @keyframes rotate-connection {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Comparison Table */
+    .comparison-table {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .comparison-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .comparison-row:last-child {
+        border-bottom: none;
+    }
+
+    .comparison-row:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .comparison-cell {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .comparison-cell:first-child {
+        justify-content: flex-start;
+        font-weight: 600;
+    }
+
+    .comparison-header {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .check-icon {
+        color: #10b981;
+        font-size: 1.5rem;
+    }
+
+    .cross-icon {
+        color: #ef4444;
+        font-size: 1.5rem;
+    }
+
+    /* Feature Stats */
+    .feature-stat {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .feature-stat:hover {
+        transform: translateY(-10px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+    }
+
+    .feature-stat-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    .feature-stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Chart Container */
+    .chart-showcase {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 24px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .chart-showcase::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    }
+
+    /* Capability Card */
+    .capability-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .capability-card:hover {
+        transform: translateX(10px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .capability-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .comparison-row {
+            grid-template-columns: 1fr;
+        }
+        .comparison-cell {
+            justify-content: center;
+            padding: 1rem;
+        }
+        .ai-bot-visual {
+            height: 300px;
+        }
+        .ai-brain {
+            width: 100px;
+            height: 100px;
+            font-size: 3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden" style="min-height: 70vh; padding-top: 120px;">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="particle-bg" id="particles"></div>
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.1;"></div>
+
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-duration="1200">
+                <span class="ai-badge mb-4">
+                    <i class="bi bi-cpu-fill"></i>
+                    <span>Powerful AI Features</span>
+                </span>
+
+                <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1;">
+                    Cutting-Edge AI Features
+                    <span class="gradient-text-animated">Built for Your Success</span>
+                </h1>
+
+                <p class="lead text-secondary mb-5" style="font-size: 1.3rem; max-width: 800px; margin: 0 auto;">
+                    Discover the advanced AI capabilities that make LuminaWealthAI the most powerful 
+                    automated investment platform in the world.
+                </p>
+
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#ai-technology" class="btn btn-shiny btn-lg px-5 py-3 rounded-pill text-white glow-effect">
+                        Explore Features <i class="bi bi-arrow-down ms-2"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-custom btn-lg px-5 py-3 rounded-pill">
+                        <i class="bi bi-play-circle me-2"></i> Watch Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI Technology Deep Dive -->
+<section class="section" id="ai-technology">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-robot"></i>
+                <span>AI Technology</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Advanced AI <span class="gradient-text-animated">At Work</span>
+            </h2>
+            <p class="section-subtitle">
+                See how our AI bots analyze, decide, and execute trades 24/7
+            </p>
+        </div>
+
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="ai-bot-visual">
+                    <!-- AI Brain -->
+                    <div class="ai-brain">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+
+                    <!-- Orbiting Nodes -->
+                    <div class="ai-node" style="color: #10b981;">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="ai-node" style="color: #f59e0b;">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <div class="ai-node" style="color: #667eea;">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="ai-node" style="color: #f093fb;">
+                        <i class="bi bi-eye"></i>
+                    </div>
+
+                    <!-- Connection Lines -->
+                    <div class="ai-connection"></div>
+                    <div class="ai-connection" style="animation-delay: -2.5s;"></div>
+                    <div class="ai-connection" style="animation-delay: -5s;"></div>
+                    <div class="ai-connection" style="animation-delay: -7.5s;"></div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <h3 class="fw-bold mb-4">
+                    How Our AI Bots <span class="gradient-text-animated">Think & Act</span>
+                </h3>
+
+                <div class="capability-card mb-3">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-eye-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Real-Time Market Analysis</h5>
+                            <p class="text-secondary small mb-0">
+                                AI scans 10,000+ data points per second: price action, volume, news sentiment, social media trends, and technical indicators across 50+ markets.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="capability-card mb-3">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-gear-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Machine Learning Predictions</h5>
+                            <p class="text-secondary small mb-0">
+                                Deep learning models trained on 10+ years of market data predict optimal entry and exit points with 94.7% accuracy.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="capability-card mb-3">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Instant Execution</h5>
+                            <p class="text-secondary small mb-0">
+                                Trades executed in <50 milliseconds. Our infrastructure processes 10,000+ transactions per second with zero downtime.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="capability-card">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Continuous Learning</h5>
+                            <p class="text-secondary small mb-0">
+                                AI improves with every trade. Our models adapt to changing market conditions and evolve strategies in real-time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Features Grid -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-stars"></i>
+                <span>Core Features</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Everything You Need to <span class="gradient-text-animated">Succeed</span>
+            </h2>
+            <p class="section-subtitle">
+                Powerful features designed to maximize your returns while minimizing risk
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-showcase h-100">
+                    <div class="feature-icon-large blue">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">AI Trading Bots</h4>
+                    <p class="text-secondary mb-3">
+                        12 specialized AI bots, each optimized for different market conditions and risk profiles. They work 24/7 so you don't have to.
+                    </p>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Automated execution</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Multi-strategy support</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Real-time optimization</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-showcase h-100">
+                    <div class="feature-icon-large purple">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">AI Security Suite</h4>
+                    <p class="text-secondary mb-3">
+                        Military-grade security powered by AI. Fraud detection, threat monitoring, and instant response to protect your assets.
+                    </p>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>256-bit encryption</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Cold storage (95%)</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>AI fraud detection</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-showcase h-100">
+                    <div class="feature-icon-large green">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Advanced Analytics</h4>
+                    <p class="text-secondary mb-3">
+                        Real-time portfolio analytics with AI-powered insights. Track performance, identify trends, and make data-driven decisions.
+                    </p>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Real-time charts</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>AI predictions</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Custom reports</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-showcase h-100">
+                    <div class="feature-icon-large orange">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Lightning Speed</h4>
+                    <p class="text-secondary mb-3">
+                        Execute trades in milliseconds. Our infrastructure handles 10,000+ transactions per second with zero latency.
+                    </p>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>< 50ms execution</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>99.99% uptime</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Global CDN</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-showcase h-100">
+                    <div class="feature-icon-large blue">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Smart Wallet</h4>
+                    <p class="text-secondary mb-3">
+                        Multi-currency wallet with instant deposits and withdrawals. Support for crypto, bank transfers, and cards.
+                    </p>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Multi-currency</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Instant transfers</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Low fees</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="feature-showcase h-100">
+                    <div class="feature-icon-large purple">
+                        <i class="bi bi-bell-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Smart Notifications</h4>
+                    <p class="text-secondary mb-3">
+                        AI-powered alerts that notify you of important events. Customizable preferences for email, SMS, and push notifications.
+                    </p>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Real-time alerts</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Custom triggers</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Multi-channel</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Performance Analytics Section -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-graph-up"></i>
+                <span>Performance Analytics</span>
+            </span>
+            <h2 class="section-title mb-3">
+                AI-Powered <span class="gradient-text-animated">Performance Tracking</span>
+            </h2>
+            <p class="section-subtitle">
+                Advanced analytics and real-time insights to monitor your portfolio growth
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8" data-aos="fade-right">
+                <div class="chart-showcase">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">AI Strategy Performance</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary active">1M</button>>
+                            <button class="btn btn-sm btn-outline-secondary">3M</button>
+                            <button class="btn btn-sm btn-outline-secondary">1Y</button>
+                            <button class="btn btn-sm btn-outline-secondary">All</button>
+                        </div>
+                    </div>
+                    <div style="position: relative; height: 350px;">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4" data-aos="fade-left">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="feature-stat">
+                            <div class="feature-stat-icon">
+                                <i class="bi bi-trophy-fill"></i>
+                            </div>
+                            <div class="feature-stat-number" data-target="145.8">0</div>
+                            <div class="text-secondary">% Average ROI</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="feature-stat">
+                            <div class="feature-stat-icon">
+                                <i class="bi bi-bullseye"></i>
+                            </div>
+                            <div class="feature-stat-number" data-target="94.7">0</div>
+                            <div class="text-secondary">% AI Accuracy</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="feature-stat">
+                            <div class="feature-stat-icon">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            </div>
+                            <div class="feature-stat-number" data-target="50">0</div>
+                            <div class="text-secondary">ms Avg Execution</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comparison Section -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-bar-chart-fill"></i>
+                <span>Why Choose Us</span>
+            </span>
+            <h2 class="section-title mb-3">
+                LuminaWealthAI vs <span class="gradient-text-animated">Traditional Trading</span>
+            </h2>
+            <p class="section-subtitle">
+                See how our AI-powered platform outperforms manual trading
+            </p>
+        </div>
+
+        <div class="comparison-table" data-aos="fade-up">
+            <div class="comparison-row comparison-header">
+                <div class="comparison-cell">Feature</div>
+                <div class="comparison-cell">
+                    <span class="gradient-text-animated fw-bold">LuminaWealthAI</span>
+                </div>
+                <div class="comparison-cell">Traditional Trading</div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">24/7 Trading</div>
+                <div class="comparison-cell"><i class="bi bi-check-circle-fill check-icon"></i></div>
+                <div class="comparison-cell"><i class="bi bi-x-circle-fill cross-icon"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Emotion-Free Decisions</div>
+                <div class="comparison-cell"><i class="bi bi-check-circle-fill check-icon"></i></div>
+                <div class="comparison-cell"><i class="bi bi-x-circle-fill cross-icon"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Millisecond Execution</div>
+                <div class="comparison-cell"><i class="bi bi-check-circle-fill check-icon"></i></div>
+                <div class="comparison-cell"><i class="bi bi-x-circle-fill cross-icon"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">AI-Powered Analysis</div>
+                <div class="comparison-cell"><i class="bi bi-check-circle-fill check-icon"></i></div>
+                <div class="comparison-cell"><i class="bi bi-x-circle-fill cross-icon"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">No Experience Required</div>
+                <div class="comparison-cell"><i class="bi bi-check-circle-fill check-icon"></i></div>
+                <div class="comparison-cell"><i class="bi bi-x-circle-fill cross-icon"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Low Minimum ($50)</div>
+                <div class="comparison-cell"><i class="bi bi-check-circle-fill check-icon"></i></div>
+                <div class="comparison-cell"><i class="bi bi-x-circle-fill cross-icon"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Transparent Fees</div>
+                <div class="comparison-cell"><i class="bi bi-check-circle-fill check-icon"></i></div>
+                <div class="comparison-cell"><i class="bi bi-x-circle-fill cross-icon"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Average ROI: 145.8%</div>
+                <div class="comparison-cell"><i class="bi bi-check-circle-fill check-icon"></i></div>
+                <div class="comparison-cell"><i class="bi bi-x-circle-fill cross-icon"></i></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI Bot Capabilities -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-cpu"></i>
+                <span>AI Capabilities</span>
+            </span>
+            <h2 class="section-title mb-3">
+                What Our AI Bots <span class="gradient-text-animated">Can Do</span>
+            </h2>
+            <p class="section-subtitle">
+                Advanced capabilities that give you an edge in the markets
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6" data-aos="fade-right" data-aos-delay="100">
+                <div class="capability-card">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Trend Detection</h5>
+                            <p class="text-secondary small mb-0">
+                                Identifies market trends before they become obvious to human traders, capturing maximum profit potential.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6" data-aos="fade-left" data-aos-delay="200">
+                <div class="capability-card">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Risk Management</h5>
+                            <p class="text-secondary small mb-0">
+                                Automatic stop-loss and take-profit levels. AI adjusts risk parameters based on market volatility.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6" data-aos="fade-right" data-aos-delay="300">
+                <div class="capability-card">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-newspaper"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">News Sentiment Analysis</h5>
+                            <p class="text-secondary small mb-0">
+                                Scans thousands of news articles and social media posts to gauge market sentiment in real-time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6" data-aos="fade-left" data-aos-delay="400">
+                <div class="capability-card">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Pattern Recognition</h5>
+                            <p class="text-secondary small mb-0">
+                                Recognizes complex chart patterns and technical indicators that predict future price movements.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6" data-aos="fade-right" data-aos-delay="500">
+                <div class="capability-card">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-arrow-left-right"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Arbitrage Detection</h5>
+                            <p class="text-secondary small mb-0">
+                                Finds price discrepancies across exchanges and executes arbitrage trades for risk-free profits.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6" data-aos="fade-left" data-aos-delay="600">
+                <div class="capability-card">
+                    <div class="d-flex align-items-start">
+                        <div class="capability-icon">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Portfolio Rebalancing</h5>
+                            <p class="text-secondary small mb-0">
+                                Automatically rebalances your portfolio to maintain optimal allocation based on your risk profile.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature Stats Section -->
+<section class="section" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title mb-3">
+                Features by the <span class="gradient-text-animated">Numbers</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="100">
+                <div class="feature-stat">
+                    <div class="feature-stat-icon">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div class="feature-stat-number" data-target="12">0</div>
+                    <div class="text-secondary">AI Bots Active</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="200">
+                <div class="feature-stat">
+                    <div class="feature-stat-icon">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <div class="feature-stat-number" data-target="10000">0</div>
+                    <div class="text-secondary">Trades/Second</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="300">
+                <div class="feature-stat">
+                    <div class="feature-stat-icon">
+                        <i class="bi bi-globe"></i>
+                    </div>
+                    <div class="feature-stat-number" data-target="50">0</div>
+                    <div class="text-secondary">Markets Analyzed</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="400">
+                <div class="feature-stat">
+                    <div class="feature-stat-icon">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div class="feature-stat-number" data-target="24">0</div>
+                    <div class="text-secondary">Hours/Day Trading</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section position-relative overflow-hidden">
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.2;"></div>
+    <div class="container position-relative z-1 text-center" data-aos="zoom-in">
+        <h2 class="display-3 fw-bold mb-4">
+            Ready to Experience <span class="gradient-text-animated">AI-Powered Trading</span>?
+        </h2>
+        <p class="lead mb-5" style="font-size: 1.3rem;">
+            Join thousands of investors who are already benefiting from our advanced AI features.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="#" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+                Start Free Trial <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="#" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                Schedule Demo
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize Charts
+    function initCharts() {
+        const perfCtx = document.getElementById('performanceChart');
+        if (perfCtx) {
+            new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: 'LuminaWealthAI',
+                            data: [100, 118, 132, 148, 165, 185, 210, 238, 265, 295, 325, 345],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'S&P 500',
+                            data: [100, 105, 108, 112, 115, 118, 122, 125, 128, 132, 135, 138],
+                            borderColor: '#764ba2',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                color: '#9ca3af',
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                            titleColor: '#f3f4f6',
+                            bodyColor: '#f3f4f6',
+                            borderColor: '#374151',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: {
+                                color: '#9ca3af',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Animated Counter
+    function animateCounter(element) {
+        const target = parseFloat(element.getAttribute('data-target'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            
+            if (target % 1 !== 0) {
+                element.textContent = current.toFixed(1);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    }
+
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        initCharts();
+        createParticles();
+
+        // Animate counters
+        const counters = document.querySelectorAll('.feature-stat-number');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => observer.observe(counter));
+    });
+</script>
+{% endblock %}

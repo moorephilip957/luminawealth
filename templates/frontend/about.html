@@ -1,0 +1,867 @@
+{% extends './base_two.html' %}
+
+{% block title %}About Us - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Team Card Styles */
+    .team-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .team-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+    }
+
+    .team-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
+    }
+
+    .team-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .team-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        background: linear-gradient(135deg, #667eea, #764ba2) border-box;
+        padding: 3px;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .team-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .team-avatar::after {
+        content: '';
+        position: absolute;
+        inset: -5px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        filter: blur(10px);
+    }
+
+    .team-card:hover .team-avatar::after {
+        opacity: 1;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .social-links a {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
+    }
+
+    .social-links a:hover {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Timeline Styles */
+    .timeline {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #667eea, #764ba2, #f093fb);
+        transform: translateX(-50%);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 3rem;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: 50%;
+        top: 20px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        transform: translateX(-50%);
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+        z-index: 2;
+    }
+
+    .timeline-dot::before {
+        content: '';
+        position: absolute;
+        inset: -5px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        opacity: 0.3;
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .timeline-content {
+        width: 45%;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-content:hover {
+        border-color: rgba(102, 126, 234, 0.3);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .timeline-item:nth-child(odd) .timeline-content {
+        margin-left: auto;
+        margin-right: 5%;
+    }
+
+    .timeline-item:nth-child(even) .timeline-content {
+        margin-left: 5%;
+    }
+
+    .timeline-year {
+        display: inline-block;
+        padding: 0.3rem 1rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Value Card Styles */
+    .value-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: 2.5rem;
+        text-align: center;
+        transition: all 0.4s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .value-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .value-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
+    }
+
+    .value-card:hover::before {
+        opacity: 1;
+    }
+
+    .value-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+        transition: all 0.4s ease;
+    }
+
+    .value-card:hover .value-icon {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Stats Section */
+    .stat-box {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+        border-color: rgba(102, 126, 234, 0.3);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .stat-number {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Responsive Timeline */
+    @media (max-width: 768px) {
+        .timeline::before {
+            left: 20px;
+        }
+        .timeline-dot {
+            left: 20px;
+        }
+        .timeline-content {
+            width: calc(100% - 60px);
+            margin-left: 50px !important;
+            margin-right: 0 !important;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden" style="min-height: 70vh; padding-top: 120px;">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="particle-bg" id="particles"></div>
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.1;"></div>
+
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-duration="1200">
+                <span class="ai-badge mb-4">
+                    <i class="bi bi-cpu-fill"></i>
+                    <span>About LuminaWealthAI</span>
+                </span>
+
+                <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1;">
+                    Revolutionizing Investing with
+                    <span class="gradient-text-animated">Artificial Intelligence</span>
+                </h1>
+
+                <p class="lead text-secondary mb-5" style="font-size: 1.3rem; max-width: 800px; margin: 0 auto;">
+                    We're on a mission to democratize wealth creation by putting the power of advanced AI trading 
+                    into the hands of everyday investors. No expertise required.
+                </p>
+
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#" class="btn btn-shiny btn-lg px-5 py-3 rounded-pill text-white glow-effect">
+                        Join Our Journey <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                    <a href="#story" class="btn btn-outline-custom btn-lg px-5 py-3 rounded-pill">
+                        Our Story <i class="bi bi-chevron-down ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Story Section -->
+<section class="section" id="story">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <span class="ai-badge mb-3">
+                    <i class="bi bi-book-fill"></i>
+                    <span>Our Story</span>
+                </span>
+                <h2 class="section-title text-start mb-4">
+                    Born from a Vision to
+                    <span class="gradient-text-animated">Transform Finance</span>
+                </h2>
+                <p class="text-secondary mb-4" style="font-size: 1.1rem;">
+                    LuminaWealthAI was founded in 2023 by a team of AI researchers, quantitative traders, and financial 
+                    experts who saw a gap in the market: sophisticated AI trading tools were only available to institutional 
+                    investors with millions in capital.
+                </p>
+                <p class="text-secondary mb-4">
+                    We believed that everyone deserves access to the same powerful AI technology that hedge funds use. 
+                    So we built a platform that brings institutional-grade AI trading to retail investors — starting with 
+                    just $50.
+                </p>
+                <p class="text-secondary">
+                    Today, LuminaWealthAI manages over <span class="text-white fw-bold">$2.4 million</span> in assets 
+                    for <span class="text-white fw-bold">1,234+ investors</span> worldwide, with our AI bots executing 
+                    thousands of trades daily with a 94.7% accuracy rate.
+                </p>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="position-relative">
+                    <!-- Image Stack -->
+                    <div class="glass-card rounded-4 p-4 shiny-border">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="glass-card rounded-3 p-3 text-center">
+                                    <div class="stat-number">2023</div>
+                                    <div class="small text-secondary">Founded</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="glass-card rounded-3 p-3 text-center">
+                                    <div class="stat-number">15+</div>
+                                    <div class="small text-secondary">AI Engineers</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="glass-card rounded-3 p-3 text-center">
+                                    <div class="stat-number">24/7</div>
+                                    <div class="small text-secondary">AI Trading</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="glass-card rounded-3 p-3 text-center">
+                                    <div class="stat-number">50+</div>
+                                    <div class="small text-secondary">Countries</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating AI Badge -->
+                    <div class="floating-element position-absolute top-0 end-0 glass-card rounded-3 p-3" style="width: 180px; animation-delay: 0s;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-robot text-success fs-3"></i>
+                            <div>
+                                <div class="small text-secondary">AI Bots Active</div>
+                                <div class="fw-bold text-success">12 Running</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission & Vision Section -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-bullseye"></i>
+                <span>Our Purpose</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Driven by <span class="gradient-text-animated">Mission & Vision</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6" data-aos="fade-right" data-aos-delay="100">
+                <div class="glass-card rounded-4 p-5 h-100 shiny-border">
+                    <div class="value-icon mb-4" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));">
+                        <i class="bi bi-rocket-takeoff-fill"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Our Mission</h3>
+                    <p class="text-secondary mb-0" style="font-size: 1.1rem;">
+                        To democratize wealth creation by providing everyone — regardless of experience or capital — 
+                        access to institutional-grade AI trading technology that works 24/7 to grow their investments 
+                        with precision and transparency.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
+                <div class="glass-card rounded-4 p-5 h-100 shiny-border">
+                    <div class="value-icon mb-4" style="background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));">
+                        <i class="bi bi-eye-fill"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Our Vision</h3>
+                    <p class="text-secondary mb-0" style="font-size: 1.1rem;">
+                        To become the world's most trusted AI-powered investment platform, where millions of people 
+                        achieve financial freedom through intelligent automation — making manual trading obsolete 
+                        and wealth-building accessible to all.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Values Section -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-heart-fill"></i>
+                <span>What We Stand For</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Our Core <span class="gradient-text-animated">Values</span>
+            </h2>
+            <p class="section-subtitle">
+                These principles guide every decision we make and every line of code we write.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Security First</h4>
+                    <p class="text-secondary mb-0">
+                        Your assets and data are protected with military-grade encryption, cold storage, and AI-powered fraud detection.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-eye-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Radical Transparency</h4>
+                    <p class="text-secondary mb-0">
+                        No hidden fees, no black boxes. See exactly where your money is, what the AI is doing, and why.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Innovation Always</h4>
+                    <p class="text-secondary mb-0">
+                        We push the boundaries of AI and fintech, constantly evolving our algorithms to stay ahead of markets.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Investor First</h4>
+                    <p class="text-secondary mb-0">
+                        Your success is our success. We align our interests with yours through transparent fees and shared goals.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-globe2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Global Accessibility</h4>
+                    <p class="text-secondary mb-0">
+                        Wealth-building shouldn't be limited by geography. We serve investors in 50+ countries worldwide.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Ethical AI</h4>
+                    <p class="text-secondary mb-0">
+                        Our AI is built responsibly — fair, explainable, and designed to benefit all investors equally.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-people-fill"></i>
+                <span>Meet the Team</span>
+            </span>
+            <h2 class="section-title mb-3">
+                The Minds Behind <span class="gradient-text-animated">LuminaWealthAI</span>
+            </h2>
+            <p class="section-subtitle">
+                A world-class team of AI researchers, traders, and engineers building the future of investing.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Team Member 1 -->
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="team-card text-center">
+                    <div class="team-avatar mx-auto">
+                        <img src="https://ui-avatars.com/api/?name=Alex+Morgan&background=667eea&color=fff&size=200" alt="Alex Morgan">
+                    </div>
+                    <h5 class="fw-bold mb-1">Alex Morgan</h5>
+                    <p class="text-secondary small mb-2">CEO & Co-Founder</p>
+                    <p class="text-secondary small mb-3">
+                        Former Goldman Sachs quant trader with 15+ years in algorithmic trading.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 2 -->
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="team-card text-center">
+                    <div class="team-avatar mx-auto">
+                        <img src="https://ui-avatars.com/api/?name=Dr+Sarah+Chen&background=764ba2&color=fff&size=200" alt="Dr. Sarah Chen">
+                    </div>
+                    <h5 class="fw-bold mb-1">Dr. Sarah Chen</h5>
+                    <p class="text-secondary small mb-2">Chief AI Officer</p>
+                    <p class="text-secondary small mb-3">
+                        PhD in Machine Learning from MIT. Led AI research at DeepMind for 8 years.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 3 -->
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="team-card text-center">
+                    <div class="team-avatar mx-auto">
+                        <img src="https://ui-avatars.com/api/?name=Marcus+Johnson&background=f093fb&color=fff&size=200" alt="Marcus Johnson">
+                    </div>
+                    <h5 class="fw-bold mb-1">Marcus Johnson</h5>
+                    <p class="text-secondary small mb-2">CTO & Co-Founder</p>
+                    <p class="text-secondary small mb-3">
+                        Ex-Google engineer. Built distributed systems handling 1M+ transactions/sec.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-github"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 4 -->
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="team-card text-center">
+                    <div class="team-avatar mx-auto">
+                        <img src="https://ui-avatars.com/api/?name=Elena+Rodriguez&background=00f2fe&color=fff&size=200" alt="Elena Rodriguez">
+                    </div>
+                    <h5 class="fw-bold mb-1">Elena Rodriguez</h5>
+                    <p class="text-secondary small mb-2">Head of Compliance</p>
+                    <p class="text-secondary small mb-3">
+                        Former SEC regulator with 20+ years in financial compliance and risk management.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5" data-aos="fade-up">
+            <p class="text-secondary mb-4">
+                Join our team of 50+ experts working to revolutionize investing.
+            </p>
+            <a href="#" class="btn btn-outline-custom rounded-pill px-5 py-3">
+                View Open Positions <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Timeline Section -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-clock-history"></i>
+                <span>Our Journey</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Milestones That <span class="gradient-text-animated">Define Us</span>
+            </h2>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item" data-aos="fade-up">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">2023</span>
+                    <h5 class="fw-bold mb-2">The Beginning</h5>
+                    <p class="text-secondary small mb-0">
+                        LuminaWealthAI founded by Alex and Marcus. First AI trading bot prototype developed in a garage in San Francisco.
+                    </p>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-aos="fade-up" data-aos-delay="100">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">2024</span>
+                    <h5 class="fw-bold mb-2">Series A Funding</h5>
+                    <p class="text-secondary small mb-0">
+                        Raised $5M in Series A funding. Dr. Sarah Chen joins as Chief AI Officer. Platform launches to first 100 beta users.
+                    </p>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-aos="fade-up" data-aos-delay="200">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">2025</span>
+                    <h5 class="fw-bold mb-2">Global Expansion</h5>
+                    <p class="text-secondary small mb-0">
+                        Expanded to 30+ countries. AI accuracy reaches 94.7%. Featured in Forbes and Bloomberg as "Top AI Fintech."
+                    </p>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-aos="fade-up" data-aos-delay="300">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">2026</span>
+                    <h5 class="fw-bold mb-2">The Future is Now</h5>
+                    <p class="text-secondary small mb-0">
+                        $2.4M+ in assets managed. 1,234+ active investors. Launched advanced AI strategies with institutional-grade performance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="section" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title mb-3">
+                Numbers That <span class="gradient-text-animated">Speak Volumes</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="100">
+                <div class="stat-box">
+                    <div class="stat-number" data-target="2.4">0</div>
+                    <div class="text-secondary">Million+ Managed</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="200">
+                <div class="stat-box">
+                    <div class="stat-number" data-target="1234">0</div>
+                    <div class="text-secondary">Active Investors</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="300">
+                <div class="stat-box">
+                    <div class="stat-number" data-target="94.7">0</div>
+                    <div class="text-secondary">% AI Accuracy</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="400">
+                <div class="stat-box">
+                    <div class="stat-number" data-target="145.8">0</div>
+                    <div class="text-secondary">% Average ROI</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Partners Section -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-handshake"></i>
+                <span>Trusted Partners</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Backed by <span class="gradient-text-animated">Industry Leaders</span>
+            </h2>
+        </div>
+
+        <div class="row g-4 align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="100">
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="glass-card rounded-3 p-4 text-center">
+                    <h5 class="text-secondary mb-0 fw-bold">Forbes</h5>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="glass-card rounded-3 p-4 text-center">
+                    <h5 class="text-secondary mb-0 fw-bold">Bloomberg</h5>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="glass-card rounded-3 p-4 text-center">
+                    <h5 class="text-secondary mb-0 fw-bold">TechCrunch</h5>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="glass-card rounded-3 p-4 text-center">
+                    <h5 class="text-secondary mb-0 fw-bold">CNBC</h5>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="glass-card rounded-3 p-4 text-center">
+                    <h5 class="text-secondary mb-0 fw-bold">Reuters</h5>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="glass-card rounded-3 p-4 text-center">
+                    <h5 class="text-secondary mb-0 fw-bold">WSJ</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section position-relative overflow-hidden">
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.2;"></div>
+    <div class="container position-relative z-1 text-center" data-aos="zoom-in">
+        <h2 class="display-3 fw-bold mb-4">
+            Ready to Join the <span class="gradient-text-animated">AI Revolution</span>?
+        </h2>
+        <p class="lead mb-5" style="font-size: 1.3rem;">
+            Be part of the future of investing. Let our AI bots work for you 24/7.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="#" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+                Start Investing Now <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="#" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                Contact Our Team
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animated Counter
+    function animateCounter(element) {
+        const target = parseFloat(element.getAttribute('data-target'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            
+            if (target % 1 !== 0) {
+                element.textContent = current.toFixed(1);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    }
+
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+
+        // Animate counters
+        const counters = document.querySelectorAll('.stat-number');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => observer.observe(counter));
+    });
+</script>
+{% endblock %}

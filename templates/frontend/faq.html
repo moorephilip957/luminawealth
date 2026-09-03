@@ -1,0 +1,1740 @@
+{% extends './base_two.html' %}
+
+{% block title %}FAQ - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* FAQ Search Bar */
+    .faq-search-container {
+        position: relative;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .faq-search-input {
+        width: 100%;
+        padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 50px;
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .faq-search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+
+    .faq-search-input::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .faq-search-icon {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #667eea;
+        font-size: 1.5rem;
+    }
+
+    /* Category Tabs */
+    .faq-category-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-bottom: 3rem;
+    }
+
+    .faq-category-tab {
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 50px;
+        color: var(--text-secondary);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .faq-category-tab:hover {
+        border-color: rgba(102, 126, 234, 0.5);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    .faq-category-tab.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .faq-category-tab .count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.15rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+    }
+
+    /* FAQ Accordion */
+    .faq-accordion .accordion-item {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 16px !important;
+        margin-bottom: 1rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .faq-accordion .accordion-item:hover {
+        border-color: rgba(102, 126, 234, 0.3);
+        transform: translateX(5px);
+    }
+
+    .faq-accordion .accordion-button {
+        background: transparent;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 1.05rem;
+        padding: 1.5rem;
+        box-shadow: none;
+    }
+
+    .faq-accordion .accordion-button:not(.collapsed) {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        color: var(--text-primary);
+    }
+
+    .faq-accordion .accordion-button::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23667eea'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        transition: transform 0.3s ease;
+    }
+
+    .faq-accordion .accordion-button:not(.collapsed)::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23667eea'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        transform: rotate(180deg);
+    }
+
+    .faq-accordion .accordion-body {
+        color: var(--text-secondary);
+        padding: 0 1.5rem 1.5rem;
+        line-height: 1.7;
+    }
+
+    .faq-accordion .accordion-body ul {
+        padding-left: 1.25rem;
+        margin-top: 0.75rem;
+    }
+
+    .faq-accordion .accordion-body ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    .faq-accordion .accordion-body a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .faq-accordion .accordion-body a:hover {
+        text-decoration: underline;
+    }
+
+    /* Category Header */
+    .faq-category-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 3rem 0 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .faq-category-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    .faq-category-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Popular Questions */
+    .popular-question-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 100%;
+    }
+
+    .popular-question-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    }
+
+    .popular-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        background: rgba(245, 158, 11, 0.15);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 50px;
+        color: #f59e0b;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Contact Support Card */
+    .contact-support-card {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 24px;
+        padding: 3rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-support-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+        animation: rotate-slow 20s linear infinite;
+    }
+
+    @keyframes rotate-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* No Results */
+    .no-results {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        display: none;
+    }
+
+    .no-results.show {
+        display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .faq-category-tabs {
+            gap: 0.5rem;
+        }
+        .faq-category-tab {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        .faq-accordion .accordion-button {
+            padding: 1.25rem;
+            font-size: 0.95rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden" style="min-height: 60vh; padding-top: 120px;">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="particle-bg" id="particles"></div>
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.1;"></div>
+
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-duration="1200">
+                <span class="ai-badge mb-4">
+                    <i class="bi bi-question-circle-fill"></i>
+                    <span>Help Center</span>
+                </span>
+
+                <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1;">
+                    Frequently Asked
+                    <span class="gradient-text-animated">Questions</span>
+                </h1>
+
+                <p class="lead text-secondary mb-5" style="font-size: 1.3rem; max-width: 800px; margin: 0 auto;">
+                    Find answers to common questions about LuminaWealthAI, our AI trading technology, 
+                    investments, security, and more.
+                </p>
+
+                <!-- Search Bar -->
+                <div class="faq-search-container" data-aos="fade-up" data-aos-delay="200">
+                    <i class="bi bi-search faq-search-icon"></i>
+                    <input type="text" class="faq-search-input" id="faqSearch" 
+                           placeholder="Search for answers... (e.g., 'minimum investment', 'withdrawal time')">
+                </div>
+
+                <div class="mt-4 text-secondary small" data-aos="fade-up" data-aos-delay="300">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Popular searches: 
+                    <a href="#" class="text-decoration-none gradient-text-animated popular-search">minimum investment</a> •
+                    <a href="#" class="text-decoration-none gradient-text-animated popular-search">withdrawal time</a> •
+                    <a href="#" class="text-decoration-none gradient-text-animated popular-search">AI accuracy</a> •
+                    <a href="#" class="text-decoration-none gradient-text-animated popular-search">security</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Tabs -->
+<section class="section pt-0">
+    <div class="container">
+        <div class="faq-category-tabs" data-aos="fade-up">
+            <button class="faq-category-tab active" data-category="all">
+                <i class="bi bi-grid-fill"></i>
+                All Questions
+                <span class="count">48</span>
+            </button>
+            <button class="faq-category-tab" data-category="getting-started">
+                <i class="bi bi-rocket-takeoff"></i>
+                Getting Started
+                <span class="count">8</span>
+            </button>
+            <button class="faq-category-tab" data-category="ai-technology">
+                <i class="bi bi-cpu"></i>
+                AI Technology
+                <span class="count">7</span>
+            </button>
+            <button class="faq-category-tab" data-category="investments">
+                <i class="bi bi-graph-up"></i>
+                Investments
+                <span class="count">9</span>
+            </button>
+            <button class="faq-category-tab" data-category="deposits-withdrawals">
+                <i class="bi bi-wallet2"></i>
+                Deposits & Withdrawals
+                <span class="count">8</span>
+            </button>
+            <button class="faq-category-tab" data-category="security">
+                <i class="bi bi-shield-lock"></i>
+                Security & Privacy
+                <span class="count">7</span>
+            </button>
+            <button class="faq-category-tab" data-category="fees">
+                <i class="bi bi-cash-coin"></i>
+                Fees & Pricing
+                <span class="count">5</span>
+            </button>
+            <button class="faq-category-tab" data-category="technical">
+                <i class="bi bi-gear"></i>
+                Technical Support
+                <span class="count">4</span>
+            </button>
+        </div>
+
+        <!-- No Results Message -->
+        <div class="no-results" id="noResults">
+            <i class="bi bi-search" style="font-size: 4rem; color: #667eea; opacity: 0.5;"></i>
+            <h4 class="fw-bold mt-3 mb-2">No results found</h4>
+            <p class="text-secondary mb-4">
+                We couldn't find any questions matching your search. Try different keywords or browse categories.
+            </p>
+            <button class="btn btn-outline-custom rounded-pill px-4 py-2" onclick="resetSearch()">
+                <i class="bi bi-arrow-counterclockwise me-2"></i> Reset Search
+            </button>
+        </div>
+
+        <!-- FAQ Content -->
+        <div id="faqContent">
+
+            <!-- GETTING STARTED SECTION -->
+            <div class="faq-section" data-section="getting-started">
+                <div class="faq-category-header">
+                    <div class="faq-category-icon">
+                        <i class="bi bi-rocket-takeoff-fill"></i>
+                    </div>
+                    <h3 class="faq-category-title">Getting Started</h3>
+                </div>
+
+                <div class="accordion faq-accordion" id="faqGettingStarted">
+                    <div class="accordion-item" data-keywords="start begin create account sign up register new">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                How do I get started with LuminaWealthAI?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqGettingStarted">
+                            <div class="accordion-body">
+                                Getting started is easy and takes just a few minutes:
+                                <ul>
+                                    <li><strong>Create an account</strong> - Sign up with your email and create a secure password</li>
+                                    <li><strong>Complete KYC verification</strong> - Upload your ID and proof of address (takes 5-10 minutes)</li>
+                                    <li><strong>Deposit funds</strong> - Add money via crypto, bank transfer, or card (minimum $50)</li>
+                                    <li><strong>Choose an AI strategy</strong> - Select from our proven strategies based on your risk tolerance</li>
+                                    <li><strong>Let AI work for you</strong> - Our bots start trading automatically 24/7</li>
+                                </ul>
+                                That's it! Your AI bots will begin working immediately to grow your portfolio.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="minimum investment start amount low capital beginner">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                What is the minimum investment amount?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqGettingStarted">
+                            <div class="accordion-body">
+                                You can start investing with just <strong class="text-white">$50</strong>. We believe everyone deserves access to institutional-grade AI trading, regardless of their capital.
+                                <br><br>
+                                Different strategies have different minimums:
+                                <ul>
+                                    <li><strong>Stablecoin Yield Bot:</strong> $50 minimum</li>
+                                    <li><strong>Conservative BTC Bot:</strong> $100 minimum</li>
+                                    <li><strong>Aggressive ETH Bot:</strong> $500 minimum</li>
+                                </ul>
+                                There are no lock-in periods, so you can withdraw your funds anytime.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="kyc verification identity documents id passport proof address">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Why do I need to complete KYC verification?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqGettingStarted">
+                            <div class="accordion-body">
+                                KYC (Know Your Customer) verification is required by law for all regulated financial platforms. It helps us:
+                                <ul>
+                                    <li>Prevent fraud and money laundering</li>
+                                    <li>Protect your account from unauthorized access</li>
+                                    <li>Comply with international financial regulations</li>
+                                    <li>Ensure only eligible investors use our platform</li>
+                                </ul>
+                                The process takes 5-10 minutes and requires:
+                                <ul>
+                                    <li>Government-issued ID (passport, driver's license, or national ID)</li>
+                                    <li>Proof of address (utility bill or bank statement from last 3 months)</li>
+                                    <li>Selfie verification</li>
+                                </ul>
+                                Verification is typically completed within 24 hours.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="countries available supported location region international">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Which countries do you support?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqGettingStarted">
+                            <div class="accordion-body">
+                                LuminaWealthAI is available in <strong class="text-white">50+ countries</strong> worldwide, including:
+                                <ul>
+                                    <li>United States, Canada, United Kingdom</li>
+                                    <li>European Union countries (Germany, France, Italy, Spain, etc.)</li>
+                                    <li>Australia, New Zealand, Singapore, Japan</li>
+                                    <li>United Arab Emirates, Saudi Arabia</li>
+                                    <li>And many more</li>
+                                </ul>
+                                Some countries may have restrictions due to local regulations. <a href="#">Contact us</a> to check if your country is supported.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="experience knowledge trading beginner novice expert required">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                Do I need trading experience to use LuminaWealthAI?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqGettingStarted">
+                            <div class="accordion-body">
+                                <strong class="text-white">Absolutely not!</strong> That's the beauty of AI-powered investing. Our platform is designed for everyone:
+                                <ul>
+                                    <li><strong>Beginners:</strong> Choose our low-risk strategies and let AI handle everything</li>
+                                    <li><strong>Intermediate:</strong> Diversify across multiple strategies</li>
+                                    <li><strong>Experts:</strong> Use advanced analytics and custom parameters</li>
+                                </ul>
+                                Our AI bots do all the analysis, decision-making, and execution. You just need to choose a strategy that matches your risk tolerance and goals.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="time setup account ready start how long">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                                How long does it take to set up my account?
+                            </button>
+                        </h2>
+                        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqGettingStarted">
+                            <div class="accordion-body">
+                                You can have a fully functional account in as little as <strong class="text-white">10 minutes</strong>:
+                                <ul>
+                                    <li><strong>Account creation:</strong> 2 minutes</li>
+                                    <li><strong>Email verification:</strong> 1 minute</li>
+                                    <li><strong>KYC submission:</strong> 5-10 minutes</li>
+                                    <li><strong>KYC approval:</strong> Up to 24 hours (usually much faster)</li>
+                                    <li><strong>First deposit:</strong> 5-30 minutes (depending on method)</li>
+                                    <li><strong>Start investing:</strong> Immediately after deposit</li>
+                                </ul>
+                                Once verified, you can start investing right away.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="demo trial test free try before buy">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
+                                Can I try the platform before investing real money?
+                            </button>
+                        </h2>
+                        <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqGettingStarted">
+                            <div class="accordion-body">
+                                Yes! We offer a <strong class="text-white">demo mode</strong> where you can explore the platform with virtual funds. This allows you to:
+                                <ul>
+                                    <li>Explore the dashboard and features</li>
+                                    <li>See how AI strategies perform</li>
+                                    <li>Practice depositing and withdrawing</li>
+                                    <li>Understand how the platform works</li>
+                                </ul>
+                                When you're ready, simply switch to live mode and deposit real funds to start earning real returns.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="mobile app ios android phone tablet device">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
+                                Is there a mobile app available?
+                            </button>
+                        </h2>
+                        <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqGettingStarted">
+                            <div class="accordion-body">
+                                Our platform is fully responsive and works perfectly on mobile browsers. We're also developing native mobile apps:
+                                <ul>
+                                    <li><strong>iOS app:</strong> Coming Q2 2026</li>
+                                    <li><strong>Android app:</strong> Coming Q2 2026</li>
+                                </ul>
+                                In the meantime, you can access all features through your mobile browser. The interface is optimized for mobile use with touch-friendly controls and responsive design.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI TECHNOLOGY SECTION -->
+            <div class="faq-section" data-section="ai-technology">
+                <div class="faq-category-header">
+                    <div class="faq-category-icon">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <h3 class="faq-category-title">AI Technology</h3>
+                </div>
+
+                <div class="accordion faq-accordion" id="faqAITechnology">
+                    <div class="accordion-item" data-keywords="ai artificial intelligence bot how work algorithm machine learning">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq9">
+                                How do the AI trading bots work?
+                            </button>
+                        </h2>
+                        <div id="faq9" class="accordion-collapse collapse" data-bs-parent="#faqAITechnology">
+                            <div class="accordion-body">
+                                Our AI bots use advanced machine learning and deep learning algorithms to:
+                                <ul>
+                                    <li><strong>Analyze markets 24/7:</strong> Process 10,000+ data points per second including price action, volume, news sentiment, social media trends, and technical indicators</li>
+                                    <li><strong>Predict movements:</strong> Use neural networks trained on 10+ years of market data to identify optimal entry and exit points</li>
+                                    <li><strong>Execute trades:</strong> Place trades in milliseconds at optimal prices across multiple exchanges</li>
+                                    <li><strong>Manage risk:</strong> Automatically adjust stop-loss and take-profit levels based on market volatility</li>
+                                    <li><strong>Learn continuously:</strong> Improve with every trade, adapting to changing market conditions</li>
+                                </ul>
+                                The AI removes emotional bias and human error, making data-driven decisions around the clock.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="accuracy rate success win percentage reliable">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq10">
+                                What is the AI accuracy rate?
+                            </button>
+                        </h2>
+                        <div id="faq10" class="accordion-collapse collapse" data-bs-parent="#faqAITechnology">
+                            <div class="accordion-body">
+                                Our AI bots maintain a <strong class="text-white">94.7% accuracy rate</strong> across all strategies. This means:
+                                <ul>
+                                    <li>94.7% of trades result in profit</li>
+                                    <li>The AI continuously learns and improves from every trade</li>
+                                    <li>Different strategies have different accuracy rates (92-98%)</li>
+                                </ul>
+                                <strong>Important:</strong> Past performance doesn't guarantee future results. Markets are inherently unpredictable, and even the best AI can experience losing trades. However, our AI's high accuracy rate and sophisticated risk management help minimize losses and maximize gains over time.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="safe secure risk loss money guaranteed returns">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq11">
+                                Is AI trading safe? Can I lose money?
+                            </button>
+                        </h2>
+                        <div id="faq11" class="accordion-collapse collapse" data-bs-parent="#faqAITechnology">
+                            <div class="accordion-body">
+                                <strong>All investments carry risk</strong>, including AI-powered trading. While our AI has a 94.7% accuracy rate, there's always a possibility of losses due to:
+                                <ul>
+                                    <li>Extreme market volatility</li>
+                                    <li>Unexpected news events (regulatory changes, black swan events)</li>
+                                    <li>Technical issues or exchange outages</li>
+                                </ul>
+                                However, we minimize risk through:
+                                <ul>
+                                    <li><strong>Diversification:</strong> Spread across multiple strategies and assets</li>
+                                    <li><strong>Risk management:</strong> Automatic stop-losses and position sizing</li>
+                                    <li><strong>Conservative strategies:</strong> Low-risk options for cautious investors</li>
+                                    <li><strong>Transparency:</strong> See exactly what the AI is doing in real-time</li>
+                                </ul>
+                                Never invest more than you can afford to lose, and consider your risk tolerance when choosing strategies.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="data sources information analyze news sentiment social media">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq12">
+                                What data does the AI analyze?
+                            </button>
+                        </h2>
+                        <div id="faq12" class="accordion-collapse collapse" data-bs-parent="#faqAITechnology">
+                            <div class="accordion-body">
+                                Our AI bots analyze thousands of data points from multiple sources:
+                                <ul>
+                                    <li><strong>Market data:</strong> Price action, volume, order book depth, liquidity across 50+ exchanges</li>
+                                    <li><strong>Technical indicators:</strong> 100+ indicators including RSI, MACD, Bollinger Bands, moving averages</li>
+                                    <li><strong>News & sentiment:</strong> Real-time news feeds, social media sentiment (Twitter, Reddit, Telegram)</li>
+                                    <li><strong>On-chain data:</strong> Whale movements, exchange inflows/outflows, network activity</li>
+                                    <li><strong>Macroeconomic data:</strong> Interest rates, inflation, GDP, employment data</li>
+                                    <li><strong>Pattern recognition:</strong> Historical chart patterns and price formations</li>
+                                </ul>
+                                The AI processes this data in real-time to make informed trading decisions.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="customize strategy settings parameters adjust control">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq13">
+                                Can I customize the AI strategy settings?
+                            </button>
+                        </h2>
+                        <div id="faq13" class="accordion-collapse collapse" data-bs-parent="#faqAITechnology">
+                            <div class="accordion-body">
+                                Yes! While our AI bots are fully automated, you can customize certain parameters:
+                                <ul>
+                                    <li><strong>Risk tolerance:</strong> Conservative, moderate, or aggressive</li>
+                                    <li><strong>Investment amount:</strong> How much to allocate to each strategy</li>
+                                    <li><strong>Stop-loss levels:</strong> Maximum loss threshold per trade</li>
+                                    <li><strong>Take-profit targets:</strong> When to automatically take profits</li>
+                                    <li><strong>Trading frequency:</strong> How often the AI should trade</li>
+                                </ul>
+                                For most users, we recommend using the default settings, which are optimized by our AI team for the best risk-adjusted returns.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="update improve learn evolve new features">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq14">
+                                How often is the AI updated?
+                            </button>
+                        </h2>
+                        <div id="faq14" class="accordion-collapse collapse" data-bs-parent="#faqAITechnology">
+                            <div class="accordion-body">
+                                Our AI is continuously evolving:
+                                <ul>
+                                    <li><strong>Real-time learning:</strong> The AI learns from every trade it makes, improving continuously</li>
+                                    <li><strong>Weekly updates:</strong> Our team deploys model improvements and new features weekly</li>
+                                    <li><strong>Monthly major updates:</strong> Significant algorithm enhancements and new strategies monthly</li>
+                                    <li><strong>Quarterly reviews:</strong> Comprehensive strategy performance reviews and optimizations</li>
+                                </ul>
+                                You'll always benefit from the latest AI improvements without any action required on your part.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="human intervention manual override control stop pause">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq15">
+                                Can I override or stop the AI from trading?
+                            </button>
+                        </h2>
+                        <div id="faq15" class="accordion-collapse collapse" data-bs-parent="#faqAITechnology">
+                            <div class="accordion-body">
+                                Absolutely! You're always in control:
+                                <ul>
+                                    <li><strong>Pause trading:</strong> Temporarily pause the AI without closing positions</li>
+                                    <li><strong>Liquidate positions:</strong> Close all positions and return funds to your wallet</li>
+                                    <li><strong>Adjust parameters:</strong> Change risk levels, stop-losses, or investment amounts anytime</li>
+                                    <li><strong>Switch strategies:</strong> Move your funds between different AI strategies</li>
+                                </ul>
+                                All actions are instant and can be done through your dashboard. There are no lock-in periods or penalties.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVESTMENTS SECTION -->
+            <div class="faq-section" data-section="investments">
+                <div class="faq-category-header">
+                    <div class="faq-category-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h3 class="faq-category-title">Investments & Strategies</h3>
+                </div>
+
+                <div class="accordion faq-accordion" id="faqInvestments">
+                    <div class="accordion-item" data-keywords="strategies available types conservative aggressive stablecoin">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq16">
+                                What AI strategies are available?
+                            </button>
+                        </h2>
+                        <div id="faq16" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                We offer multiple AI-powered strategies for different risk profiles:
+                                <ul>
+                                    <li><strong>Stablecoin Yield Bot (Very Low Risk):</strong> 8.5% APY, $50 minimum, 98.1% AI accuracy</li>
+                                    <li><strong>Conservative BTC Bot (Low Risk):</strong> 12.4% monthly ROI, $100 minimum, 96.2% AI accuracy</li>
+                                    <li><strong>Balanced Portfolio Bot (Medium Risk):</strong> 18.5% monthly ROI, $250 minimum, 94.7% AI accuracy</li>
+                                    <li><strong>Aggressive ETH Bot (High Risk):</strong> 34.8% monthly ROI, $500 minimum, 92.5% AI accuracy</li>
+                                    <li><strong>DeFi Alpha Bot (Very High Risk):</strong> 45%+ monthly ROI, $1,000 minimum, 89.3% AI accuracy</li>
+                                </ul>
+                                Each strategy is powered by specialized AI bots optimized for specific market conditions and risk profiles.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="returns roi profit average performance historical">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq17">
+                                What kind of returns can I expect?
+                            </button>
+                        </h2>
+                        <div id="faq17" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                Our AI strategies have delivered impressive historical returns:
+                                <ul>
+                                    <li><strong>Average ROI across all strategies:</strong> 145.8% annually</li>
+                                    <li><strong>Conservative strategies:</strong> 8-15% monthly</li>
+                                    <li><strong>Moderate strategies:</strong> 15-25% monthly</li>
+                                    <li><strong>Aggressive strategies:</strong> 25-45%+ monthly</li>
+                                </ul>
+                                <strong class="text-warning">Important disclaimer:</strong> Past performance does not guarantee future results. Cryptocurrency markets are highly volatile, and returns can vary significantly. Never invest more than you can afford to lose, and consider your personal risk tolerance when choosing strategies.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="diversify multiple strategies spread risk portfolio">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq18">
+                                Can I invest in multiple strategies?
+                            </button>
+                        </h2>
+                        <div id="faq18" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                Yes! We encourage diversification. You can:
+                                <ul>
+                                    <li>Invest in as many strategies as you want</li>
+                                    <li>Allocate different amounts to each strategy</li>
+                                    <li>Rebalance your portfolio anytime</li>
+                                    <li>Switch between strategies without penalties</li>
+                                </ul>
+                                Diversification helps spread risk and can lead to more stable returns over time. Our dashboard makes it easy to manage multiple strategies in one place.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="withdraw liquidate stop cancel position exit">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq19">
+                                Can I withdraw my investment anytime?
+                            </button>
+                        </h2>
+                        <div id="faq19" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                Yes! There are <strong class="text-white">no lock-in periods</strong>. You can:
+                                <ul>
+                                    <li>Pause your strategy anytime (keeps positions open)</li>
+                                    <li>Liquidate positions and return funds to your wallet (takes 1-3 business days)</li>
+                                    <li>Withdraw funds from your wallet to your bank or crypto wallet</li>
+                                </ul>
+                                All withdrawals are processed within 1-3 business days depending on the method. There are no penalties for early withdrawal.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="compound reinvest profits returns automatic">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq20">
+                                Are profits automatically reinvested?
+                            </button>
+                        </h2>
+                        <div id="faq20" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                Yes! By default, profits are automatically reinvested (compound interest). This helps your portfolio grow exponentially over time.
+                                <br><br>
+                                However, you can change this setting anytime:
+                                <ul>
+                                    <li><strong>Auto-reinvest (default):</strong> Profits are automatically added to your investment</li>
+                                    <li><strong>Manual withdrawal:</strong> Profits are sent to your available balance for withdrawal</li>
+                                </ul>
+                                You can switch between these options at any time through your dashboard.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="loss lose money negative returns what happens">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq21">
+                                What happens if the AI makes a losing trade?
+                            </button>
+                        </h2>
+                        <div id="faq21" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                Even with a 94.7% accuracy rate, losing trades can happen. Here's how we protect you:
+                                <ul>
+                                    <li><strong>Automatic stop-losses:</strong> Each trade has a maximum loss threshold (typically 2-5%)</li>
+                                    <li><strong>Risk management:</strong> The AI adjusts position sizes based on market volatility</li>
+                                    <li><strong>Diversification:</strong> Losses in one trade are offset by gains in others</li>
+                                    <li><strong>Continuous learning:</strong> The AI learns from losses and improves future decisions</li>
+                                </ul>
+                                Our goal is to maximize risk-adjusted returns, not just raw returns. This means we prioritize protecting your capital while still delivering strong growth.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="track performance monitor portfolio dashboard analytics">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq22">
+                                How can I track my investment performance?
+                            </button>
+                        </h2>
+                        <div id="faq22" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                Your dashboard provides comprehensive performance tracking:
+                                <ul>
+                                    <li><strong>Real-time portfolio value:</strong> See your total balance and invested amount</li>
+                                    <li><strong>Profit/Loss tracking:</strong> Monitor gains and losses across all strategies</li>
+                                    <li><strong>Performance charts:</strong> Interactive charts showing historical performance</li>
+                                    <li><strong>Trade history:</strong> View every trade the AI has made on your behalf</li>
+                                    <li><strong>AI activity log:</strong> See what the AI is doing in real-time</li>
+                                    <li><strong>Notifications:</strong> Get alerts for important events (trades, profits, losses)</li>
+                                </ul>
+                                All data is updated in real-time, so you always have the latest information.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="tax taxes reporting income capital gains">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq23">
+                                How are taxes handled?
+                            </button>
+                        </h2>
+                        <div id="faq23" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                Tax obligations vary by country and individual circumstances. We provide:
+                                <ul>
+                                    <li><strong>Transaction history:</strong> Complete record of all trades, deposits, and withdrawals</li>
+                                    <li><strong>Profit/Loss reports:</strong> Downloadable reports for tax filing</li>
+                                    <li><strong>Annual tax statements:</strong> Summary of your investment activity for the year</li>
+                                </ul>
+                                <strong>Important:</strong> We don't provide tax advice. Consult a tax professional in your jurisdiction to understand your obligations. Cryptocurrency and investment income may be subject to capital gains tax, income tax, or other taxes depending on your location.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="choose strategy which best suitable risk profile">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq24">
+                                How do I choose the right strategy for me?
+                            </button>
+                        </h2>
+                        <div id="faq24" class="accordion-collapse collapse" data-bs-parent="#faqInvestments">
+                            <div class="accordion-body">
+                                Consider these factors when choosing a strategy:
+                                <ul>
+                                    <li><strong>Risk tolerance:</strong> How much volatility can you handle? Choose conservative for stability, aggressive for higher returns</li>
+                                    <li><strong>Investment timeline:</strong> Short-term (1-6 months) vs. long-term (1+ year)</li>
+                                    <li><strong>Investment amount:</strong> Each strategy has different minimums</li>
+                                    <li><strong>Financial goals:</strong> Income generation vs. capital growth</li>
+                                </ul>
+                                <strong>Our recommendation:</strong> Start with a conservative strategy to understand how the platform works, then gradually diversify into other strategies as you gain confidence. You can always adjust your allocation later.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEPOSITS & WITHDRAWALS SECTION -->
+            <div class="faq-section" data-section="deposits-withdrawals">
+                <div class="faq-category-header">
+                    <div class="faq-category-icon">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <h3 class="faq-category-title">Deposits & Withdrawals</h3>
+                </div>
+
+                <div class="accordion faq-accordion" id="faqDepositsWithdrawals">
+                    <div class="accordion-item" data-keywords="deposit methods payment crypto bank card how add funds">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq25">
+                                What deposit methods are available?
+                            </button>
+                        </h2>
+                        <div id="faq25" class="accordion-collapse collapse" data-bs-parent="#faqDepositsWithdrawals">
+                            <div class="accordion-body">
+                                We support multiple deposit methods:
+                                <ul>
+                                    <li><strong>Cryptocurrency:</strong> Bitcoin (BTC), Ethereum (ETH), USDT (TRC20) - Instant, no fees</li>
+                                    <li><strong>Bank wire transfer:</strong> 1-3 business days, no fees for transfers over $1,000</li>
+                                    <li><strong>SEPA transfer:</strong> 1-2 business days (Europe only), no fees</li>
+                                    <li><strong>Credit/Debit card:</strong> Instant, 2.5% processing fee</li>
+                                </ul>
+                                All deposits are secure and encrypted. Minimum deposit is $50 for all methods.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="withdrawal methods withdraw cash out bank crypto card">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq26">
+                                What withdrawal methods are available?
+                            </button>
+                        </h2>
+                        <div id="faq26" class="accordion-collapse collapse" data-bs-parent="#faqDepositsWithdrawals">
+                            <div class="accordion-body">
+                                You can withdraw to:
+                                <ul>
+                                    <li><strong>Cryptocurrency wallet:</strong> BTC, ETH, USDT - 1-6 hours, network fees apply</li>
+                                    <li><strong>Bank wire transfer:</strong> 1-3 business days, 1.5% fee (minimum $5)</li>
+                                    <li><strong>SEPA transfer:</strong> 1-2 business days (Europe only), 1% fee</li>
+                                </ul>
+                                Minimum withdrawal is $50. All withdrawals require manual review for security purposes.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="withdrawal time how long processing pending complete">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq27">
+                                How long do withdrawals take?
+                            </button>
+                        </h2>
+                        <div id="faq27" class="accordion-collapse collapse" data-bs-parent="#faqDepositsWithdrawals">
+                            <div class="accordion-body">
+                                Withdrawal processing times:
+                                <ul>
+                                    <li><strong>Initial review:</strong> 1-2 hours (security check)</li>
+                                    <li><strong>Cryptocurrency:</strong> 1-6 hours after approval (depends on network congestion)</li>
+                                    <li><strong>Bank wire:</strong> 1-3 business days after approval</li>
+                                    <li><strong>SEPA:</strong> 1-2 business days after approval</li>
+                                </ul>
+                                High-value withdrawals (over $10,000) may require additional verification and take longer. You'll receive email notifications at each step.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="deposit time how long pending complete crypto bank">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq28">
+                                How long do deposits take?
+                            </button>
+                        </h2>
+                        <div id="faq28" class="accordion-collapse collapse" data-bs-parent="#faqDepositsWithdrawals">
+                            <div class="accordion-body">
+                                Deposit processing times:
+                                <ul>
+                                    <li><strong>Cryptocurrency:</strong> 10-60 minutes (depends on network confirmations)</li>
+                                    <li><strong>Credit/Debit card:</strong> Instant</li>
+                                    <li><strong>Bank wire:</strong> 1-3 business days</li>
+                                    <li><strong>SEPA:</strong> 1-2 business days</li>
+                                </ul>
+                                Once confirmed, funds are immediately available for investment.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="fees deposit withdrawal cost charge">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq29">
+                                Are there any fees for deposits or withdrawals?
+                            </button>
+                        </h2>
+                        <div id="faq29" class="accordion-collapse collapse" data-bs-parent="#faqDepositsWithdrawals">
+                            <div class="accordion-body">
+                                Fee structure:
+                                <ul>
+                                    <li><strong>Crypto deposits:</strong> Free (network fees may apply)</li>
+                                    <li><strong>Bank deposits:</strong> Free for transfers over $1,000</li>
+                                    <li><strong>Card deposits:</strong> 2.5% processing fee</li>
+                                    <li><strong>Crypto withdrawals:</strong> Network fees only (varies by coin)</li>
+                                    <li><strong>Bank withdrawals:</strong> 1.5% fee (minimum $5)</li>
+                                    <li><strong>SEPA withdrawals:</strong> 1% fee</li>
+                                </ul>
+                                We believe in transparent pricing. All fees are clearly displayed before you confirm any transaction.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="minimum deposit withdrawal amount limit">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq30">
+                                What are the minimum deposit and withdrawal amounts?
+                            </button>
+                        </h2>
+                        <div id="faq30" class="accordion-collapse collapse" data-bs-parent="#faqDepositsWithdrawals">
+                            <div class="accordion-body">
+                                Minimum amounts:
+                                <ul>
+                                    <li><strong>Minimum deposit:</strong> $50 (all methods)</li>
+                                    <li><strong>Minimum withdrawal:</strong> $50 (all methods)</li>
+                                </ul>
+                                Maximum amounts (for verified accounts):
+                                <ul>
+                                    <li><strong>Daily deposit limit:</strong> $100,000</li>
+                                    <li><strong>Daily withdrawal limit:</strong> $50,000</li>
+                                </ul>
+                                Higher limits available for premium accounts. <a href="#">Contact us</a> for details.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="deposit stuck pending not showing where money">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq31">
+                                My deposit hasn't arrived. What should I do?
+                            </button>
+                        </h2>
+                        <div id="faq31" class="accordion-collapse collapse" data-bs-parent="#faqDepositsWithdrawals">
+                            <div class="accordion-body">
+                                If your deposit hasn't appeared in your account:
+                                <ul>
+                                    <li><strong>Wait for processing time:</strong> Check the expected timeframes above</li>
+                                    <li><strong>Check transaction status:</strong> Verify the transaction on the blockchain (for crypto) or with your bank</li>
+                                    <li><strong>Verify details:</strong> Ensure you used the correct deposit address or reference code</li>
+                                    <li><strong>Contact support:</strong> If it's been longer than expected, <a href="#">contact our support team</a> with your transaction details</li>
+                                </ul>
+                                Our support team is available 24/7 to help resolve any deposit issues.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="withdrawal stuck pending not received where money">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq32">
+                                My withdrawal hasn't arrived. What should I do?
+                            </button>
+                        </h2>
+                        <div id="faq32" class="accordion-collapse collapse" data-bs-parent="#faqDepositsWithdrawals">
+                            <div class="accordion-body">
+                                If your withdrawal hasn't arrived:
+                                <ul>
+                                    <li><strong>Check processing time:</strong> Withdrawals can take 1-3 business days depending on the method</li>
+                                    <li><strong>Check status:</strong> View your withdrawal status in your dashboard</li>
+                                    <li><strong>Verify destination:</strong> Ensure you provided the correct wallet address or bank details</li>
+                                    <li><strong>Contact support:</strong> If it's been longer than expected, <a href="#">contact our support team</a></li>
+                                </ul>
+                                We'll investigate and resolve the issue as quickly as possible.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECURITY SECTION -->
+            <div class="faq-section" data-section="security">
+                <div class="faq-category-header">
+                    <div class="faq-category-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h3 class="faq-category-title">Security & Privacy</h3>
+                </div>
+
+                <div class="accordion faq-accordion" id="faqSecurity">
+                    <div class="accordion-item" data-keywords="secure safe protection hack steal funds assets">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq33">
+                                How secure is my money on LuminaWealthAI?
+                            </button>
+                        </h2>
+                        <div id="faq33" class="accordion-collapse collapse" data-bs-parent="#faqSecurity">
+                            <div class="accordion-body">
+                                We take security extremely seriously. Your funds are protected by:
+                                <ul>
+                                    <li><strong>256-bit SSL encryption:</strong> Military-grade encryption for all data transmission</li>
+                                    <li><strong>Cold storage:</strong> 95% of crypto assets stored in offline cold storage, protected from hacking</li>
+                                    <li><strong>Multi-signature wallets:</strong> Require multiple approvals for large transactions</li>
+                                    <li><strong>Two-factor authentication (2FA):</strong> Required for all logins and withdrawals</li>
+                                    <li><strong>AI fraud detection:</strong> Real-time monitoring for suspicious activity</li>
+                                    <li><strong>Insurance coverage:</strong> Up to $1M per user through our insurance partners</li>
+                                    <li><strong>Regular audits:</strong> Third-party security audits conducted quarterly</li>
+                                </ul>
+                                We're SOC 2 certified, ISO 27001 compliant, and fully regulated.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="2fa two factor authentication security login">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq34">
+                                Is two-factor authentication (2FA) required?
+                            </button>
+                        </h2>
+                        <div id="faq34" class="accordion-collapse collapse" data-bs-parent="#faqSecurity">
+                            <div class="accordion-body">
+                                Yes, 2FA is <strong class="text-white">mandatory</strong> for all accounts. This adds an extra layer of security beyond your password.
+                                <br><br>
+                                Supported 2FA methods:
+                                <ul>
+                                    <li><strong>Authenticator apps:</strong> Google Authenticator, Authy (recommended)</li>
+                                    <li><strong>SMS codes:</strong> Sent to your registered phone number</li>
+                                    <li><strong>Email codes:</strong> Sent to your registered email</li>
+                                </ul>
+                                We strongly recommend using an authenticator app for the highest security. 2FA is required for:
+                                <ul>
+                                    <li>Logging in from new devices</li>
+                                    <li>All withdrawals</li>
+                                    <li>Changing account settings</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="password reset forgot change recover account">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq35">
+                                What if I forget my password?
+                            </button>
+                        </h2>
+                        <div id="faq35" class="accordion-collapse collapse" data-bs-parent="#faqSecurity">
+                            <div class="accordion-body">
+                                If you forget your password:
+                                <ul>
+                                    <li>Click "Forgot password" on the login page</li>
+                                    <li>Enter your registered email address</li>
+                                    <li>Check your email for a password reset link (expires in 1 hour)</li>
+                                    <li>Click the link and create a new password</li>
+                                </ul>
+                                <strong>Important:</strong> For security, you'll also need to verify your identity via 2FA before resetting your password. If you've lost access to your 2FA device, <a href="#">contact support</a> for assistance.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="hack stolen compromised account suspicious unauthorized">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq36">
+                                What if my account is compromised?
+                            </button>
+                        </h2>
+                        <div id="faq36" class="accordion-collapse collapse" data-bs-parent="#faqSecurity">
+                            <div class="accordion-body">
+                                If you suspect your account has been compromised:
+                                <ul>
+                                    <li><strong>Act immediately:</strong> <a href="#">Contact our support team</a> right away</li>
+                                    <li><strong>Change password:</strong> Reset your password immediately</li>
+                                    <li><strong>Revoke sessions:</strong> Log out all active sessions from your account settings</li>
+                                    <li><strong>Enable 2FA:</strong> Ensure 2FA is enabled and change your 2FA device if needed</li>
+                                    <li><strong>Monitor activity:</strong> Check your account for unauthorized transactions</li>
+                                </ul>
+                                Our security team will help you secure your account and investigate any unauthorized activity. We have insurance coverage to protect against security breaches.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="data privacy personal information gdpr protection">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq37">
+                                How is my personal data protected?
+                            </button>
+                        </h2>
+                        <div id="faq37" class="accordion-collapse collapse" data-bs-parent="#faqSecurity">
+                            <div class="accordion-body">
+                                We take data privacy very seriously:
+                                <ul>
+                                    <li><strong>GDPR compliant:</strong> We follow strict EU data protection regulations</li>
+                                    <li><strong>Data encryption:</strong> All personal data is encrypted at rest and in transit</li>
+                                    <li><strong>Minimal data collection:</strong> We only collect data necessary for platform operation</li>
+                                    <li><strong>No data sharing:</strong> We never sell or share your data with third parties</li>
+                                    <li><strong>Data deletion:</strong> You can request deletion of your data at any time</li>
+                                    <li><strong>Transparent policies:</strong> Clear privacy policy explaining how we use your data</li>
+                                </ul>
+                                Read our full <a href="#">Privacy Policy</a> for detailed information.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="cold storage wallet offline online hot security">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq38">
+                                What is cold storage and why is it important?
+                            </button>
+                        </h2>
+                        <div id="faq38" class="accordion-collapse collapse" data-bs-parent="#faqSecurity">
+                            <div class="accordion-body">
+                                <strong>Cold storage</strong> means storing cryptocurrency offline, completely disconnected from the internet. This is the most secure way to store crypto assets.
+                                <br><br>
+                                At LuminaWealthAI:
+                                <ul>
+                                    <li><strong>95% of assets</strong> are stored in cold storage</li>
+                                    <li><strong>5% in hot wallets</strong> for immediate withdrawals and trading</li>
+                                    <li><strong>Multi-signature protection:</strong> Cold storage requires multiple approvals to access</li>
+                                    <li><strong>Geographic distribution:</strong> Cold storage facilities are located in multiple secure locations worldwide</li>
+                                </ul>
+                                This means even if our online systems were compromised, the vast majority of user funds would remain safe in offline cold storage.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="regulated licensed compliant legal authorization">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq39">
+                                Is LuminaWealthAI regulated?
+                            </button>
+                        </h2>
+                        <div id="faq39" class="accordion-collapse collapse" data-bs-parent="#faqSecurity">
+                            <div class="accordion-body">
+                                Yes, LuminaWealthAI is fully regulated and compliant:
+                                <ul>
+                                    <li><strong>Licensed:</strong> Registered financial services provider</li>
+                                    <li><strong>KYC/AML compliant:</strong> Follows all Know Your Customer and Anti-Money Laundering regulations</li>
+                                    <li><strong>SOC 2 certified:</strong> Meets strict security and privacy standards</li>
+                                    <li><strong>ISO 27001:</strong> International information security standard</li>
+                                    <li><strong>Regular audits:</strong> Quarterly third-party security audits</li>
+                                    <li><strong>Insurance coverage:</strong> User funds insured up to $1M per account</li>
+                                </ul>
+                                We operate in full compliance with all applicable laws and regulations in the jurisdictions we serve.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEES SECTION -->
+            <div class="faq-section" data-section="fees">
+                <div class="faq-category-header">
+                    <div class="faq-category-icon">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <h3 class="faq-category-title">Fees & Pricing</h3>
+                </div>
+
+                <div class="accordion faq-accordion" id="faqFees">
+                    <div class="accordion-item" data-keywords="fees cost pricing management charge">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq40">
+                                What fees does LuminaWealthAI charge?
+                            </button>
+                        </h2>
+                        <div id="faq40" class="accordion-collapse collapse" data-bs-parent="#faqFees">
+                            <div class="accordion-body">
+                                Our fee structure is transparent and competitive:
+                                <ul>
+                                    <li><strong>Management fee:</strong> 1.5% annually on invested amounts (deducted monthly)</li>
+                                    <li><strong>Deposit fees:</strong> Free for crypto and bank transfers, 2.5% for card deposits</li>
+                                    <li><strong>Withdrawal fees:</strong> Network fees for crypto, 1.5% for bank transfers</li>
+                                    <li><strong>Trading fees:</strong> None - included in management fee</li>
+                                    <li><strong>Inactivity fees:</strong> None</li>
+                                    <li><strong>Hidden fees:</strong> None - what you see is what you pay</li>
+                                </ul>
+                                The 1.5% management fee covers all AI trading, platform maintenance, security, and support.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="management fee how calculated when deducted">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq41">
+                                How is the management fee calculated?
+                            </button>
+                        </h2>
+                        <div id="faq41" class="accordion-collapse collapse" data-bs-parent="#faqFees">
+                            <div class="accordion-body">
+                                The management fee is calculated as follows:
+                                <ul>
+                                    <li><strong>Annual rate:</strong> 1.5% per year</li>
+                                    <li><strong>Monthly deduction:</strong> 0.125% per month (1.5% ÷ 12)</li>
+                                    <li><strong>Based on:</strong> Your average invested amount during the month</li>
+                                    <li><strong>Not on:</strong> Your available balance or profits</li>
+                                </ul>
+                                <strong>Example:</strong> If you have $10,000 invested, you'll pay $12.50 per month ($10,000 × 0.125%) in management fees.
+                                <br><br>
+                                The fee is automatically deducted from your invested amount at the end of each month. You can see all fee deductions in your transaction history.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="free trial no fees discount promotion">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq42">
+                                Are there any free trials or discounts?
+                            </button>
+                        </h2>
+                        <div id="faq42" class="accordion-collapse collapse" data-bs-parent="#faqFees">
+                            <div class="accordion-body">
+                                Yes! We offer several ways to save:
+                                <ul>
+                                    <li><strong>Demo mode:</strong> Try the platform with virtual funds (completely free)</li>
+                                    <li><strong>Referral program:</strong> Earn 0.5% fee reduction for each friend you refer</li>
+                                    <li><strong>Volume discounts:</strong> Reduced fees for investments over $50,000</li>
+                                    <li><strong>Annual prepayment:</strong> Pay management fee annually and save 10%</li>
+                                    <li><strong>Promotional offers:</strong> Check our website for current promotions</li>
+                                </ul>
+                                Contact us to learn more about our referral program and volume discounts.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="hidden fees surprise charges transparent">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq43">
+                                Are there any hidden fees?
+                            </button>
+                        </h2>
+                        <div id="faq43" class="accordion-collapse collapse" data-bs-parent="#faqFees">
+                            <div class="accordion-body">
+                                <strong class="text-white">Absolutely not.</strong> We believe in complete transparency:
+                                <ul>
+                                    <li>All fees are clearly listed on our <a href="#">Pricing page</a></li>
+                                    <li>Fees are shown before you confirm any transaction</li>
+                                    <li>No surprise charges or hidden costs</li>
+                                    <li>You can see all fees in your transaction history</li>
+                                </ul>
+                                If you ever see a charge you don't understand, <a href="#">contact our support team</a> and we'll explain it in detail.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="refund cancel fee money back">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq44">
+                                Can I get a refund on fees?
+                            </button>
+                        </h2>
+                        <div id="faq44" class="accordion-collapse collapse" data-bs-parent="#faqFees">
+                            <div class="accordion-body">
+                                Fee refund policy:
+                                <ul>
+                                    <li><strong>Management fees:</strong> Non-refundable (covers services already provided)</li>
+                                    <li><strong>Deposit fees:</strong> Non-refundable once deposit is processed</li>
+                                    <li><strong>Withdrawal fees:</strong> Non-refundable once withdrawal is initiated</li>
+                                </ul>
+                                However, if you experience technical issues or errors on our platform, we may refund fees on a case-by-case basis. <a href="#">Contact support</a> to discuss your situation.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TECHNICAL SUPPORT SECTION -->
+            <div class="faq-section" data-section="technical">
+                <div class="faq-category-header">
+                    <div class="faq-category-icon">
+                        <i class="bi bi-gear-fill"></i>
+                    </div>
+                    <h3 class="faq-category-title">Technical Support</h3>
+                </div>
+
+                <div class="accordion faq-accordion" id="faqTechnical">
+                    <div class="accordion-item" data-keywords="browser supported chrome firefox safari edge compatible">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq45">
+                                Which browsers are supported?
+                            </button>
+                        </h2>
+                        <div id="faq45" class="accordion-collapse collapse" data-bs-parent="#faqTechnical">
+                            <div class="accordion-body">
+                                LuminaWealthAI works best on modern browsers:
+                                <ul>
+                                    <li><strong>Google Chrome:</strong> Version 90+ (recommended)</li>
+                                    <li><strong>Mozilla Firefox:</strong> Version 88+</li>
+                                    <li><strong>Safari:</strong> Version 14+</li>
+                                    <li><strong>Microsoft Edge:</strong> Version 90+</li>
+                                    <li><strong>Opera:</strong> Version 76+</li>
+                                </ul>
+                                For the best experience, keep your browser updated to the latest version. We don't support Internet Explorer.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="mobile phone tablet ios android responsive">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq46">
+                                Does the platform work on mobile devices?
+                            </button>
+                        </h2>
+                        <div id="faq46" class="accordion-collapse collapse" data-bs-parent="#faqTechnical">
+                            <div class="accordion-body">
+                                Yes! Our platform is fully responsive and works on:
+                                <ul>
+                                    <li><strong>iOS devices:</strong> iPhone and iPad (Safari browser)</li>
+                                    <li><strong>Android devices:</strong> Phones and tablets (Chrome browser)</li>
+                                    <li><strong>All screen sizes:</strong> Optimized for mobile, tablet, and desktop</li>
+                                </ul>
+                                The mobile interface includes all features available on desktop, with touch-friendly controls and responsive design. Native mobile apps are coming soon!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="slow loading performance lag issue fix">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq47">
+                                The platform is loading slowly. What should I do?
+                            </button>
+                        </h2>
+                        <div id="faq47" class="accordion-collapse collapse" data-bs-parent="#faqTechnical">
+                            <div class="accordion-body">
+                                If you're experiencing slow loading:
+                                <ul>
+                                    <li><strong>Check your internet connection:</strong> Ensure you have a stable connection</li>
+                                    <li><strong>Clear browser cache:</strong> Old cached data can slow down loading</li>
+                                    <li><strong>Disable browser extensions:</strong> Some extensions can interfere with the platform</li>
+                                    <li><strong>Try a different browser:</strong> Switch to Chrome or Firefox for best performance</li>
+                                    <li><strong>Check our status page:</strong> We may be experiencing technical issues</li>
+                                </ul>
+                                If the problem persists, <a href="#">contact our support team</a> with details about your browser, device, and internet speed.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-keywords="error bug problem issue report technical">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq48">
+                                I found a bug or error. How do I report it?
+                            </button>
+                        </h2>
+                        <div id="faq48" class="accordion-collapse collapse" data-bs-parent="#faqTechnical">
+                            <div class="accordion-body">
+                                We appreciate bug reports! To report an issue:
+                                <ul>
+                                    <li><strong>Describe the problem:</strong> What were you trying to do? What happened instead?</li>
+                                    <li><strong>Include screenshots:</strong> Visual evidence helps us understand the issue</li>
+                                    <li><strong>Provide details:</strong> Browser, device, operating system, and steps to reproduce</li>
+                                    <li><strong>Contact us:</strong> Email <a href="mailto:support@luminawealthai.com">support@luminawealthai.com</a> or use live chat</li>
+                                </ul>
+                                We take all bug reports seriously and work to fix them quickly. As a thank you, we may offer fee credits for significant bug discoveries.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Popular Questions Section -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-star-fill"></i>
+                <span>Most Popular</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Popular <span class="gradient-text-animated">Questions</span>
+            </h2>
+            <p class="section-subtitle">
+                The most frequently asked questions from our users
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="popular-question-card">
+                    <div class="popular-badge">
+                        <i class="bi bi-fire"></i> Most Asked
+                    </div>
+                    <h6 class="fw-bold mb-2">What is the minimum investment?</h6>
+                    <p class="text-secondary small mb-0">
+                        You can start with just $50. Different strategies have different minimums ranging from $50 to $1,000.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="popular-question-card">
+                    <div class="popular-badge">
+                        <i class="bi bi-fire"></i> Most Asked
+                    </div>
+                    <h6 class="fw-bold mb-2">How long do withdrawals take?</h6>
+                    <p class="text-secondary small mb-0">
+                        Crypto withdrawals: 1-6 hours. Bank transfers: 1-3 business days. All require 1-2 hour security review.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="popular-question-card">
+                    <div class="popular-badge">
+                        <i class="bi bi-fire"></i> Most Asked
+                    </div>
+                    <h6 class="fw-bold mb-2">Is my investment safe?</h6>
+                    <p class="text-secondary small mb-0">
+                        Yes! 95% of assets in cold storage, 256-bit encryption, 2FA required, fully regulated, and insured up to $1M.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="popular-question-card">
+                    <div class="popular-badge">
+                        <i class="bi bi-fire"></i> Most Asked
+                    </div>
+                    <h6 class="fw-bold mb-2">What returns can I expect?</h6>
+                    <p class="text-secondary small mb-0">
+                        Average ROI is 145.8% annually. Returns vary by strategy: 8-45%+ monthly depending on risk level.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="popular-question-card">
+                    <div class="popular-badge">
+                        <i class="bi bi-fire"></i> Most Asked
+                    </div>
+                    <h6 class="fw-bold mb-2">How accurate is the AI?</h6>
+                    <p class="text-secondary small mb-0">
+                        Our AI maintains a 94.7% accuracy rate across all strategies, continuously learning and improving.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="popular-question-card">
+                    <div class="popular-badge">
+                        <i class="bi bi-fire"></i> Most Asked
+                    </div>
+                    <h6 class="fw-bold mb-2">Can I withdraw anytime?</h6>
+                    <p class="text-secondary small mb-0">
+                        Yes! No lock-in periods. Withdraw your funds anytime with no penalties. Processing takes 1-3 days.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Still Have Questions Section -->
+<section class="section">
+    <div class="container">
+        <div class="contact-support-card" data-aos="zoom-in">
+            <div class="position-relative z-1">
+                <div class="mb-4">
+                    <i class="bi bi-chat-dots-fill" style="font-size: 4rem; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                </div>
+                <h2 class="fw-bold mb-3">Still Have Questions?</h2>
+                <p class="text-secondary mb-4" style="font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                    Can't find the answer you're looking for? Our support team is here to help. 
+                    Reach out and we'll get back to you within 24 hours.
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+                        <i class="bi bi-chat-dots-fill me-2"></i> Contact Support
+                    </a>
+                    <a href="#" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                        <i class="bi bi-headset me-2"></i> Live Chat
+                    </a>
+                </div>
+                <div class="mt-4 text-secondary small">
+                    <i class="bi bi-clock me-1"></i> Average response time: 2 hours
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // FAQ Search Functionality
+    const searchInput = document.getElementById('faqSearch');
+    const faqSections = document.querySelectorAll('.faq-section');
+    const faqItems = document.querySelectorAll('.accordion-item');
+    const noResults = document.getElementById('noResults');
+    const faqContent = document.getElementById('faqContent');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        if (searchTerm === '') {
+            // Reset to show all
+            faqSections.forEach(section => section.style.display = 'block');
+            faqItems.forEach(item => item.style.display = 'block');
+            noResults.classList.remove('show');
+            faqContent.style.display = 'block';
+            return;
+        }
+
+        let hasResults = false;
+
+        faqItems.forEach(item => {
+            const keywords = item.getAttribute('data-keywords') || '';
+            const question = item.querySelector('.accordion-button').textContent.toLowerCase();
+            const answer = item.querySelector('.accordion-body').textContent.toLowerCase();
+            
+            const matches = keywords.includes(searchTerm) || 
+                           question.includes(searchTerm) || 
+                           answer.includes(searchTerm);
+            
+            if (matches) {
+                item.style.display = 'block';
+                hasResults = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Hide empty sections
+        faqSections.forEach(section => {
+            const visibleItems = section.querySelectorAll('.accordion-item[style="display: block"]');
+            if (visibleItems.length === 0) {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
+            }
+        });
+
+        // Show/hide no results message
+        if (hasResults) {
+            noResults.classList.remove('show');
+            faqContent.style.display = 'block';
+        } else {
+            noResults.classList.add('show');
+            faqContent.style.display = 'none';
+        }
+    });
+
+    // Category Tab Filtering
+    const categoryTabs = document.querySelectorAll('.faq-category-tab');
+    
+    categoryTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs
+            categoryTabs.forEach(t => t.classList.remove('active'));
+            // Add active class to clicked tab
+            this.classList.add('active');
+
+            const category = this.getAttribute('data-category');
+            
+            if (category === 'all') {
+                // Show all sections
+                faqSections.forEach(section => section.style.display = 'block');
+            } else {
+                // Show only selected category
+                faqSections.forEach(section => {
+                    if (section.getAttribute('data-section') === category) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            }
+
+            // Reset search
+            searchInput.value = '';
+            faqItems.forEach(item => item.style.display = 'block');
+            noResults.classList.remove('show');
+            faqContent.style.display = 'block';
+
+            // Scroll to FAQ content
+            document.getElementById('faqContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    // Popular Search Clicks
+    const popularSearches = document.querySelectorAll('.popular-search');
+    popularSearches.forEach(search => {
+        search.addEventListener('click', function(e) {
+            e.preventDefault();
+            const term = this.textContent;
+            searchInput.value = term;
+            searchInput.dispatchEvent(new Event('input'));
+            
+            // Scroll to FAQ content
+            document.getElementById('faqContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    // Reset Search Function
+    function resetSearch() {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        
+        // Reset category tabs
+        categoryTabs.forEach(t => t.classList.remove('active'));
+        categoryTabs[0].classList.add('active');
+        
+        // Show all sections
+        faqSections.forEach(section => section.style.display = 'block');
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+    });
+</script>
+{% endblock %}

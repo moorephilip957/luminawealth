@@ -1,0 +1,810 @@
+{% extends './base_two.html' %}
+
+{% block title %}Contact Us - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Contact Form Styles */
+    .contact-form-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 24px;
+        padding: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    }
+
+    .form-floating-custom {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-floating-custom input,
+    .form-floating-custom textarea,
+    .form-floating-custom select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        color: var(--text-primary);
+        padding: 1rem 1.25rem;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .form-floating-custom input:focus,
+    .form-floating-custom textarea:focus,
+    .form-floating-custom select:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-floating-custom label {
+        position: absolute;
+        top: 1rem;
+        left: 1.25rem;
+        color: var(--text-secondary);
+        pointer-events: none;
+        transition: all 0.3s ease;
+        background: transparent;
+        padding: 0 0.25rem;
+    }
+
+    .form-floating-custom input:focus ~ label,
+    .form-floating-custom input:not(:placeholder-shown) ~ label,
+    .form-floating-custom textarea:focus ~ label,
+    .form-floating-custom textarea:not(:placeholder-shown) ~ label {
+        top: -0.5rem;
+        left: 1rem;
+        font-size: 0.85rem;
+        color: #667eea;
+        background: var(--dark-bg);
+    }
+
+    /* Contact Info Card */
+    .contact-info-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.4s ease;
+        height: 100%;
+    }
+
+    .contact-info-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+    }
+
+    .contact-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+        transition: all 0.4s ease;
+    }
+
+    .contact-info-card:hover .contact-icon {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Office Location Card */
+    .office-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .office-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    .office-card:hover {
+        transform: translateX(10px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    }
+
+    /* Map Container */
+    .map-container {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 24px;
+        overflow: hidden;
+        height: 400px;
+        position: relative;
+    }
+
+    .map-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    }
+
+    /* Support Channel Card */
+    .support-channel {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .support-channel:hover {
+        transform: translateY(-5px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .support-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    /* FAQ Preview */
+    .faq-preview-item {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .faq-preview-item:hover {
+        border-color: rgba(102, 126, 234, 0.3);
+        transform: translateX(5px);
+    }
+
+    /* Business Hours */
+    .hours-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .hours-item:last-child {
+        border-bottom: none;
+    }
+
+    .hours-day {
+        font-weight: 600;
+    }
+
+    .hours-time {
+        color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .contact-form-card {
+            padding: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden" style="min-height: 60vh; padding-top: 120px;">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="particle-bg" id="particles"></div>
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.1;"></div>
+
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-duration="1200">
+                <span class="ai-badge mb-4">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span>Get in Touch</span>
+                </span>
+
+                <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1;">
+                    We're Here to
+                    <span class="gradient-text-animated">Help You Succeed</span>
+                </h1>
+
+                <p class="lead text-secondary mb-5" style="font-size: 1.3rem; max-width: 800px; margin: 0 auto;">
+                    Have questions about our AI-powered platform? Our team is ready to assist you. 
+                    Reach out and we'll respond within 24 hours.
+                </p>
+
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#contact-form" class="btn btn-shiny btn-lg px-5 py-3 rounded-pill text-white glow-effect">
+                        Send Message <i class="bi bi-arrow-down ms-2"></i>
+                    </a>
+                    <a href="#support" class="btn btn-outline-custom btn-lg px-5 py-3 rounded-pill">
+                        <i class="bi bi-headset me-2"></i> Live Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Info Cards -->
+<section class="section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="contact-info-card text-center">
+                    <div class="contact-icon mx-auto">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Email Us</h5>
+                    <p class="text-secondary small mb-3">Our team will respond within 24 hours</p>
+                    <a href="mailto:support@luminawealthai.com" class="text-decoration-none">
+                        <span class="gradient-text-animated fw-bold">support@luminawealthai.com</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="contact-info-card text-center">
+                    <div class="contact-icon mx-auto">
+                        <i class="bi bi-telephone-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Call Us</h5>
+                    <p class="text-secondary small mb-3">Mon-Fri from 8am to 6pm EST</p>
+                    <a href="tel:+15551234567" class="text-decoration-none">
+                        <span class="gradient-text-animated fw-bold">+1 (555) 123-4567</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="contact-info-card text-center">
+                    <div class="contact-icon mx-auto">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Visit Us</h5>
+                    <p class="text-secondary small mb-3">Our headquarters in San Francisco</p>
+                    <span class="gradient-text-animated fw-bold">123 AI Street, SF, CA</span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="contact-info-card text-center">
+                    <div class="contact-icon mx-auto">
+                        <i class="bi bi-chat-left-text-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Live Chat</h5>
+                    <p class="text-secondary small mb-3">24/7 AI-powered support</p>
+                    <a href="#" class="text-decoration-none">
+                        <span class="gradient-text-animated fw-bold">Start Chat</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form & Map Section -->
+<section class="section" id="contact-form" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Contact Form -->
+            <div class="col-lg-7" data-aos="fade-right">
+                <div class="contact-form-card">
+                    <h3 class="fw-bold mb-2">
+                        Send Us a <span class="gradient-text-animated">Message</span>
+                    </h3>
+                    <p class="text-secondary mb-4">
+                        Fill out the form below and we'll get back to you as soon as possible.
+                    </p>
+
+                    <form>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating-custom">
+                                    <input type="text" id="firstName" placeholder=" " required>
+                                    <label for="firstName">First Name *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating-custom">
+                                    <input type="text" id="lastName" placeholder=" " required>
+                                    <label for="lastName">Last Name *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating-custom">
+                                    <input type="email" id="email" placeholder=" " required>
+                                    <label for="email">Email Address *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating-custom">
+                                    <input type="tel" id="phone" placeholder=" ">
+                                    <label for="phone">Phone Number</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating-custom">
+                                    <select id="subject" required>
+                                        <option value="" disabled selected></option>
+                                        <option value="general">General Inquiry</option>
+                                        <option value="support">Technical Support</option>
+                                        <option value="investment">Investment Questions</option>
+                                        <option value="partnership">Partnership Opportunity</option>
+                                        <option value="press">Press & Media</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <label for="subject">Subject *</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating-custom">
+                                    <textarea id="message" rows="5" placeholder=" " required style="resize: vertical;"></textarea>
+                                    <label for="message">Your Message *</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="newsletter" checked>
+                                    <label class="form-check-label text-secondary" for="newsletter">
+                                        Subscribe to our newsletter for AI trading insights and updates
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-shiny btn-lg w-100 rounded-pill py-3 text-white glow-effect">
+                                    <i class="bi bi-send-fill me-2"></i> Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Map & Office Info -->
+            <div class="col-lg-5" data-aos="fade-left">
+                <div class="map-container mb-4">
+                    <div class="map-placeholder">
+                        <div class="text-center">
+                            <i class="bi bi-geo-alt-fill" style="font-size: 4rem; color: #667eea;"></i>
+                            <h5 class="fw-bold mt-3 mb-2">Our Headquarters</h5>
+                            <p class="text-secondary small mb-0">123 AI Street, San Francisco, CA 94105</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-info-card">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-clock-fill text-primary me-2"></i> Business Hours
+                    </h5>
+                    <div class="hours-item">
+                        <span class="hours-day">Monday - Friday</span>
+                        <span class="hours-time">8:00 AM - 6:00 PM EST</span>
+                    </div>
+                    <div class="hours-item">
+                        <span class="hours-day">Saturday</span>
+                        <span class="hours-time">10:00 AM - 4:00 PM EST</span>
+                    </div>
+                    <div class="hours-item">
+                        <span class="hours-day">Sunday</span>
+                        <span class="hours-time">Closed</span>
+                    </div>
+                    <div class="hours-item">
+                        <span class="hours-day">AI Support</span>
+                        <span class="hours-time text-success fw-bold">24/7 Available</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Support Channels -->
+<section class="section" id="support">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-headset"></i>
+                <span>Support Channels</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Multiple Ways to <span class="gradient-text-animated">Reach Us</span>
+            </h2>
+            <p class="section-subtitle">
+                Choose the support channel that works best for you
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="support-channel">
+                    <div class="support-icon">
+                        <i class="bi bi-chat-dots-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Live Chat</h5>
+                    <p class="text-secondary small mb-3">Chat with our AI assistant or human agents</p>
+                    <span class="badge bg-success rounded-pill px-3 py-2">
+                        <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> Online Now
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="support-channel">
+                    <div class="support-icon">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Email Support</h5>
+                    <p class="text-secondary small mb-3">Get detailed responses within 24 hours</p>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">
+                        <i class="bi bi-clock me-1"></i> 24h Response
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="support-channel">
+                    <div class="support-icon">
+                        <i class="bi bi-telephone-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Phone Support</h5>
+                    <p class="text-secondary small mb-3">Speak directly with our support team</p>
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                        <i class="bi bi-clock me-1"></i> Business Hours
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="support-channel">
+                    <div class="support-icon">
+                        <i class="bi bi-book-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Help Center</h5>
+                    <p class="text-secondary small mb-3">Browse our comprehensive knowledge base</p>
+                    <span class="badge bg-info rounded-pill px-3 py-2">
+                        <i class="bi bi-search me-1"></i> Self-Service
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Office Locations -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="ai-badge mb-3">
+                <i class="bi bi-building"></i>
+                <span>Global Presence</span>
+            </span>
+            <h2 class="section-title mb-3">
+                Our <span class="gradient-text-animated">Office Locations</span>
+            </h2>
+            <p class="section-subtitle">
+                We have offices around the world to serve you better
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6" data-aos="fade-right" data-aos-delay="100">
+                <div class="office-card">
+                    <div class="d-flex align-items-start">
+                        <div class="contact-icon me-3" style="min-width: 70px;">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">San Francisco (HQ)</h5>
+                            <p class="text-secondary small mb-2">
+                                123 AI Street<br>
+                                San Francisco, CA 94105<br>
+                                United States
+                            </p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge bg-primary rounded-pill px-3 py-2">
+                                    <i class="bi bi-geo-alt me-1"></i> Headquarters
+                                </span>
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="bi bi-telephone me-1"></i> +1 (555) 123-4567
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
+                <div class="office-card">
+                    <div class="d-flex align-items-start">
+                        <div class="contact-icon me-3" style="min-width: 70px;">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">London Office</h5>
+                            <p class="text-secondary small mb-2">
+                                456 Tech Lane<br>
+                                London, EC2A 4BX<br>
+                                United Kingdom
+                            </p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge bg-info rounded-pill px-3 py-2">
+                                    <i class="bi bi-geo-alt me-1"></i> Europe HQ
+                                </span>
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="bi bi-telephone me-1"></i> +44 20 7946 0958
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-right" data-aos-delay="300">
+                <div class="office-card">
+                    <div class="d-flex align-items-start">
+                        <div class="contact-icon me-3" style="min-width: 70px;">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Singapore Office</h5>
+                            <p class="text-secondary small mb-2">
+                                789 Innovation Drive<br>
+                                Singapore, 018956<br>
+                                Singapore
+                            </p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                                    <i class="bi bi-geo-alt me-1"></i> Asia Pacific
+                                </span>
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="bi bi-telephone me-1"></i> +65 6789 0123
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left" data-aos-delay="400">
+                <div class="office-card">
+                    <div class="d-flex align-items-start">
+                        <div class="contact-icon me-3" style="min-width: 70px;">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Dubai Office</h5>
+                            <p class="text-secondary small mb-2">
+                                321 Finance Street<br>
+                                Dubai International Financial Centre<br>
+                                United Arab Emirates
+                            </p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge bg-danger rounded-pill px-3 py-2">
+                                    <i class="bi bi-geo-alt me-1"></i> Middle East
+                                </span>
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="bi bi-telephone me-1"></i> +971 4 123 4567
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Preview -->
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-5" data-aos="fade-right">
+                <span class="ai-badge mb-3">
+                    <i class="bi bi-question-circle-fill"></i>
+                    <span>Quick Answers</span>
+                </span>
+                <h2 class="section-title text-start mb-3">
+                    Frequently Asked <span class="gradient-text-animated">Questions</span>
+                </h2>
+                <p class="text-secondary mb-4">
+                    Can't find what you're looking for? Contact our support team and we'll be happy to help.
+                </p>
+                <a href="#" class="btn btn-outline-custom rounded-pill px-5 py-3">
+                    View All FAQs <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            <div class="col-lg-7" data-aos="fade-left">
+                <div class="faq-preview-item">
+                    <h6 class="fw-bold mb-2">
+                        <i class="bi bi-question-circle text-primary me-2"></i>
+                        How do I get started with LuminaWealthAI?
+                    </h6>
+                    <p class="text-secondary small mb-0">
+                        Simply create an account, complete KYC verification, deposit funds (minimum $50), and choose an AI strategy. Our bots will start trading for you immediately.
+                    </p>
+                </div>
+
+                <div class="faq-preview-item">
+                    <h6 class="fw-bold mb-2">
+                        <i class="bi bi-question-circle text-primary me-2"></i>
+                        What is the minimum investment amount?
+                    </h6>
+                    <p class="text-secondary small mb-0">
+                        You can start investing with just $50. This low minimum makes our platform accessible to everyone, regardless of their capital.
+                    </p>
+                </div>
+
+                <div class="faq-preview-item">
+                    <h6 class="fw-bold mb-2">
+                        <i class="bi bi-question-circle text-primary me-2"></i>
+                        How secure is my investment?
+                    </h6>
+                    <p class="text-secondary small mb-0">
+                        We use 256-bit SSL encryption, store 95% of assets in cold storage, require two-factor authentication, and are fully regulated and compliant.
+                    </p>
+                </div>
+
+                <div class="faq-preview-item">
+                    <h6 class="fw-bold mb-2">
+                        <i class="bi bi-question-circle text-primary me-2"></i>
+                        Can I withdraw my money anytime?
+                    </h6>
+                    <p class="text-secondary small mb-0">
+                        Yes, you can withdraw your funds at any time with no lock-in periods. Withdrawals are processed within 1-3 business days.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social Media & Newsletter -->
+<section class="section" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h3 class="fw-bold mb-3">
+                    Stay Connected with <span class="gradient-text-animated">LuminaWealthAI</span>
+                </h3>
+                <p class="text-secondary mb-4">
+                    Follow us on social media for the latest updates, AI trading insights, and market analysis.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="#" class="social-icon" style="width: 50px; height: 50px;">
+                        <i class="bi bi-facebook fs-4"></i>
+                    </a>
+                    <a href="#" class="social-icon" style="width: 50px; height: 50px;">
+                        <i class="bi bi-twitter fs-4"></i>
+                    </a>
+                    <a href="#" class="social-icon" style="width: 50px; height: 50px;">
+                        <i class="bi bi-linkedin fs-4"></i>
+                    </a>
+                    <a href="#" class="social-icon" style="width: 50px; height: 50px;">
+                        <i class="bi bi-instagram fs-4"></i>
+                    </a>
+                    <a href="#" class="social-icon" style="width: 50px; height: 50px;">
+                        <i class="bi bi-youtube fs-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="contact-form-card">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-envelope-fill text-primary me-2"></i>
+                        Subscribe to Our Newsletter
+                    </h5>
+                    <p class="text-secondary small mb-4">
+                        Get weekly AI trading insights, market analysis, and exclusive updates delivered to your inbox.
+                    </p>
+                    <form>
+                        <div class="form-floating-custom">
+                            <input type="email" id="newsletterEmail" placeholder=" " required>
+                            <label for="newsletterEmail">Your Email Address *</label>
+                        </div>
+                        <button type="submit" class="btn btn-shiny w-100 rounded-pill py-3 text-white">
+                            <i class="bi bi-send-fill me-2"></i> Subscribe Now
+                        </button>
+                    </form>
+                    <p class="text-secondary small mt-3 mb-0 text-center">
+                        <i class="bi bi-shield-check me-1"></i> We respect your privacy. Unsubscribe anytime.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section position-relative overflow-hidden">
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.2;"></div>
+    <div class="container position-relative z-1 text-center" data-aos="zoom-in">
+        <h2 class="display-3 fw-bold mb-4">
+            Ready to Start Your <span class="gradient-text-animated">AI Trading Journey</span>?
+        </h2>
+        <p class="lead mb-5" style="font-size: 1.3rem;">
+            Join thousands of investors who are already benefiting from our AI-powered platform.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="#" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+                Create Free Account <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="#" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                Schedule a Demo
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+    });
+</script>
+{% endblock %}

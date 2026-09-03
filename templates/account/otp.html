@@ -1,0 +1,805 @@
+{% extends '../frontend/base_two.html' %}
+
+{% block title %}Verify Your Identity - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Auth Page Styles */
+    .auth-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        padding-top: 80px;
+    }
+
+    .auth-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: calc(100vh - 80px);
+        width: 100%;
+    }
+
+    /* Left Panel - Hero */
+    .auth-hero-panel {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-hero-panel::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
+        animation: rotate-slow 30s linear infinite;
+    }
+
+    @keyframes rotate-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .auth-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .auth-hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-hero-text {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.7;
+    }
+
+    /* Security Features */
+    .security-feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .security-feature-list li {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .security-feature-list li i {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 242, 254, 0.2));
+        color: #10b981;
+    }
+
+    /* Floating Security Badges */
+    .auth-floating-stat {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        z-index: 3;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+    }
+
+    .auth-floating-stat.stat-1 {
+        top: 15%;
+        right: 10%;
+        animation-delay: 0s;
+    }
+
+    .auth-floating-stat.stat-2 {
+        bottom: 20%;
+        left: 5%;
+        animation-delay: 2s;
+    }
+
+    /* Right Panel - Form */
+    .auth-form-panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem;
+        background: var(--dark-bg);
+        position: relative;
+    }
+
+    .auth-form-container {
+        width: 100%;
+        max-width: 480px;
+    }
+
+    .auth-logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .auth-logo i {
+        font-size: 1.8rem;
+        -webkit-text-fill-color: #667eea;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Email/Phone Display */
+    .target-display {
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.3);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .target-display-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .target-display-info {
+        flex: 1;
+    }
+
+    .target-display-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.25rem;
+    }
+
+    .target-display-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    /* OTP Input Boxes */
+    .otp-inputs-container {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .otp-input {
+        width: 60px;
+        height: 70px;
+        text-align: center;
+        font-size: 1.75rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+        flex: 1;
+        max-width: 70px;
+    }
+
+    .otp-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .otp-input.filled {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .otp-input.error {
+        border-color: #ef4444;
+        background: rgba(239, 68, 68, 0.05);
+        animation: shake 0.5s ease;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    /* Resend Section */
+    .resend-section {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .resend-timer {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50px;
+        margin-bottom: 0.75rem;
+    }
+
+    .resend-timer i {
+        color: #667eea;
+    }
+
+    .timer-value {
+        font-weight: 700;
+        color: #667eea;
+        font-family: 'Courier New', monospace;
+    }
+
+    .resend-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .resend-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .resend-link.disabled {
+        color: var(--text-secondary);
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    /* Auth Button */
+    .auth-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-btn::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+        transform: rotate(45deg);
+        transition: all 0.5s;
+        opacity: 0;
+    }
+
+    .auth-btn:hover::before {
+        animation: shimmer 1.5s ease-in-out;
+        opacity: 1;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+    }
+
+    .auth-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Auth Links */
+    .auth-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .auth-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    /* Security Badge */
+    .security-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    .security-badge i {
+        color: #10b981;
+    }
+
+    /* Success Message */
+    .otp-success-message {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+    }
+
+    .otp-success-message.show {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .otp-success-message i {
+        font-size: 3rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+    }
+
+    /* Help Section */
+    .help-section {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+    }
+
+    .help-section-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .help-section-title i {
+        color: #667eea;
+    }
+
+    .help-section p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .auth-container {
+            grid-template-columns: 1fr;
+        }
+        .auth-hero-panel {
+            display: none;
+        }
+        .auth-form-panel {
+            padding: 2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .auth-form-panel {
+            padding: 1.5rem;
+        }
+        .auth-title {
+            font-size: 1.5rem;
+        }
+        .otp-input {
+            height: 55px;
+            font-size: 1.25rem;
+        }
+        .otp-inputs-container {
+            gap: 0.4rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container">
+        <!-- Left Panel - Hero -->
+        <div class="auth-hero-panel">
+            <div class="particle-bg" id="particles"></div>
+
+            <!-- Floating Stats -->
+            <div class="auth-floating-stat stat-1">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-lock-fill text-success fs-4"></i>
+                    <div>
+                        <div class="small text-secondary">Security</div>
+                        <div class="fw-bold text-success">2FA Enabled</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-floating-stat stat-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-patch-check-fill text-warning fs-4"></i>
+                    <div>
+                        <div class="small text-secondary">Verification</div>
+                        <div class="fw-bold text-warning">Instant</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-hero-content">
+                <h1 class="auth-hero-title">
+                    Secure Your
+                    <span class="gradient-text-animated d-block">Account Access</span>
+                </h1>
+                <p class="auth-hero-text">
+                    We've sent a 6-digit verification code to your registered email. 
+                    This extra layer of security ensures only you can access your AI portfolio.
+                </p>
+
+                <ul class="security-feature-list">
+                    <li>
+                        <i class="bi bi-shield-check"></i>
+                        <span>256-bit encrypted verification</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-clock-history"></i>
+                        <span>Code expires in 10 minutes</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span>Resend available after 60 seconds</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-lock-fill"></i>
+                        <span>Protects against unauthorized access</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel - OTP Form -->
+        <div class="auth-form-panel">
+            <div class="auth-form-container">
+                <div class="auth-logo">
+                    <i class="bi bi-cpu-fill"></i>
+                    LuminaWealthAI
+                </div>
+
+                <h2 class="auth-title">Verify Your Identity</h2>
+                <p class="auth-subtitle">
+                    Enter the 6-digit code we sent to verify it's really you
+                </p>
+
+                <!-- Target Display -->
+                <div class="target-display">
+                    <div class="target-display-icon">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+                    <div class="target-display-info">
+                        <div class="target-display-label">Code sent to</div>
+                        <div class="target-display-value">j***@example.com</div>
+                    </div>
+                    <a href="#" class="auth-link small">Change</a>
+                </div>
+
+                <!-- Success Message (Hidden by default) -->
+                <div class="otp-success-message" id="successMessage">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <h4 class="fw-bold mb-2">Verification Successful!</h4>
+                    <p class="text-secondary mb-0">Redirecting to your dashboard...</p>
+                </div>
+
+                <!-- OTP Form -->
+                <form method="POST" action="#" id="otpForm">
+                    {% csrf_token %}
+
+                    <label class="form-label text-secondary fw-semibold mb-3 d-block">
+                        Enter verification code
+                    </label>
+
+                    <div class="otp-inputs-container">
+                        <input type="text" class="otp-input" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                        <input type="text" class="otp-input" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
+                    </div>
+
+                    <!-- Resend Section -->
+                    <div class="resend-section">
+                        <div class="resend-timer" id="resendTimer">
+                            <i class="bi bi-clock"></i>
+                            <span>Resend code in <span class="timer-value" id="timerValue">60</span>s</span>
+                        </div>
+                        <div id="resendLinkContainer" style="display: none;">
+                            <span>Didn't receive the code? </span>
+                            <a href="#" class="resend-link" id="resendLink">Resend Code</a>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn mb-3" id="verifyBtn" disabled>
+                        <i class="bi bi-shield-check me-2"></i> Verify & Continue
+                    </button>
+                </form>
+
+                <p class="text-center text-secondary mb-0">
+                    <a href="#" class="auth-link">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Login
+                    </a>
+                </p>
+
+                <!-- Help Section -->
+                <div class="help-section">
+                    <div class="help-section-title">
+                        <i class="bi bi-question-circle-fill"></i>
+                        Having trouble?
+                    </div>
+                    <p>
+                        Check your spam folder if you don't see the email. The code expires in 10 minutes. 
+                        If you still have issues, <a href="#" class="auth-link">contact support</a>.
+                    </p>
+                </div>
+
+                <div class="security-badge">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>Protected by 256-bit SSL encryption</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // OTP Input Handling
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const otpForm = document.getElementById('otpForm');
+
+    // Handle input in each OTP box
+    otpInputs.forEach((input, index) => {
+        // Handle typing
+        input.addEventListener('input', (e) => {
+            const value = e.target.value;
+            
+            // Only allow numbers
+            if (!/^\d*$/.test(value)) {
+                e.target.value = '';
+                return;
+            }
+
+            if (value) {
+                e.target.classList.add('filled');
+                e.target.classList.remove('error');
+                
+                // Move to next input
+                if (index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            } else {
+                e.target.classList.remove('filled');
+            }
+
+            checkOTPComplete();
+        });
+
+        // Handle backspace
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                otpInputs[index - 1].focus();
+                otpInputs[index - 1].value = '';
+                otpInputs[index - 1].classList.remove('filled');
+                checkOTPComplete();
+            }
+
+            // Handle arrow keys
+            if (e.key === 'ArrowLeft' && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+            if (e.key === 'ArrowRight' && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+        });
+
+        // Handle paste
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').trim();
+            
+            // Only accept 6 digits
+            if (/^\d{6}$/.test(pastedData)) {
+                pastedData.split('').forEach((digit, i) => {
+                    if (otpInputs[i]) {
+                        otpInputs[i].value = digit;
+                        otpInputs[i].classList.add('filled');
+                    }
+                });
+                otpInputs[otpInputs.length - 1].focus();
+                checkOTPComplete();
+            }
+        });
+
+        // Handle focus - select all text
+        input.addEventListener('focus', (e) => {
+            e.target.select();
+        });
+    });
+
+    // Check if all OTP inputs are filled
+    function checkOTPComplete() {
+        const allFilled = Array.from(otpInputs).every(input => input.value.length === 1);
+        verifyBtn.disabled = !allFilled;
+    }
+
+    // Countdown Timer
+    let timeLeft = 60;
+    const timerValue = document.getElementById('timerValue');
+    const resendTimer = document.getElementById('resendTimer');
+    const resendLinkContainer = document.getElementById('resendLinkContainer');
+    const resendLink = document.getElementById('resendLink');
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timerValue.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            resendTimer.style.display = 'none';
+            resendLinkContainer.style.display = 'block';
+        }
+    }, 1000);
+
+    // Resend OTP
+    resendLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Reset timer
+        timeLeft = 60;
+        resendTimer.style.display = 'flex';
+        resendLinkContainer.style.display = 'none';
+        timerValue.textContent = timeLeft;
+
+        // Restart countdown
+        const newCountdown = setInterval(() => {
+            timeLeft--;
+            timerValue.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(newCountdown);
+                resendTimer.style.display = 'none';
+                resendLinkContainer.style.display = 'block';
+            }
+        }, 1000);
+
+        // Show success message (in real app, this would trigger resend)
+        alert('A new code has been sent to your email!');
+    });
+
+    // Form Submission
+    otpForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get OTP value
+        const otp = Array.from(otpInputs).map(input => input.value).join('');
+        
+        // In real app, send to server
+        console.log('OTP:', otp);
+
+        // Simulate verification (replace with actual server call)
+        verifyBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Verifying...';
+        verifyBtn.disabled = true;
+
+        setTimeout(() => {
+            // Simulate success
+            document.getElementById('successMessage').classList.add('show');
+            otpForm.style.display = 'none';
+            
+            // Redirect after 2 seconds (in real app)
+            setTimeout(() => {
+                // window.location.href = '{% url "customer:dashboard" %}';
+                alert('Redirecting to dashboard...');
+            }, 2000);
+        }, 1500);
+    });
+
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+        // Auto-focus first input
+        otpInputs[0].focus();
+    });
+</script>
+{% endblock %}

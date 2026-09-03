@@ -188,3 +188,10 @@ def kyc_address_submit(request):
         messages.success(request, 'Address proof submitted successfully!')
     
     return redirect('customer:kyc')
+
+
+def notifications_view(request):
+    return render(request, 'customer/notifications.html')
+
+def transaction_history(request):
+    return render(request, 'customer/transaction_history.html')

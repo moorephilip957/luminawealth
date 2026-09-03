@@ -1,0 +1,579 @@
+{% extends '../frontend/base_two.html' %}
+
+{% block title %}Login - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Auth Page Styles */
+    .auth-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        padding-top: 80px;
+    }
+
+    .auth-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: calc(100vh - 80px);
+        width: 100%;
+    }
+
+    /* Left Panel - Hero */
+    .auth-hero-panel {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-hero-panel::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
+        animation: rotate-slow 30s linear infinite;
+    }
+
+    @keyframes rotate-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .auth-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .auth-hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-hero-text {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.7;
+    }
+
+    .auth-feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .auth-feature-list li {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .auth-feature-list li i {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    /* Floating Stats */
+    .auth-floating-stat {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        z-index: 3;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+    }
+
+    .auth-floating-stat.stat-1 {
+        top: 15%;
+        right: 10%;
+        animation-delay: 0s;
+    }
+
+    .auth-floating-stat.stat-2 {
+        bottom: 20%;
+        left: 5%;
+        animation-delay: 2s;
+    }
+
+    .auth-floating-stat.stat-3 {
+        bottom: 10%;
+        right: 15%;
+        animation-delay: 4s;
+    }
+
+    /* Right Panel - Form */
+    .auth-form-panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem;
+        background: var(--dark-bg);
+        position: relative;
+    }
+
+    .auth-form-container {
+        width: 100%;
+        max-width: 440px;
+    }
+
+    .auth-logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .auth-logo i {
+        font-size: 1.8rem;
+        -webkit-text-fill-color: #667eea;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    /* Form Inputs */
+    .auth-input-group {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+
+    .auth-input-group i.input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+        z-index: 2;
+    }
+
+    .auth-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .auth-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+
+    .auth-input:focus ~ i.input-icon {
+        color: #667eea;
+    }
+
+    .auth-input::placeholder {
+        color: rgba(160, 174, 192, 0.6);
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+        z-index: 2;
+    }
+
+    .password-toggle:hover {
+        color: #667eea;
+    }
+
+    /* Social Login */
+    .social-divider {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .social-divider::before,
+    .social-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(102, 126, 234, 0.2);
+    }
+
+    .social-divider span {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .social-login-btn {
+        width: 100%;
+        padding: 0.85rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .social-login-btn:hover {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .social-login-btn img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .social-login-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    /* Auth Button */
+    .auth-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-btn::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+        transform: rotate(45deg);
+        transition: all 0.5s;
+        opacity: 0;
+    }
+
+    .auth-btn:hover::before {
+        animation: shimmer 1.5s ease-in-out;
+        opacity: 1;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+    }
+
+    /* Auth Links */
+    .auth-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .auth-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    /* Security Badge */
+    .security-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    .security-badge i {
+        color: #10b981;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .auth-container {
+            grid-template-columns: 1fr;
+        }
+        .auth-hero-panel {
+            display: none;
+        }
+        .auth-form-panel {
+            padding: 2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .auth-form-panel {
+            padding: 1.5rem;
+        }
+        .auth-title {
+            font-size: 1.5rem;
+        }
+        .social-login-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container">
+        <!-- Left Panel - Hero -->
+        <div class="auth-hero-panel">
+            <div class="particle-bg" id="particles"></div>
+
+            <!-- Floating Stats -->
+            <div class="auth-floating-stat stat-1">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-robot text-success fs-4"></i>
+                    <div>
+                        <div class="small text-secondary">AI Bots</div>
+                        <div class="fw-bold text-success">Active 24/7</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-floating-stat stat-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-graph-up-arrow text-info fs-4"></i>
+                    <div>
+                        <div class="small text-secondary">Avg ROI</div>
+                        <div class="fw-bold text-info">145.8%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-floating-stat stat-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-check text-warning fs-4"></i>
+                    <div>
+                        <div class="small text-secondary">Security</div>
+                        <div class="fw-bold text-warning">256-bit</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-hero-content">
+                <h1 class="auth-hero-title">
+                    Welcome Back to
+                    <span class="gradient-text-animated d-block">LuminaWealthAI</span>
+                </h1>
+                <p class="auth-hero-text">
+                    Your AI-powered investment portfolio is waiting. Log in to check your returns, 
+                    manage your strategies, and watch your wealth grow.
+                </p>
+
+                <ul class="auth-feature-list">
+                    <li>
+                        <i class="bi bi-robot"></i>
+                        <span>12 AI bots trading on your behalf 24/7</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Real-time portfolio performance tracking</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Bank-grade security protecting your assets</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-lightning-charge"></i>
+                        <span>Instant deposits and fast withdrawals</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel - Login Form -->
+        <div class="auth-form-panel">
+            <div class="auth-form-container">
+                <div class="auth-logo">
+                    <i class="bi bi-cpu-fill"></i>
+                    LuminaWealthAI
+                </div>
+
+                <h2 class="auth-title">Sign In</h2>
+                <p class="auth-subtitle">
+                    Enter your credentials to access your AI portfolio
+                </p>
+
+                <!-- Social Login -->
+                <div class="social-login-grid mb-3">
+                    <button class="social-login-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Google
+                    </button>
+                    <button class="social-login-btn">
+                        <i class="bi bi-apple fs-5"></i>
+                        Apple
+                    </button>
+                </div>
+
+                <div class="social-divider">
+                    <span>or sign in with email</span>
+                </div>
+
+                <!-- Login Form -->
+                <form method="POST" action="#">
+                    {% csrf_token %}
+
+                    <div class="auth-input-group">
+                        <i class="bi bi-envelope input-icon"></i>
+                        <input type="email" class="auth-input" name="email" placeholder="Email address" required>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <i class="bi bi-lock input-icon"></i>
+                        <input type="password" class="auth-input" name="password" id="loginPassword" placeholder="Password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="remember" id="rememberMe">
+                            <label class="form-check-label text-secondary" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+                        <a href="#" class="auth-link small">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-btn mb-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Sign In
+                    </button>
+                </form>
+
+                <p class="text-center text-secondary mb-0">
+                    Don't have an account? 
+                    <a href="#" class="auth-link">Create one free</a>
+                </p>
+
+                <div class="security-badge">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>Protected by 256-bit SSL encryption</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle Password Visibility
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', createParticles);
+</script>
+{% endblock %}

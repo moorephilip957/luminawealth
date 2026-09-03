@@ -1,0 +1,779 @@
+{% extends './base_two.html' %}
+
+{% block title %}Terms of Service - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Legal Page Styles */
+    .legal-hero {
+        min-height: 50vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        padding-top: 120px;
+        padding-bottom: 60px;
+    }
+
+    .legal-content {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 24px;
+        padding: 3rem;
+        margin-top: 2rem;
+    }
+
+    .legal-toc {
+        position: sticky;
+        top: 100px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+    }
+
+    .legal-toc-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .legal-toc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .legal-toc-list li {
+        margin-bottom: 0.75rem;
+    }
+
+    .legal-toc-list a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: block;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        border-left: 3px solid transparent;
+    }
+
+    .legal-toc-list a:hover {
+        color: var(--text-primary);
+        background: rgba(102, 126, 234, 0.1);
+        border-left-color: #667eea;
+        transform: translateX(5px);
+    }
+
+    .legal-section {
+        margin-bottom: 3rem;
+        scroll-margin-top: 100px;
+    }
+
+    .legal-section-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .legal-section-title::before {
+        content: '';
+        width: 4px;
+        height: 30px;
+        background: linear-gradient(180deg, #667eea, #764ba2);
+        border-radius: 2px;
+    }
+
+    .legal-subsection {
+        margin-bottom: 2rem;
+    }
+
+    .legal-subsection-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .legal-text {
+        color: var(--text-secondary);
+        line-height: 1.8;
+        margin-bottom: 1rem;
+    }
+
+    .legal-list {
+        color: var(--text-secondary);
+        line-height: 1.8;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .legal-list li {
+        margin-bottom: 0.75rem;
+    }
+
+    .legal-highlight {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .legal-highlight-title {
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legal-warning {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .legal-warning-title {
+        font-weight: 700;
+        color: #f59e0b;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legal-meta {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .legal-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legal-meta-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .legal-meta-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .legal-toc {
+            position: static;
+            margin-bottom: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .legal-content {
+            padding: 2rem 1.5rem;
+        }
+        .legal-section-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="legal-hero position-relative overflow-hidden">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="particle-bg" id="particles"></div>
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.1;"></div>
+
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-duration="1200">
+                <span class="ai-badge mb-4">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    <span>Legal Document</span>
+                </span>
+
+                <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1;">
+                    Terms of
+                    <span class="gradient-text-animated">Service</span>
+                </h1>
+
+                <p class="lead text-secondary mb-4" style="font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
+                    Please read these terms carefully before using LuminaWealthAI's platform and services.
+                </p>
+
+                <div class="legal-meta justify-content-center">
+                    <div class="legal-meta-item">
+                        <i class="bi bi-calendar3 text-primary"></i>
+                        <span class="legal-meta-label">Last Updated:</span>
+                        <span class="legal-meta-value">September 3, 2026</span>
+                    </div>
+                    <div class="legal-meta-item">
+                        <i class="bi bi-clock text-primary"></i>
+                        <span class="legal-meta-label">Effective Date:</span>
+                        <span class="legal-meta-value">September 3, 2026</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="section pt-0">
+    <div class="container">
+        <div class="row g-4">
+            
+            <!-- Table of Contents (Sidebar) -->
+            <div class="col-lg-3" data-aos="fade-right">
+                <div class="legal-toc">
+                    <h6 class="legal-toc-title">
+                        <i class="bi bi-list-ul me-2"></i> Contents
+                    </h6>
+                    <ul class="legal-toc-list">
+                        <li><a href="#acceptance">1. Acceptance of Terms</a></li>
+                        <li><a href="#eligibility">2. Eligibility</a></li>
+                        <li><a href="#account">3. Account Registration</a></li>
+                        <li><a href="#services">4. Description of Services</a></li>
+                        <li><a href="#investments">5. Investment Risks</a></li>
+                        <li><a href="#fees">6. Fees and Payments</a></li>
+                        <li><a href="#prohibited">7. Prohibited Activities</a></li>
+                        <li><a href="#intellectual">8. Intellectual Property</a></li>
+                        <li><a href="#termination">9. Termination</a></li>
+                        <li><a href="#disclaimer">10. Disclaimers</a></li>
+                        <li><a href="#liability">11. Limitation of Liability</a></li>
+                        <li><a href="#disputes">12. Dispute Resolution</a></li>
+                        <li><a href="#changes">13. Changes to Terms</a></li>
+                        <li><a href="#contact">14. Contact Information</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Legal Content -->
+            <div class="col-lg-9" data-aos="fade-left">
+                <div class="legal-content">
+
+                    <!-- Section 1: Acceptance -->
+                    <div class="legal-section" id="acceptance">
+                        <h2 class="legal-section-title">1. Acceptance of Terms</h2>
+                        
+                        <p class="legal-text">
+                            Welcome to LuminaWealthAI ("Company," "we," "us," or "our"). These Terms of Service ("Terms") govern your access to and use of our website, mobile applications, AI trading platform, and related services (collectively, the "Service").
+                        </p>
+
+                        <p class="legal-text">
+                            By accessing or using the Service, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, you may not access or use the Service.
+                        </p>
+
+                        <div class="legal-highlight">
+                            <div class="legal-highlight-title">
+                                <i class="bi bi-info-circle-fill text-primary"></i>
+                                Important Notice
+                            </div>
+                            <p class="legal-text mb-0">
+                                These Terms constitute a legally binding agreement between you and LuminaWealthAI. Please read them carefully and retain a copy for your records.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Eligibility -->
+                    <div class="legal-section" id="eligibility">
+                        <h2 class="legal-section-title">2. Eligibility</h2>
+                        
+                        <p class="legal-text">
+                            To use the Service, you must meet the following eligibility requirements:
+                        </p>
+
+                        <ul class="legal-list">
+                            <li><strong>Age Requirement:</strong> You must be at least 18 years old or the age of majority in your jurisdiction, whichever is greater.</li>
+                            <li><strong>Legal Capacity:</strong> You must have the legal capacity to enter into binding contracts.</li>
+                            <li><strong>Geographic Restrictions:</strong> You must not be located in a country where our services are prohibited by law.</li>
+                            <li><strong>Sanctions Compliance:</strong> You must not be subject to economic sanctions or appear on any government restricted party list.</li>
+                            <li><strong>KYC Verification:</strong> You must successfully complete our Know Your Customer (KYC) verification process.</li>
+                        </ul>
+
+                        <div class="legal-warning">
+                            <div class="legal-warning-title">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                Restricted Jurisdictions
+                            </div>
+                            <p class="legal-text mb-0">
+                                Our services are not available in certain jurisdictions, including but not limited to: United States (for securities trading), North Korea, Iran, Syria, Cuba, and Crimea region. If you are located in a restricted jurisdiction, you may not use our services.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Account Registration -->
+                    <div class="legal-section" id="account">
+                        <h2 class="legal-section-title">3. Account Registration</h2>
+                        
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">3.1 Account Creation</h3>
+                            <p class="legal-text">
+                                To access our services, you must create an account by providing accurate, complete, and current information. You agree to:
+                            </p>
+                            <ul class="legal-list">
+                                <li>Provide truthful and accurate information during registration</li>
+                                <li>Maintain and promptly update your account information</li>
+                                <li>Create a strong, unique password and keep it confidential</li>
+                                <li>Enable two-factor authentication (2FA) for enhanced security</li>
+                                <li>Notify us immediately of any unauthorized access to your account</li>
+                            </ul>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">3.2 Account Security</h3>
+                            <p class="legal-text">
+                                You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to:
+                            </p>
+                            <ul class="legal-list">
+                                <li>Not share your login credentials with any third party</li>
+                                <li>Not allow unauthorized access to your account</li>
+                                <li>Immediately notify us of any security breaches</li>
+                                <li>Use secure devices and networks when accessing your account</li>
+                            </ul>
+                            <p class="legal-text">
+                                We reserve the right to suspend or terminate your account if we reasonably believe that your account has been compromised or is being used in violation of these Terms.
+                            </p>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">3.3 KYC/AML Compliance</h3>
+                            <p class="legal-text">
+                                You agree to complete our Know Your Customer (KYC) and Anti-Money Laundering (AML) verification process, which may include:
+                            </p>
+                            <ul class="legal-list">
+                                <li>Providing government-issued identification</li>
+                                <li>Providing proof of address</li>
+                                <li>Completing selfie verification</li>
+                                <li>Providing source of funds information</li>
+                                <li>Answering questions about your investment experience</li>
+                            </ul>
+                            <p class="legal-text">
+                                We reserve the right to reject your verification or request additional documentation at our discretion.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Description of Services -->
+                    <div class="legal-section" id="services">
+                        <h2 class="legal-section-title">4. Description of Services</h2>
+                        
+                        <p class="legal-text">
+                            LuminaWealthAI provides AI-powered automated investment services, including but not limited to:
+                        </p>
+
+                        <ul class="legal-list">
+                            <li><strong>AI Trading Bots:</strong> Automated trading algorithms that analyze markets and execute trades on your behalf</li>
+                            <li><strong>Investment Strategies:</strong> Pre-configured investment strategies with varying risk profiles</li>
+                            <li><strong>Portfolio Management:</strong> Tools to track, monitor, and manage your investment portfolio</li>
+                            <li><strong>Market Analytics:</strong> Real-time market data, charts, and analytical tools</li>
+                            <li><strong>Deposit and Withdrawal Services:</strong> Secure methods to fund your account and withdraw funds</li>
+                        </ul>
+
+                        <div class="legal-highlight">
+                            <div class="legal-highlight-title">
+                                <i class="bi bi-robot text-primary"></i>
+                                AI Technology Disclaimer
+                            </div>
+                            <p class="legal-text mb-0">
+                                Our AI trading bots use advanced machine learning algorithms to make trading decisions. While our AI has demonstrated high accuracy rates historically, past performance does not guarantee future results. AI trading involves inherent risks, and you may lose some or all of your invested capital.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Investment Risks -->
+                    <div class="legal-section" id="investments">
+                        <h2 class="legal-section-title">5. Investment Risks</h2>
+                        
+                        <div class="legal-warning">
+                            <div class="legal-warning-title">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                CRITICAL RISK DISCLOSURE
+                            </div>
+                            <p class="legal-text mb-0">
+                                Investing in cryptocurrencies and digital assets involves substantial risk of loss and is not suitable for every investor. You should carefully consider whether investing is suitable for you in light of your financial condition.
+                            </p>
+                        </div>
+
+                        <p class="legal-text">
+                            By using our services, you acknowledge and accept the following risks:
+                        </p>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">5.1 Market Risk</h3>
+                            <p class="legal-text">
+                                Cryptocurrency markets are highly volatile and can experience significant price fluctuations. The value of your investments may decrease substantially, and you may lose your entire investment.
+                            </p>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">5.2 Technology Risk</h3>
+                            <p class="legal-text">
+                                Digital assets rely on blockchain technology, which is subject to technical failures, hacking, cyber attacks, and other technological risks. These risks may result in loss of funds.
+                            </p>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">5.3 Regulatory Risk</h3>
+                            <p class="legal-text">
+                                Cryptocurrency regulations are evolving and may change significantly. Changes in regulations may adversely affect the value of digital assets or restrict your ability to trade or withdraw funds.
+                            </p>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">5.4 AI Trading Risk</h3>
+                            <p class="legal-text">
+                                AI trading algorithms, while sophisticated, are not infallible. The AI may make incorrect predictions, fail to adapt to market conditions, or experience technical issues that result in losses.
+                            </p>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">5.5 Liquidity Risk</h3>
+                            <p class="legal-text">
+                                Some digital assets may have limited liquidity, making it difficult to buy or sell at desired prices. You may not be able to liquidate your positions quickly or at favorable prices.
+                            </p>
+                        </div>
+
+                        <div class="legal-highlight">
+                            <div class="legal-highlight-title">
+                                <i class="bi bi-shield-exclamation text-warning"></i>
+                                Risk Acknowledgment
+                            </div>
+                            <p class="legal-text mb-0">
+                                By using our services, you confirm that you have read, understood, and accepted these risk disclosures. You agree that you are solely responsible for your investment decisions and that LuminaWealthAI is not liable for any losses you incur.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Fees and Payments -->
+                    <div class="legal-section" id="fees">
+                        <h2 class="legal-section-title">6. Fees and Payments</h2>
+                        
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">6.1 Management Fees</h3>
+                            <p class="legal-text">
+                                We charge a management fee of 1.5% annually on your invested amount, calculated and deducted monthly (0.125% per month). This fee covers:
+                            </p>
+                            <ul class="legal-list">
+                                <li>AI trading algorithm operation and maintenance</li>
+                                <li>Platform infrastructure and security</li>
+                                <li>Customer support services</li>
+                                <li>Continuous AI model improvements</li>
+                            </ul>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">6.2 Transaction Fees</h3>
+                            <p class="legal-text">
+                                Additional fees may apply for certain transactions:
+                            </p>
+                            <ul class="legal-list">
+                                <li><strong>Deposit Fees:</strong> Crypto deposits are free; card deposits incur a 2.5% processing fee</li>
+                                <li><strong>Withdrawal Fees:</strong> Network fees for crypto withdrawals; 1.5% fee for bank transfers</li>
+                                <li><strong>Trading Fees:</strong> No additional trading fees beyond the management fee</li>
+                            </ul>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">6.3 Fee Changes</h3>
+                            <p class="legal-text">
+                                We reserve the right to modify our fee structure with 30 days' prior notice. Continued use of the Service after fee changes constitutes acceptance of the new fees.
+                            </p>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">6.4 Refund Policy</h3>
+                            <p class="legal-text">
+                                Management fees are non-refundable once deducted. Transaction fees are non-refundable once transactions are processed. We do not provide refunds for investment losses.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 7: Prohibited Activities -->
+                    <div class="legal-section" id="prohibited">
+                        <h2 class="legal-section-title">7. Prohibited Activities</h2>
+                        
+                        <p class="legal-text">
+                            You agree not to engage in any of the following prohibited activities:
+                        </p>
+
+                        <ul class="legal-list">
+                            <li><strong>Illegal Activities:</strong> Using the Service for money laundering, terrorist financing, or other illegal purposes</li>
+                            <li><strong>Market Manipulation:</strong> Attempting to manipulate markets or engage in fraudulent trading practices</li>
+                            <li><strong>Unauthorized Access:</strong> Attempting to gain unauthorized access to our systems or other users' accounts</li>
+                            <li><strong>Reverse Engineering:</strong> Reverse engineering, decompiling, or attempting to extract our AI algorithms or source code</li>
+                            <li><strong>Interference:</strong> Interfering with or disrupting the Service or servers</li>
+                            <li><strong>False Information:</strong> Providing false or misleading information during registration or KYC</li>
+                            <li><strong>Multiple Accounts:</strong> Creating multiple accounts to circumvent limits or restrictions</li>
+                            <li><strong>Unauthorized Trading:</strong> Using automated systems to trade without our explicit permission</li>
+                            <li><strong>Sanctions Violations:</strong> Violating any economic sanctions or trade restrictions</li>
+                        </ul>
+
+                        <p class="legal-text">
+                            Violation of these prohibited activities may result in immediate account suspension or termination, forfeiture of funds, and legal action.
+                        </p>
+                    </div>
+
+                    <!-- Section 8: Intellectual Property -->
+                    <div class="legal-section" id="intellectual">
+                        <h2 class="legal-section-title">8. Intellectual Property</h2>
+                        
+                        <p class="legal-text">
+                            All content, features, and functionality of the Service, including but not limited to:
+                        </p>
+                        <ul class="legal-list">
+                            <li>AI algorithms and trading bots</li>
+                            <li>Software, code, and technology</li>
+                            <li>Text, graphics, logos, and design</li>
+                            <li>Trademarks and brand elements</li>
+                        </ul>
+                        <p class="legal-text">
+                            are owned by LuminaWealthAI or its licensors and are protected by copyright, trademark, and other intellectual property laws.
+                        </p>
+                        <p class="legal-text">
+                            You may not copy, modify, distribute, sell, or lease any part of our Service or included software, nor may you reverse engineer or attempt to extract the source code of our AI algorithms.
+                        </p>
+                    </div>
+
+                    <!-- Section 9: Termination -->
+                    <div class="legal-section" id="termination">
+                        <h2 class="legal-section-title">9. Termination</h2>
+                        
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">9.1 Termination by You</h3>
+                            <p class="legal-text">
+                                You may terminate your account at any time by:
+                            </p>
+                            <ul class="legal-list">
+                                <li>Liquidating all open positions</li>
+                                <li>Withdrawing all funds from your account</li>
+                                <li>Contacting our support team to request account closure</li>
+                            </ul>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">9.2 Termination by Us</h3>
+                            <p class="legal-text">
+                                We reserve the right to suspend or terminate your account immediately, without prior notice, if:
+                            </p>
+                            <ul class="legal-list">
+                                <li>You violate these Terms</li>
+                                <li>We suspect fraudulent or illegal activity</li>
+                                <li>You fail to complete required KYC verification</li>
+                                <li>You engage in prohibited activities</li>
+                                <li>Required by law or regulatory authorities</li>
+                            </ul>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">9.3 Effect of Termination</h3>
+                            <p class="legal-text">
+                                Upon termination:
+                            </p>
+                            <ul class="legal-list">
+                                <li>Your right to access the Service will immediately cease</li>
+                                <li>All open positions will be liquidated</li>
+                                <li>You must withdraw all remaining funds within 30 days</li>
+                                <li>Provisions of these Terms that by their nature should survive termination will remain in effect</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Section 10: Disclaimers -->
+                    <div class="legal-section" id="disclaimer">
+                        <h2 class="legal-section-title">10. Disclaimers</h2>
+                        
+                        <div class="legal-warning">
+                            <div class="legal-warning-title">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                IMPORTANT DISCLAIMER
+                            </div>
+                            <p class="legal-text mb-0">
+                                THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+                            </p>
+                        </div>
+
+                        <p class="legal-text">
+                            LuminaWealthAI expressly disclaims all warranties, including but not limited to:
+                        </p>
+                        <ul class="legal-list">
+                            <li><strong>Investment Results:</strong> We do not guarantee any specific investment results or returns</li>
+                            <li><strong>AI Accuracy:</strong> We do not guarantee the accuracy or reliability of our AI trading algorithms</li>
+                            <li><strong>Service Availability:</strong> We do not guarantee uninterrupted or error-free service</li>
+                            <li><strong>Security:</strong> While we implement robust security measures, we cannot guarantee absolute security</li>
+                            <li><strong>Market Conditions:</strong> We do not guarantee favorable market conditions</li>
+                        </ul>
+
+                        <p class="legal-text">
+                            You acknowledge that you use the Service at your own risk and that you are solely responsible for your investment decisions.
+                        </p>
+                    </div>
+
+                    <!-- Section 11: Limitation of Liability -->
+                    <div class="legal-section" id="liability">
+                        <h2 class="legal-section-title">11. Limitation of Liability</h2>
+                        
+                        <div class="legal-warning">
+                            <div class="legal-warning-title">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                LIMITATION OF LIABILITY
+                            </div>
+                            <p class="legal-text mb-0">
+                                TO THE MAXIMUM EXTENT PERMITTED BY LAW, LUMINAWEALTHAI SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, OR INVESTMENT LOSSES.
+                            </p>
+                        </div>
+
+                        <p class="legal-text">
+                            Our total liability for any claims arising from or related to the Service shall not exceed the amount of fees you paid to us in the 12 months preceding the claim.
+                        </p>
+
+                        <p class="legal-text">
+                            This limitation applies to all causes of action, including but not limited to breach of contract, tort, negligence, and strict liability.
+                        </p>
+                    </div>
+
+                    <!-- Section 12: Dispute Resolution -->
+                    <div class="legal-section" id="disputes">
+                        <h2 class="legal-section-title">12. Dispute Resolution</h2>
+                        
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">12.1 Governing Law</h3>
+                            <p class="legal-text">
+                                These Terms shall be governed by and construed in accordance with the laws of the jurisdiction where LuminaWealthAI is incorporated, without regard to its conflict of law provisions.
+                            </p>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">12.2 Arbitration</h3>
+                            <p class="legal-text">
+                                Any dispute arising from or relating to these Terms or the Service shall be resolved through binding arbitration, except that either party may seek injunctive relief in a court of competent jurisdiction.
+                            </p>
+                        </div>
+
+                        <div class="legal-subsection">
+                            <h3 class="legal-subsection-title">12.3 Class Action Waiver</h3>
+                            <p class="legal-text">
+                                You agree to resolve disputes on an individual basis and waive any right to participate in a class action lawsuit or class-wide arbitration.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Section 13: Changes to Terms -->
+                    <div class="legal-section" id="changes">
+                        <h2 class="legal-section-title">13. Changes to Terms</h2>
+                        
+                        <p class="legal-text">
+                            We reserve the right to modify these Terms at any time. We will provide notice of material changes through:
+                        </p>
+                        <ul class="legal-list">
+                            <li>Email notification to your registered email address</li>
+                            <li>Platform notification when you log in</li>
+                            <li>Updated "Last Updated" date at the top of these Terms</li>
+                        </ul>
+                        <p class="legal-text">
+                            Your continued use of the Service after changes become effective constitutes acceptance of the modified Terms. If you do not agree to the changes, you must stop using the Service and close your account.
+                        </p>
+                    </div>
+
+                    <!-- Section 14: Contact Information -->
+                    <div class="legal-section" id="contact">
+                        <h2 class="legal-section-title">14. Contact Information</h2>
+                        
+                        <p class="legal-text">
+                            If you have any questions about these Terms, please contact us:
+                        </p>
+
+                        <div class="legal-highlight">
+                            <div class="legal-highlight-title">
+                                <i class="bi bi-envelope-fill text-primary"></i>
+                                Get in Touch
+                            </div>
+                            <ul class="legal-list mb-0">
+                                <li><strong>Email:</strong> legal@luminawealthai.com</li>
+                                <li><strong>Support:</strong> support@luminawealthai.com</li>
+                                <li><strong>Phone:</strong> +1 (555) 123-4567</li>
+                                <li><strong>Address:</strong> 123 AI Street, San Francisco, CA 94105, USA</li>
+                            </ul>
+                        </div>
+
+                        <p class="legal-text">
+                            Our legal team will respond to your inquiries within 5 business days.
+                        </p>
+                    </div>
+
+                    <!-- Final Notice -->
+                    <div class="legal-highlight">
+                        <div class="legal-highlight-title">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            Acknowledgment
+                        </div>
+                        <p class="legal-text mb-0">
+                            By using LuminaWealthAI, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree to these Terms, you must not access or use the Service.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Smooth scroll for TOC links
+    document.querySelectorAll('.legal-toc-list a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+    });
+</script>
+{% endblock %}
