@@ -122,3 +122,88 @@ class RegistrationForm(forms.ModelForm):
             user.save()
         
         return user
+
+
+class LoginForm(forms.Form):
+    """
+    Login form with email and password.
+    Includes account lockout checking.
+    """
+    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'auth-input',
+            'placeholder': 'Email address',
+            'autocomplete': 'email'
+        })
+    )
+    
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'auth-input',
+            'placeholder': 'Password',
+            'id': 'loginPassword',
+            'autocomplete': 'current-password'
+        })
+    )
+    
+    remember_device = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            'id': 'rememberDevice'
+        })
+    )
+    
+    def clean(self):
+        """
+        Validate credentials and check account status.
+        Returns cleaned data with user object if valid.
+        """
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email', '').lower().strip()
+        password = cleaned_data.get('password')
+        
+        if not email or not password:
+            return cleaned_data
+        
+        # Find user by email
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # Don't reveal if email exists (security)
+            raise forms.ValidationError(
+                'Invalid email or password. Please try again.'
+            )
+        
+        # Check if account is locked
+        if user.is_account_locked():
+            from django.utils import timezone
+            time_remaining = user.account_locked_until - timezone.now()
+            minutes = int(time_remaining.total_seconds() / 60) + 1
+            raise forms.ValidationError(
+                f'Too many failed login attempts. Your account is locked. '
+                f'Please try again in {minutes} minute(s).'
+            )
+        
+        # Check if account is active
+        if not user.is_active:
+            raise forms.ValidationError(
+                'Your account has been deactivated. Please contact support.'
+            )
+        
+        # Verify password
+        if not user.check_password(password):
+            # Record failed login attempt
+            user.record_failed_login()
+            raise forms.ValidationError(
+                'Invalid email or password. Please try again.'
+            )
+        
+        # Successful authentication - reset failed attempts
+        user.record_successful_login()
+        
+        # Store user in cleaned_data for view to use
+        cleaned_data['user'] = user
+        
+        return cleaned_data

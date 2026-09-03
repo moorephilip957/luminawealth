@@ -160,3 +160,12 @@ OTP_EXPIRY_MINUTES = 10
 OTP_MAX_ATTEMPTS = 3  # Max wrong attempts before lockout
 OTP_RATE_LIMIT_MINUTES = 1  # Min time between OTP requests
 
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'secondary',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',
+}

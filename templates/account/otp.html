@@ -553,9 +553,9 @@
                     </div>
                     <div class="target-display-info">
                         <div class="target-display-label">Code sent to</div>
-                        <div class="target-display-value">j***@example.com</div>
+                        <div class="target-display-value">{{ user_email }}</div>
                     </div>
-                    <a href="#" class="auth-link small">Change</a>
+                    <a href="{% url 'account:login' %}" class="auth-link small">Change</a>
                 </div>
 
                 <!-- Success Message (Hidden by default) -->
@@ -566,7 +566,7 @@
                 </div>
 
                 <!-- OTP Form -->
-                <form method="POST" action="#" id="otpForm">
+                <form method="POST" action="{% url 'account:otp_verify' %}" id="otpForm">
                     {% csrf_token %}
 
                     <label class="form-label text-secondary fw-semibold mb-3 d-block">
@@ -574,25 +574,33 @@
                     </label>
 
                     <div class="otp-inputs-container">
-                        <input type="text" class="otp-input" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
-                        <input type="text" class="otp-input" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" name="otp_0" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                        <input type="text" class="otp-input" name="otp_1" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" name="otp_2" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" name="otp_3" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" name="otp_4" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input" name="otp_5" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
                     </div>
 
                     <!-- Resend Section -->
                     <div class="resend-section">
                         <div class="resend-timer" id="resendTimer">
                             <i class="bi bi-clock"></i>
-                            <span>Resend code in <span class="timer-value" id="timerValue">60</span>s</span>
+                            <span>Code expires in <span class="timer-value" id="timerValue">{{ time_remaining }}</span></span>
                         </div>
-                        <div id="resendLinkContainer" style="display: none;">
+                        <div id="resendLinkContainer">
                             <span>Didn't receive the code? </span>
-                            <a href="#" class="resend-link" id="resendLink">Resend Code</a>
+                            <a href="{% url 'account:resend_otp' %}" class="resend-link" id="resendLink">Resend Code</a>
                         </div>
                     </div>
+
+                    <!-- Attempts remaining warning -->
+                    {% if attempts_remaining < 3 %}
+                        <div class="alert alert-warning border-warning bg-transparent mb-3" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <small>You have <strong>{{ attempts_remaining }}</strong> attempt(s) remaining.</small>
+                        </div>
+                    {% endif %}
 
                     <button type="submit" class="auth-btn mb-3" id="verifyBtn" disabled>
                         <i class="bi bi-shield-check me-2"></i> Verify & Continue
@@ -774,7 +782,7 @@
             
             // Redirect after 2 seconds (in real app)
             setTimeout(() => {
-                // window.location.href = '{% url "customer:dashboard" %}';
+                window.location.href = '{% url "customer:dashboard" %}';
                 alert('Redirecting to dashboard...');
             }, 2000);
         }, 1500);
