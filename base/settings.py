@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'frontend',
     'customer',
     'coin',
+    'staff',
 ]
 
 MIDDLEWARE = [

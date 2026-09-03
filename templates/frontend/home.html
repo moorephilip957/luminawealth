@@ -1,0 +1,1376 @@
+{% extends './base.html' %}
+
+{% block title %}TradePro - Next-Gen Investment Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Enhanced Animations */
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-30px) rotate(5deg); }
+        66% { transform: translateY(-15px) rotate(-5deg); }
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+        50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.8), 0 0 60px rgba(118, 75, 162, 0.6); }
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    @keyframes rotate-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .gradient-animated {
+        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe, #00f2fe);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+    }
+
+    .floating-element {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .glow-effect {
+        animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .shiny-border {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .shiny-border::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #fff, transparent);
+        animation: shimmer 3s infinite;
+    }
+
+    .particle-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: rgba(102, 126, 234, 0.5);
+        border-radius: 50%;
+        animation: float 10s infinite;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .animated-chart-line {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: drawLine 3s ease forwards;
+    }
+
+    @keyframes drawLine {
+        to { stroke-dashoffset: 0; }
+    }
+
+    .stat-counter {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        background-size: 200% 200%;
+        animation: gradientShift 5s ease infinite;
+    }
+
+    .hero-3d-element {
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+
+    .tilt-card {
+        transform: rotateY(10deg) rotateX(5deg);
+        transition: transform 0.5s ease;
+    }
+
+    .tilt-card:hover {
+        transform: rotateY(0deg) rotateX(0deg) translateZ(20px);
+    }
+
+    .neon-glow {
+        box-shadow: 0 0 10px #667eea, 0 0 20px #667eea, 0 0 30px #764ba2;
+    }
+
+    .scroll-reveal {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 0.8s ease;
+    }
+
+    .scroll-reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .feature-card-hover {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .feature-card-hover:hover {
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+    }
+
+    .image-stack {
+        position: relative;
+    }
+
+    .image-stack img {
+        position: absolute;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        transition: all 0.5s ease;
+    }
+
+    .image-stack img:nth-child(1) {
+        top: 0;
+        left: 0;
+        z-index: 3;
+        transform: rotate(-5deg);
+    }
+
+    .image-stack img:nth-child(2) {
+        top: 20px;
+        left: 30px;
+        z-index: 2;
+        transform: rotate(3deg);
+    }
+
+    .image-stack img:nth-child(3) {
+        top: 40px;
+        left: 60px;
+        z-index: 1;
+        transform: rotate(-2deg);
+    }
+
+    .image-stack:hover img:nth-child(1) {
+        transform: rotate(0deg) translateX(20px);
+    }
+
+    .image-stack:hover img:nth-child(2) {
+        transform: rotate(0deg) translateX(10px);
+    }
+
+    .image-stack:hover img:nth-child(3) {
+        transform: rotate(0deg);
+    }
+
+    .marquee-container {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .marquee-content {
+        display: inline-block;
+        animation: marquee 20s linear infinite;
+    }
+
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    .gradient-text-animated {
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #4facfe, #00f2fe, #667eea);
+        background-size: 300% 300%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: gradientShift 8s ease infinite;
+    }
+
+    .btn-shiny {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-shiny::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+        transform: rotate(45deg);
+        transition: all 0.5s;
+        opacity: 0;
+    }
+
+    .btn-shiny:hover::before {
+        animation: shimmer 1.5s ease-in-out;
+        opacity: 1;
+    }
+
+    .blob {
+        position: absolute;
+        filter: blur(80px);
+        opacity: 0.4;
+        animation: float 10s infinite;
+    }
+
+    .blob-1 {
+        top: 10%;
+        left: 10%;
+        width: 300px;
+        height: 300px;
+        background: #667eea;
+        animation-delay: 0s;
+    }
+
+    .blob-2 {
+        top: 60%;
+        right: 10%;
+        width: 400px;
+        height: 400px;
+        background: #764ba2;
+        animation-delay: 2s;
+    }
+
+    .blob-3 {
+        bottom: 10%;
+        left: 30%;
+        width: 350px;
+        height: 350px;
+        background: #f093fb;
+        animation-delay: 4s;
+    }
+
+    .number-counter {
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .progress-bar-animated {
+        animation: progressPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes progressPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .testimonial-card-modern {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        transition: all 0.4s ease;
+    }
+
+    .testimonial-card-modern:hover {
+        transform: translateY(-10px);
+        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .stat-counter { font-size: 2.5rem; }
+        .number-counter { font-size: 2.5rem; }
+        .blob { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Advanced Effects -->
+<section class="hero-section position-relative overflow-hidden" style="min-height: 100vh; padding-top: 100px;">
+    <!-- Animated Background Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- Particle Background -->
+    <div class="particle-bg" id="particles"></div>
+
+    <!-- Animated Gradient Background -->
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.1;"></div>
+
+    <div class="container position-relative z-1">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-7" data-aos="fade-right" data-aos-duration="1200">
+                <div class="hero-content">
+                    <div class="mb-4">
+                        <span class="badge glass-card px-4 py-2 mb-3">
+                            <i class="bi bi-stars text-warning me-2"></i>
+                            <span class="fw-semibold"> #1 Automated Investment Platform 2026</span>
+                        </span>
+                    </div>
+
+                    <h1 class="display-1 fw-bold mb-4" style="line-height: 1.1;">
+                        Grow Your Wealth with
+                        <span class="gradient-text-animated d-block">Smart Automation</span>
+                    </h1>
+
+                    <p class="lead text-secondary mb-5" style="font-size: 1.3rem;">
+                        Invest in AI-powered strategies that deliver exceptional returns. 
+                        Join <span class="text-white fw-bold">1,234+</span> investors earning passive income daily.
+                    </p>
+
+                    <div class="d-flex gap-3 flex-wrap mb-5">
+                        <a href="" class="btn btn-shiny btn-lg px-5 py-3 rounded-pill fw-bold text-white glow-effect">
+                            Start Investing Now <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-custom btn-lg px-5 py-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#videoModal">
+                            <i class="bi bi-play-circle me-2"></i> Watch Demo
+                        </a>
+                    </div>
+
+                    <!-- Animated Stats -->
+                    <div class="row g-4 mt-5">
+                        <div class="col-4" data-aos="zoom-in" data-aos-delay="200">
+                            <div class="glass-card rounded-3 p-3 text-center shiny-border">
+                                <div class="number-counter text-success" data-target="2.4">0</div>
+                                <div class="small text-secondary">Million+ Invested</div>
+                            </div>
+                        </div>
+                        <div class="col-4" data-aos="zoom-in" data-aos-delay="300">
+                            <div class="glass-card rounded-3 p-3 text-center shiny-border">
+                                <div class="number-counter text-info" data-target="1234">0</div>
+                                <div class="small text-secondary">Active Users</div>
+                            </div>
+                        </div>
+                        <div class="col-4" data-aos="zoom-in" data-aos-delay="400">
+                            <div class="glass-card rounded-3 p-3 text-center shiny-border">
+                                <div class="number-counter text-warning" data-target="145">0</div>
+                                <div class="small text-secondary">% Average ROI</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 d-none d-lg-block" data-aos="fade-left" data-aos-duration="1200">
+                <!-- 3D Dashboard Preview -->
+                <div class="hero-3d-element position-relative">
+                    <div class="tilt-card glass-card rounded-4 p-4 glow-effect">
+                        <div class="chart-container rounded-3 mb-3">
+                            <canvas id="heroChart"></canvas>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="small text-secondary mb-1">Portfolio Value</div>
+                                <div class="h3 fw-bold text-success mb-0">$45,231.89</div>
+                            </div>
+                            <div class="badge bg-success rounded-pill px-3 py-2">
+                                <i class="bi bi-arrow-up-right me-1"></i>+145.8%
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Cards -->
+                    <div class="floating-element position-absolute top-0 end-0 glass-card rounded-3 p-3" style="width: 200px; animation-delay: 0s;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-warning bg-opacity-20 p-2 rounded-circle">
+                                <i class="bi bi-currency-bitcoin text-warning fs-4"></i>
+                            </div>
+                            <div>
+                                <div class="small text-secondary">BTC Strategy</div>
+                                <div class="fw-bold text-success">+$1,245</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="floating-element position-absolute bottom-0 start-0 glass-card rounded-3 p-3" style="width: 180px; animation-delay: 2s;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-success bg-opacity-20 p-2 rounded-circle">
+                                <i class="bi bi-graph-up-arrow text-success fs-4"></i>
+                            </div>
+                            <div>
+                                <div class="small text-secondary">Monthly Gain</div>
+                                <div class="fw-bold text-success">+12.4%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-5" data-aos="fade-up" data-aos-delay="1000">
+        <div class="glass-card rounded-pill px-4 py-2">
+            <div class="d-flex align-items-center gap-2 text-secondary">
+                <span>Scroll to explore</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Animated Marquee Section -->
+<section class="py-4 glass-card border-0" style="background: rgba(255,255,255,0.03);">
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <span class="h4 fw-bold mx-4 text-secondary"> Featured in Forbes</span>
+            <span class="text-secondary mx-4">•</span>
+            <span class="h4 fw-bold mx-4 text-secondary"> Bloomberg Top Pick</span>
+            <span class="text-secondary mx-4">•</span>
+            <span class="h4 fw-bold mx-4 text-secondary">🌟 TechCrunch Disrupt Winner</span>
+            <span class="text-secondary mx-4">•</span>
+            <span class="h4 fw-bold mx-4 text-secondary"> CNBC Recommended</span>
+            <span class="text-secondary mx-4">•</span>
+            <span class="h4 fw-bold mx-4 text-secondary">🚀 Reuters Innovation Award</span>
+            <span class="text-secondary mx-4">•</span>
+            <span class="h4 fw-bold mx-4 text-secondary">🏆 Featured in Forbes</span>
+            <span class="text-secondary mx-4">•</span>
+            <span class="h4 fw-bold mx-4 text-secondary">📈 Bloomberg Top Pick</span>
+            <span class="text-secondary mx-4">•</span>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid with Hover Effects -->
+<section class="section position-relative">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title mb-3">
+                Why Choose <span class="gradient-text-animated">TradePro</span>?
+            </h2>
+            <p class="section-subtitle">
+                Experience the future of automated investing with cutting-edge technology
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card-hover feature-card glass-card rounded-4 p-4 h-100 shiny-border">
+                    <div class="feature-icon blue mb-3 rounded-3 d-inline-flex">
+                        <i class="bi bi-robot fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">AI-Powered Strategies</h4>
+                    <p class="text-secondary mb-0">
+                        Machine learning algorithms analyze market trends 24/7 and execute trades at optimal times with 94% accuracy.
+                    </p>
+                    <div class="mt-3">
+                        <div class="progress rounded-pill" style="height: 6px;">
+                            <div class="progress-bar progress-bar-animated bg-success rounded-pill" style="width: 94%"></div>
+                        </div>
+                        <small class="text-secondary mt-1 d-block">94% Success Rate</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card-hover feature-card glass-card rounded-4 p-4 h-100 shiny-border">
+                    <div class="feature-icon purple mb-3 rounded-3 d-inline-flex">
+                        <i class="bi bi-shield-check fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Bank-Grade Security</h4>
+                    <p class="text-secondary mb-0">
+                        256-bit encryption, cold storage, and insurance coverage up to $1M per user. Your assets are always protected.
+                    </p>
+                    <div class="mt-3">
+                        <span class="badge bg-success rounded-pill px-3 py-2">
+                            <i class="bi bi-check-circle me-1"></i> SOC 2 Certified
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card-hover feature-card glass-card rounded-4 p-4 h-100 shiny-border">
+                    <div class="feature-icon green mb-3 rounded-3 d-inline-flex">
+                        <i class="bi bi-graph-up-arrow fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Proven Performance</h4>
+                    <p class="text-secondary mb-0">
+                        Consistent returns averaging 145.8% ROI since 2023. Our strategies outperform traditional markets by 3x.
+                    </p>
+                    <div class="mt-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-trophy-fill text-warning"></i>
+                            <span class="fw-bold text-warning">#1 Performance 2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-card-hover feature-card glass-card rounded-4 p-4 h-100 shiny-border">
+                    <div class="feature-icon blue mb-3 rounded-3 d-inline-flex">
+                        <i class="bi bi-lightning-charge fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Lightning Fast</h4>
+                    <p class="text-secondary mb-0">
+                        Execute trades in milliseconds. Our infrastructure processes over 10,000 transactions per second.
+                    </p>
+                    <div class="mt-3">
+                        <span class="badge bg-info rounded-pill px-3 py-2">
+                            <i class="bi bi-speedometer2 me-1"></i> < 50ms Latency
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-card-hover feature-card glass-card rounded-4 p-4 h-100 shiny-border">
+                    <div class="feature-icon purple mb-3 rounded-3 d-inline-flex">
+                        <i class="bi bi-wallet2 fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Low Minimum Investment</h4>
+                    <p class="text-secondary mb-0">
+                        Start with just $50. No hidden fees, no lock-in periods. Withdraw anytime with instant processing.
+                    </p>
+                    <div class="mt-3">
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                            <i class="bi bi-cash-coin me-1"></i> From $50
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="feature-card-hover feature-card glass-card rounded-4 p-4 h-100 shiny-border">
+                    <div class="feature-icon green mb-3 rounded-3 d-inline-flex">
+                        <i class="bi bi-headset fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">24/7 Expert Support</h4>
+                    <p class="text-secondary mb-0">
+                        Our team of financial experts is available around the clock via chat, email, or phone.
+                    </p>
+                    <div class="mt-3">
+                        <span class="badge bg-success rounded-pill px-3 py-2">
+                            <i class="bi bi-chat-heart me-1"></i> Avg. Response: 2min
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Performance Chart Section -->
+<section class="section" style="background: rgba(102, 126, 234, 0.05);">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h2 class="section-title text-start mb-4">
+                    Watch Your Wealth <span class="gradient-text-animated">Grow Exponentially</span>
+                </h2>
+                <p class="lead text-secondary mb-4">
+                    Our AI-powered strategies have consistently outperformed the market, delivering exceptional returns for our investors.
+                </p>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-6">
+                        <div class="glass-card rounded-3 p-4 text-center">
+                            <div class="h2 fw-bold text-success mb-1">145.8%</div>
+                            <div class="small text-secondary">Average ROI</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="glass-card rounded-3 p-4 text-center">
+                            <div class="h2 fw-bold text-info mb-1">$2.4M+</div>
+                            <div class="small text-secondary">Total Invested</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="glass-card rounded-3 p-4 text-center">
+                            <div class="h2 fw-bold text-warning mb-1">1,234+</div>
+                            <div class="small text-secondary">Happy Investors</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="glass-card rounded-3 p-4 text-center">
+                            <div class="h2 fw-bold text-primary mb-1">98%</div>
+                            <div class="small text-secondary">Success Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white">
+                    Explore Strategies <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="glass-card rounded-4 p-4 shiny-border">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Performance Comparison</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary active">1Y</button>
+                            <button class="btn btn-sm btn-outline-secondary">3Y</button>
+                            <button class="btn btn-sm btn-outline-secondary">5Y</button>
+                        </div>
+                    </div>
+                    <div class="chart-container rounded-3">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                    <div class="d-flex justify-content-center gap-4 mt-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle" style="width: 12px; height: 12px; background: #667eea;"></div>
+                            <small class="text-secondary">TradePro</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle" style="width: 12px; height: 12px; background: #764ba2;"></div>
+                            <small class="text-secondary">S&P 500</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle" style="width: 12px; height: 12px; background: #f093fb;"></div>
+                            <small class="text-secondary">Bitcoin</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works with Animations -->
+<section class="section position-relative">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title mb-3">
+                Start Investing in <span class="gradient-text-animated">3 Simple Steps</span>
+            </h2>
+            <p class="section-subtitle">
+                Get started in minutes and let our automated system work for you
+            </p>
+        </div>
+
+        <div class="row g-4 position-relative">
+            <!-- Connecting Line -->
+            <div class="d-none d-lg-block position-absolute top-50 start-0 w-100 translate-middle-y" style="height: 4px; background: linear-gradient(90deg, #667eea, #764ba2); z-index: 0;"></div>
+
+            <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
+                <div class="glass-card rounded-4 p-5 text-center position-relative z-1 h-100">
+                    <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px; font-size: 3rem; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);">
+                        <i class="bi bi-person-plus-fill text-white"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">1. Create Account</h4>
+                    <p class="text-secondary mb-0">
+                        Sign up in 2 minutes with just your email. Complete quick KYC verification to unlock all features.
+                    </p>
+                    <div class="mt-4">
+                        <span class="badge bg-primary rounded-pill px-3 py-2">
+                            <i class="bi bi-clock me-1"></i> 2 Minutes
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="200">
+                <div class="glass-card rounded-4 p-5 text-center position-relative z-1 h-100">
+                    <div class="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px; font-size: 3rem; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);">
+                        <i class="bi bi-credit-card-fill text-white"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">2. Fund Your Account</h4>
+                    <p class="text-secondary mb-0">
+                        Deposit via crypto, bank transfer, or card. Minimum deposit is just $50 to get started.
+                    </p>
+                    <div class="mt-4">
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                            <i class="bi bi-shield-check me-1"></i> Secure
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="300">
+                <div class="glass-card rounded-4 p-5 text-center position-relative z-1 h-100">
+                    <div class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px; font-size: 3rem; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);">
+                        <i class="bi bi-diagram-3-fill text-white"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">3. Choose Strategy</h4>
+                    <p class="text-secondary mb-0">
+                        Select from our proven strategies based on your risk tolerance. Watch your money grow automatically.
+                    </p>
+                    <div class="mt-4">
+                        <span class="badge bg-success rounded-pill px-3 py-2">
+                            <i class="bi bi-robot me-1"></i> Automated
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="400">
+            <a href="" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+                Get Started Now <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Strategies Preview Section -->
+<section class="section">
+    <div class="container">
+        <div class="text-center" data-aos="fade-up">
+            <h2 class="section-title">Popular <span class="gradient-text">Strategies</span></h2>
+            <p class="section-subtitle">
+                Choose from our proven investment strategies tailored to different risk profiles.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="strategy-card">
+                    <span class="strategy-badge badge-low">Low Risk</span>
+                    <h4 class="fw-bold mb-2">Conservative BTC</h4>
+                    <p class="text-secondary small mb-3">Dollar-Cost Averaging Strategy</p>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <small class="text-secondary d-block">30D ROI</small>
+                            <span class="fw-bold text-success">+12.4%</span>
+                        </div>
+                        <div>
+                            <small class="text-secondary d-block">Min. Investment</small>
+                            <span class="fw-bold">$100</span>
+                        </div>
+                        <div>
+                            <small class="text-secondary d-block">Investors</small>
+                            <span class="fw-bold">1,204</span>
+                        </div>
+                    </div>
+
+                    <a href="" class="btn btn-outline-custom w-100">
+                        Learn More <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="strategy-card">
+                    <span class="strategy-badge badge-high">High Risk</span>
+                    <h4 class="fw-bold mb-2">Aggressive ETH</h4>
+                    <p class="text-secondary small mb-3">Momentum Trading Strategy</p>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <small class="text-secondary d-block">30D ROI</small>
+                            <span class="fw-bold text-success">+34.8%</span>
+                        </div>
+                        <div>
+                            <small class="text-secondary d-block">Min. Investment</small>
+                            <span class="fw-bold">$500</span>
+                        </div>
+                        <div>
+                            <small class="text-secondary d-block">Investors</small>
+                            <span class="fw-bold">856</span>
+                        </div>
+                    </div>
+
+                    <a href="" class="btn btn-outline-custom w-100">
+                        Learn More <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="strategy-card">
+                    <span class="strategy-badge badge-low">Very Low Risk</span>
+                    <h4 class="fw-bold mb-2">Stablecoin Yield</h4>
+                    <p class="text-secondary small mb-3">DeFi Lending Strategy</p>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <small class="text-secondary d-block">APY</small>
+                            <span class="fw-bold text-success">+8.5%</span>
+                        </div>
+                        <div>
+                            <small class="text-secondary d-block">Min. Investment</small>
+                            <span class="fw-bold">$50</span>
+                        </div>
+                        <div>
+                            <small class="text-secondary d-block">Investors</small>
+                            <span class="fw-bold">3,412</span>
+                        </div>
+                    </div>
+
+                    <a href="" class="btn btn-outline-custom w-100">
+                        Learn More <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5" data-aos="fade-up">
+            <a href="" class="btn btn-primary-custom btn-lg">
+                View All Strategies <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Enhanced Testimonials Section -->
+<section class="section" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title mb-3">
+                Loved by <span class="gradient-text-animated">Thousands</span> of Investors
+            </h2>
+            <p class="section-subtitle">
+                See what our community has to say about their experience
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="testimonial-card-modern rounded-4 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Sarah+Johnson&background=667eea&color=fff&size=60" 
+                             alt="Sarah Johnson" class="rounded-circle me-3" width="60" height="60">
+                        <div>
+                            <div class="fw-bold">Sarah Johnson</div>
+                            <div class="small text-secondary">Software Engineer</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        "TradePro has completely transformed how I invest. The automated strategies have given me consistent returns without the stress of daily trading. I've seen a 145% return in just one year!"
+                    </p>
+                    <div class="glass-card rounded-3 p-3">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-secondary">Portfolio Growth</small>
+                            <span class="fw-bold text-success">+145%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonial-card-modern rounded-4 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Michael+Chen&background=764ba2&color=fff&size=60" 
+                             alt="Michael Chen" class="rounded-circle me-3" width="60" height="60">
+                        <div>
+                            <div class="fw-bold">Michael Chen</div>
+                            <div class="small text-secondary">Business Owner</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        "I was skeptical at first, but the results speak for themselves. The platform is incredibly user-friendly, and the support team is always there when I need help. Best investment decision I've made."
+                    </p>
+                    <div class="glass-card rounded-3 p-3">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-secondary">Investment Period</small>
+                            <span class="fw-bold text-info">2 Years</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="testimonial-card-modern rounded-4 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Emily+Davis&background=00f2fe&color=fff&size=60" 
+                             alt="Emily Davis" class="rounded-circle me-3" width="60" height="60">
+                        <div>
+                            <div class="fw-bold">Emily Davis</div>
+                            <div class="small text-secondary">Marketing Director</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        "As a busy professional, I don't have time to monitor markets daily. TradePro's automated strategies do all the work for me. The transparency and security features give me peace of mind."
+                    </p>
+                    <div class="glass-card rounded-3 p-3">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-secondary">Monthly Return</small>
+                            <span class="fw-bold text-success">+12.4%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border-0">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold">See TradePro in Action</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <div class="d-flex align-items-center justify-content-center bg-secondary" style="height: 400px;">
+                        <i class="bi bi-play-circle-fill text-white" style="font-size: 5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security Section -->
+<section class="section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h2 class="section-title text-start">Your Security is Our <span class="gradient-text">Top Priority</span></h2>
+                <p class="text-secondary mb-4" style="font-size: 1.1rem;">
+                    We implement the highest standards of security to protect your investments and personal information.
+                </p>
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="feature-icon blue me-3" style="min-width: 60px;">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-2">256-Bit SSL Encryption</h5>
+                        <p class="text-secondary mb-0">
+                            All data transmitted between your browser and our servers is encrypted with military-grade security.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="feature-icon purple me-3" style="min-width: 60px;">
+                        <i class="bi bi-database-lock-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-2">Cold Storage Wallets</h5>
+                        <p class="text-secondary mb-0">
+                            95% of crypto assets are stored in offline cold storage, protected from hacking attempts.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="feature-icon green me-3" style="min-width: 60px;">
+                        <i class="bi bi-fingerprint"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-2">Two-Factor Authentication</h5>
+                        <p class="text-secondary mb-0">
+                            Extra layer of security with 2FA required for all logins and withdrawals.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start">
+                    <div class="feature-icon blue me-3" style="min-width: 60px;">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-2">Regulated & Compliant</h5>
+                        <p class="text-secondary mb-0">
+                            Fully licensed and regulated. We comply with all KYC/AML regulations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="text-center">
+                    <div class="bg-dark rounded-4 p-5" style="background: var(--card-bg);">
+                        <i class="bi bi-shield-check" style="font-size: 8rem; background: var(--success-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        <h3 class="fw-bold mt-4 mb-3">100% Secure</h3>
+                        <p class="text-secondary mb-4">
+                            Your funds are insured and protected by our comprehensive security infrastructure.
+                        </p>
+                        <div class="row g-3 text-start">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span class="small">SOC 2 Certified</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span class="small">ISO 27001</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span class="small">GDPR Compliant</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span class="small">PCI DSS Level 1</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section with Animation -->
+<section class="section position-relative overflow-hidden">
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.2;"></div>
+    <div class="container position-relative z-1 text-center" data-aos="zoom-in">
+        <h2 class="display-3 fw-bold mb-4">
+            Ready to Start Your <span class="gradient-text-animated">Wealth Journey</span>?
+        </h2>
+        <p class="lead mb-5" style="font-size: 1.3rem;">
+            Join thousands of investors who are already benefiting from our automated strategies.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+            <a href="" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+                Create Free Account <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                Contact Sales
+            </a>
+        </div>
+        <div class="d-flex justify-content-center gap-4 flex-wrap">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>No credit card required</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Start with just $50</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Cancel anytime</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Preview Section -->
+<section class="section">
+    <div class="container">
+        <div class="text-center" data-aos="fade-up">
+            <h2 class="section-title">Frequently Asked <span class="gradient-text">Questions</span></h2>
+            <p class="section-subtitle">
+                Got questions? We've got answers. If you can't find what you're looking for, contact our support team.
+            </p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8" data-aos="fade-up" data-aos-delay="100">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden" style="background: var(--card-bg);">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                What is the minimum investment amount?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-secondary">
+                                You can start investing with as little as $50. This low minimum makes it accessible for everyone to begin their investment journey with TradePro.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden" style="background: var(--card-bg);">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                How are the strategies performing?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-secondary">
+                                Our strategies have delivered an average ROI of 145.8% since inception. You can view detailed performance metrics for each strategy on our Strategies page. Past performance doesn't guarantee future results, but our algorithms are continuously optimized.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden" style="background: var(--card-bg);">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Is my investment safe?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-secondary">
+                                Yes, we take security very seriously. We use 256-bit SSL encryption, store 95% of assets in cold storage, require two-factor authentication, and are fully regulated and compliant with all KYC/AML regulations. Your funds are also insured.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden" style="background: var(--card-bg);">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                What are the fees?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-secondary">
+                                We charge a transparent 1.5% annual management fee on invested amounts. There are no hidden fees, no deposit fees, and withdrawal fees are minimal (1.5% for bank transfers, network fees for crypto). You can see all fees clearly before investing.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 rounded-3 overflow-hidden" style="background: var(--card-bg);">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                Can I withdraw my money anytime?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-secondary">
+                                Yes, you can withdraw your funds at any time. There are no lock-in periods. Withdrawals are processed within 1-3 business days depending on the method. You can withdraw to your bank account or crypto wallet.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <a href="#" class="btn btn-outline-custom">
+                        View All FAQs <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize Charts
+    function initCharts() {
+        // Hero Chart
+        const heroCtx = document.getElementById('heroChart');
+        if (heroCtx) {
+            new Chart(heroCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: [20000, 25000, 23000, 30000, 38000, 45231],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Performance Chart
+        const perfCtx = document.getElementById('performanceChart');
+        if (perfCtx) {
+            new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: 'TradePro',
+                            data: [100, 115, 125, 145, 160, 185, 210, 235, 260, 285, 310, 345],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'S&P 500',
+                            data: [100, 105, 108, 112, 115, 118, 122, 125, 128, 132, 135, 138],
+                            borderColor: '#764ba2',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Bitcoin',
+                            data: [100, 120, 110, 140, 130, 160, 150, 180, 170, 200, 190, 220],
+                            borderColor: '#f093fb',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { 
+                                color: '#9ca3af',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Animated Counter
+    function animateCounter(element) {
+        const target = parseFloat(element.getAttribute('data-target'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            
+            if (target % 1 !== 0) {
+                element.textContent = current.toFixed(1);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    }
+
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Scroll Reveal
+    function initScrollReveal() {
+        const reveals = document.querySelectorAll('.scroll-reveal');
+        
+        const revealOnScroll = () => {
+            reveals.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('active');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    }
+
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        initCharts();
+        createParticles();
+        initScrollReveal();
+
+        // Animate counters when they come into view
+        const counters = document.querySelectorAll('.number-counter');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => observer.observe(counter));
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

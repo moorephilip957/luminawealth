@@ -1,0 +1,451 @@
+{% extends './base.html' %}
+
+{% block title %}User Details - John Doe{% endblock %}
+
+{% block content %}
+<!-- 1. BREADCRUMB & HEADER -->
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'staff:dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'staff:admin_users' %}" class="text-decoration-none">Users</a></li>
+            <li class="breadcrumb-item active">John Doe</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+        <div class="d-flex align-items-center">
+            <img src="https://ui-avatars.com/api/?name=John+Doe&background=3b82f6&color=fff&size=80" 
+                 class="rounded-circle me-3" width="80" height="80" style="border: 3px solid var(--accent-purple);">
+            <div>
+                <h3 class="fw-bold mb-1">John Doe</h3>
+                <p class="text-secondary mb-2">john.doe@example.com • #USR-001234</p>
+                <div>
+                    <span class="badge bg-success me-2">Active</span>
+                    <span class="badge bg-primary me-2">Verified</span>
+                    <span class="badge bg-warning text-dark">Premium</span>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'staff:admin_user_edit' 1 %}" class="btn btn-primary d-flex align-items-center gap-2">
+                <i class="bi bi-pencil-fill"></i> Edit User
+            </a>
+            <a href="{% url 'staff:admin_user_balance' 1 %}" class="btn btn-outline-light d-flex align-items-center gap-2">
+                <i class="bi bi-wallet2"></i> Adjust Balance
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 2. KEY METRICS -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card green p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Available Balance</small>
+                    <h3 class="fw-bold mb-1 mt-2">$12,000.00</h3>
+                    <small class="text-secondary">Ready to invest</small>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-wallet2 text-success fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card blue p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Invested</small>
+                    <h3 class="fw-bold mb-1 mt-2">$17,000.00</h3>
+                    <small class="text-secondary">Across 3 strategies</small>
+                </div>
+                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-piggy-bank text-primary fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Profit</small>
+                    <h3 class="fw-bold mb-1 mt-2 text-success">+$2,420.70</h3>
+                    <small class="text-secondary">All-time gains</small>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-graph-up-arrow text-success fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card orange p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Deposits</small>
+                    <h3 class="fw-bold mb-1 mt-2">$45,000.00</h3>
+                    <small class="text-secondary">12 transactions</small>
+                </div>
+                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-arrow-down-circle text-warning fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-8">
+        
+        <!-- Account Information -->
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-person-lines-fill me-2"></i> Account Information
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Full Name</small>
+                    <span class="fw-semibold">John Michael Doe</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Email Address</small>
+                    <span class="fw-semibold">john.doe@example.com</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Phone Number</small>
+                    <span class="fw-semibold">+1 (555) 123-4567</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Date of Birth</small>
+                    <span class="fw-semibold">March 15, 1990</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Nationality</small>
+                    <span class="fw-semibold">United States</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Occupation</small>
+                    <span class="fw-semibold">Software Engineer</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Member Since</small>
+                    <span class="fw-semibold">January 15, 2024</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Last Login</small>
+                    <span class="fw-semibold">Sep 3, 2026 • 2:45 PM</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">IP Address</small>
+                    <span class="fw-semibold">192.168.1.1</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Timezone</small>
+                    <span class="fw-semibold">UTC-05:00 (Eastern Time)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Strategies -->
+        <div class="card card-custom p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-diagram-3 me-2"></i> Active Strategies (3)
+                </h5>
+                <span class="badge bg-primary">Total: $17,590.50</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>Invested</th>
+                            <th>Current Value</th>
+                            <th>P/L</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-warning bg-opacity-10 p-2 rounded me-2">
+                                        <i class="bi bi-currency-bitcoin text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Conservative BTC</div>
+                                        <small class="text-secondary">Low Risk</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-bold">$5,000.00</td>
+                            <td class="fw-bold">$5,620.00</td>
+                            <td class="text-success fw-bold">+$620.00 (+12.4%)</td>
+                            <td><span class="badge-status badge-active">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-2">
+                                        <i class="bi bi-ethereum text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Aggressive ETH</div>
+                                        <small class="text-secondary">High Risk</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-bold">$2,000.00</td>
+                            <td class="fw-bold">$1,850.00</td>
+                            <td class="text-danger fw-bold">-$150.00 (-7.5%)</td>
+                            <td><span class="badge-status badge-active">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 p-2 rounded me-2">
+                                        <i class="bi bi-shield-check text-success"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Stablecoin Yield</div>
+                                        <small class="text-secondary">Very Low Risk</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-bold">$10,000.00</td>
+                            <td class="fw-bold">$10,120.50</td>
+                            <td class="text-success fw-bold">+$120.50 (+1.2%)</td>
+                            <td><span class="badge-status badge-paused">Paused</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card card-custom p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-receipt me-2"></i> Recent Transactions
+                </h5>
+                <a href="#" class="btn btn-sm btn-outline-light">View All</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fw-semibold">#TXN-098765</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 p-2 rounded me-2">
+                                        <i class="bi bi-arrow-down-circle text-success"></i>
+                                    </div>
+                                    <span>Deposit</span>
+                                </div>
+                            </td>
+                            <td class="fw-bold text-success">+$5,000.00</td>
+                            <td><span class="badge-status badge-approved">Completed</span></td>
+                            <td>Sep 3, 2026</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">#TXN-098764</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-danger bg-opacity-10 p-2 rounded me-2">
+                                        <i class="bi bi-arrow-up-circle text-danger"></i>
+                                    </div>
+                                    <span>Withdrawal</span>
+                                </div>
+                            </td>
+                            <td class="fw-bold text-danger">-$3,000.00</td>
+                            <td><span class="badge-status badge-approved">Completed</span></td>
+                            <td>Sep 2, 2026</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">#TXN-098763</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-2">
+                                        <i class="bi bi-piggy-bank text-primary"></i>
+                                    </div>
+                                    <span>Investment</span>
+                                </div>
+                            </td>
+                            <td class="fw-bold text-danger">-$2,500.00</td>
+                            <td><span class="badge-status badge-approved">Completed</span></td>
+                            <td>Sep 1, 2026</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold">#TXN-098762</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 p-2 rounded me-2">
+                                        <i class="bi bi-graph-up-arrow text-success"></i>
+                                    </div>
+                                    <span>Strategy Return</span>
+                                </div>
+                            </td>
+                            <td class="fw-bold text-success">+$620.00</td>
+                            <td><span class="badge-status badge-approved">Completed</span></td>
+                            <td>Aug 30, 2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-lg-4">
+        
+        <!-- Verification Status -->
+        <div class="card card-custom p-4 mb-4">
+            <h6 class="fw-bold mb-3">
+                <i class="bi bi-shield-check text-success me-2"></i> Verification Status
+            </h6>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small">Email</span>
+                    <span class="badge-status badge-approved">Verified</span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small">Phone</span>
+                    <span class="badge-status badge-approved">Verified</span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small">KYC</span>
+                    <span class="badge-status badge-approved">Verified</span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small">Address</span>
+                    <span class="badge-status badge-approved">Verified</span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="card card-custom p-4 mb-4">
+            <h6 class="fw-bold mb-3">
+                <i class="bi bi-shield-lock-fill me-2"></i> Security
+            </h6>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <div class="fw-semibold small">Two-Factor Auth</div>
+                    <small class="text-success">Enabled</small>
+                </div>
+                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <div class="fw-semibold small">Password</div>
+                    <small class="text-secondary">Changed 30 days ago</small>
+                </div>
+                <i class="bi bi-key-fill text-primary fs-5"></i>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-semibold small">Login Attempts</div>
+                    <small class="text-secondary">0 failed (last 24h)</small>
+                </div>
+                <i class="bi bi-shield-check text-success fs-5"></i>
+            </div>
+        </div>
+
+        <!-- Recent Login Activity -->
+        <div class="card card-custom p-4 mb-4">
+            <h6 class="fw-bold mb-3">
+                <i class="bi bi-clock-history me-2"></i> Recent Logins
+            </h6>
+
+            <div class="mb-3">
+                <div class="d-flex align-items-center mb-1">
+                    <i class="bi bi-laptop text-success me-2"></i>
+                    <div class="flex-grow-1">
+                        <small class="fw-semibold d-block">Chrome on Windows</small>
+                        <small class="text-secondary">New York, USA</small>
+                    </div>
+                    <small class="text-secondary">Now</small>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex align-items-center mb-1">
+                    <i class="bi bi-phone text-primary me-2"></i>
+                    <div class="flex-grow-1">
+                        <small class="fw-semibold d-block">Safari on iPhone</small>
+                        <small class="text-secondary">New York, USA</small>
+                    </div>
+                    <small class="text-secondary">Sep 2</small>
+                </div>
+            </div>
+
+            <div>
+                <div class="d-flex align-items-center mb-1">
+                    <i class="bi bi-laptop text-primary me-2"></i>
+                    <div class="flex-grow-1">
+                        <small class="fw-semibold d-block">Firefox on MacOS</small>
+                        <small class="text-secondary">Boston, USA</small>
+                    </div>
+                    <small class="text-secondary">Aug 30</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Notes -->
+        <div class="card card-custom p-4">
+            <h6 class="fw-bold mb-3">
+                <i class="bi bi-journal-text text-warning me-2"></i> Admin Notes
+            </h6>
+            <textarea class="form-control bg-transparent border-secondary text-light mb-3" rows="4" 
+                      placeholder="Add notes about this user...">VIP customer. High-value investor. No issues reported.</textarea>
+            <button class="btn btn-sm btn-primary w-100">
+                <i class="bi bi-check-circle me-1"></i> Save Notes
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
