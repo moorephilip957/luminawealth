@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
 def dashboard_view(request):
@@ -195,3 +196,18 @@ def notifications_view(request):
 
 def transaction_history(request):
     return render(request, 'customer/transaction_history.html')
+
+@login_required
+def email_verification_prompt_view(request):
+    """
+    Show a prompt page asking user to verify their email.
+    """
+    return render(request, 'customer/email_verification_prompt.html')
+
+
+@login_required
+def kyc_status_view(request):
+    """
+    Show KYC status page when KYC is pending.
+    """
+    return render(request, 'customer/kyc_status.html')

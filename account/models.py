@@ -133,6 +133,18 @@ class User(AbstractUser):
         blank=True,
         help_text="Account is locked until this time (after too many failed attempts)"
     )
+
+    # ===== PASSWORD RESET FIELDS =====
+    password_reset_token = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text="Token for password reset link"
+    )
+    password_reset_token_created_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
     
     # ===== METADATA =====
     created_at = models.DateTimeField(auto_now_add=True)
@@ -260,6 +272,47 @@ class User(AbstractUser):
             'last_login_ip',
             'last_activity_at'
         ])
+
+    def generate_password_reset_token(self):
+        """Generate a secure token for password reset"""
+        self.password_reset_token = secrets.token_urlsafe(48)
+        self.password_reset_token_created_at = timezone.now()
+        self.save()
+        return self.password_reset_token
+
+    def is_password_reset_token_valid(self):
+        """Check if password reset token is still valid (1 hour)"""
+        if not self.password_reset_token:
+            return False
+        if not self.password_reset_token_created_at:
+            return False
+        
+        token_age = timezone.now() - self.password_reset_token_created_at
+        return token_age < timedelta(hours=1)
+
+    def clear_password_reset_token(self):
+        """Clear the password reset token after use"""
+        self.password_reset_token = None
+        self.password_reset_token_created_at = None
+        self.save(update_fields=['password_reset_token', 'password_reset_token_created_at'])
+
+    def invalidate_all_sessions(self):
+        """
+        Invalidate all active sessions for this user.
+        Called after password change for security.
+        """
+        from django.contrib.sessions.models import Session
+        from django.utils import timezone
+        
+        # Get all sessions
+        sessions = Session.objects.filter(expire_date__gte=timezone.now())
+        
+        # Delete sessions that belong to this user
+        user_id_str = str(self.pk)
+        for session in sessions:
+            data = session.get_decoded()
+            if data.get('_auth_user_id') == user_id_str:
+                session.delete()
 
 
 class OTP(models.Model):

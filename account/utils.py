@@ -107,3 +107,41 @@ def send_otp_email(user, otp_code, device_name='Unknown Device', location='Unkno
     )
     
     return True
+
+
+def send_password_reset_email(user, reset_url, request=None):
+    """
+    Send password reset email to user.
+    
+    Args:
+        user: User object
+        reset_url: Full URL for password reset
+        request: Django request object (for building security URL)
+    """
+    subject = 'Reset Your Password - LuminaWealthAI'
+    
+    # Build security URL
+    security_url = ''
+    if request:
+        from django.urls import reverse
+        security_url = request.build_absolute_uri(reverse('account:login'))
+    
+    # Render HTML template
+    html_message = render_to_string('account/emails/password_reset.html', {
+        'user': user,
+        'reset_url': reset_url,
+        'security_url': security_url,
+    })
+    
+    plain_message = strip_tags(html_message)
+    
+    send_mail(
+        subject=subject,
+        message=plain_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+    
+    return True

@@ -737,32 +737,7 @@
 
     
 
-    // Form Submission
-    otpForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        // Get OTP value
-        const otp = Array.from(otpInputs).map(input => input.value).join('');
-        
-        // In real app, send to server
-        console.log('OTP:', otp);
-
-        // Simulate verification (replace with actual server call)
-        verifyBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Verifying...';
-        verifyBtn.disabled = true;
-
-        setTimeout(() => {
-            // Simulate success
-            document.getElementById('successMessage').classList.add('show');
-            otpForm.style.display = 'none';
-            
-            // Redirect after 2 seconds (in real app)
-            setTimeout(() => {
-                window.location.href = '{% url "customer:dashboard" %}';
-                alert('Redirecting to dashboard...');
-            }, 2000);
-        }, 1500);
-    });
+    
 
     // Create Particles
     function createParticles() {
@@ -814,3 +789,31 @@
         // Show success message (in real app, this would trigger resend)
         alert('A new code has been sent to your email!');
     }); -->
+
+
+    // Form Submission
+    otpForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get OTP value
+        const otp = Array.from(otpInputs).map(input => input.value).join('');
+        
+        // In real app, send to server
+        console.log('OTP:', otp);
+
+        // Simulate verification (replace with actual server call)
+        verifyBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Verifying...';
+        verifyBtn.disabled = true;
+
+        setTimeout(() => {
+            // Simulate success
+            document.getElementById('successMessage').classList.add('show');
+            otpForm.style.display = 'none';
+            
+            // Redirect after 2 seconds (in real app)
+            setTimeout(() => {
+                window.location.href = '{% url "customer:dashboard" %}';
+                alert('Redirecting to dashboard...');
+            }, 2000);
+        }, 1500);
+    });

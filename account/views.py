@@ -4,8 +4,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import login as auth_login, authenticate, logout as auth_logout
-from .forms import RegistrationForm, LoginForm
-from .utils import send_verification_email, send_welcome_email, send_otp_email
+from .forms import RegistrationForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
+from .utils import send_verification_email, send_welcome_email, send_otp_email, send_password_reset_email
+
 from .models import User, OTP, TrustedDevice
 
 def register_view(request):
@@ -195,7 +196,7 @@ def resend_verification_view(request):
     # Check if already verified
     if user.email_verified:
         messages.info(request, 'Your email is already verified. You can log in now.')
-        return redirect('login')
+        return redirect('account:login')
     
     # Generate new token
     token = user.generate_email_verification_token()
@@ -625,3 +626,117 @@ def logout_view(request):
         messages.success(request, 'You have been logged out successfully.')
     
     return redirect('frontend:home')
+
+
+def forgot_password_view(request):
+    """
+    Handle forgot password requests.
+    Sends reset email if account exists.
+    """
+    
+    # If user is logged in, redirect to dashboard
+    if request.user.is_authenticated:
+        return redirect('customer:dashboard')
+    
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            
+            try:
+                user = User.objects.get(email=email)
+                
+                # Generate reset token
+                token = user.generate_password_reset_token()
+                
+                # Build reset URL
+                reset_url = request.build_absolute_uri(
+                    reverse('account:reset_password', kwargs={'token': token})
+                )
+                
+                # Send email
+                send_password_reset_email(user, reset_url, request)
+                
+            except User.DoesNotExist:
+                # Don't reveal if email exists (security)
+                pass
+            
+            # Always show same message (security)
+            messages.success(
+                request,
+                f'If an account exists with {email}, you will receive a password reset link shortly. '
+                f'The link expires in 1 hour.'
+            )
+            
+            return redirect('account:login')
+    else:
+        form = ForgotPasswordForm()
+    
+    return render(request, 'account/forgot_password.html', {
+        'form': form,
+        'page_title': 'Forgot Password'
+    })
+
+
+def reset_password_view(request, token):
+    """
+    Handle password reset when user clicks the link in email.
+    """
+    
+    # Find user with this token
+    try:
+        user = User.objects.get(password_reset_token=token)
+    except User.DoesNotExist:
+        return render(request, 'account/reset_password_result.html', {
+            'status': 'invalid',
+            'title': 'Invalid Reset Link',
+            'message': 'This password reset link is invalid or has already been used.',
+            'icon': 'bi-x-circle-fill',
+            'icon_color': 'danger',
+        })
+    
+    # Check if token is expired
+    if not user.is_password_reset_token_valid():
+        return render(request, 'account/reset_password_result.html', {
+            'status': 'expired',
+            'title': 'Reset Link Expired',
+            'message': 'This password reset link has expired. Reset links are valid for 1 hour.',
+            'icon': 'bi-clock-fill',
+            'icon_color': 'warning',
+        })
+    
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            
+            # Set new password
+            user.set_password(new_password)
+            
+            # Clear reset token
+            user.clear_password_reset_token()
+            
+            # Invalidate all sessions for security
+            user.invalidate_all_sessions()
+            
+            # Save user
+            user.save()
+            
+            return render(request, 'account/reset_password_result.html', {
+                'status': 'success',
+                'title': 'Password Reset Successfully!',
+                'message': 'Your password has been reset. All other devices have been logged out for security. You can now log in with your new password.',
+                'icon': 'bi-check-circle-fill',
+                'icon_color': 'success',
+            })
+    else:
+        form = ResetPasswordForm()
+    
+    return render(request, 'account/reset_password.html', {
+        'form': form,
+        'token': token,
+        'user_email': _mask_email(user.email),
+        'page_title': 'Reset Password'
+    })

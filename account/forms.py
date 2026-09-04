@@ -207,3 +207,73 @@ class LoginForm(forms.Form):
         cleaned_data['user'] = user
         
         return cleaned_data
+
+
+class ForgotPasswordForm(forms.Form):
+    """
+    Form for requesting a password reset.
+    Only requires email address.
+    """
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'auth-input',
+            'placeholder': 'Enter your email address',
+            'autocomplete': 'email'
+        })
+    )
+    
+    def clean_email(self):
+        """Validate email exists in system"""
+        email = self.cleaned_data.get('email', '').lower().strip()
+        
+        # We don't reveal if email exists (security)
+        # Just return it - the view will handle the logic
+        return email
+
+
+class ResetPasswordForm(forms.Form):
+    """
+    Form for setting a new password after reset.
+    """
+    new_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'auth-input',
+            'placeholder': 'New password',
+            'id': 'newPassword'
+        }),
+        help_text="Password must be at least 8 characters with uppercase, lowercase, and number."
+    )
+    
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'auth-input',
+            'placeholder': 'Confirm new password',
+            'id': 'confirmPassword'
+        }),
+        label="Confirm New Password"
+    )
+    
+    def clean(self):
+        """Validate passwords match and meet requirements"""
+        cleaned_data = super().clean()
+        password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+        
+        if password and confirm_password:
+            if password != confirm_password:
+                self.add_error('confirm_password', 'Passwords do not match.')
+            
+            # Password strength validation
+            if len(password) < 8:
+                self.add_error('new_password', 'Password must be at least 8 characters long.')
+            
+            if not re.search(r'[A-Z]', password):
+                self.add_error('new_password', 'Password must contain at least one uppercase letter.')
+            
+            if not re.search(r'[a-z]', password):
+                self.add_error('new_password', 'Password must contain at least one lowercase letter.')
+            
+            if not re.search(r'\d', password):
+                self.add_error('new_password', 'Password must contain at least one number.')
+        
+        return cleaned_data

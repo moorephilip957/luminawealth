@@ -1,0 +1,438 @@
+{% extends '../staff/base.html' %}
+{% load humanize %}
+{% load strategy_tags %}
+
+
+{% block title %}Strategies Management{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+        <h3 class="fw-bold mb-1">Strategies Management</h3>
+        <p class="text-secondary mb-0">Create, edit, and control AI-powered investment strategies</p>
+    </div>
+    <a href="" class="btn btn-primary d-flex align-items-center gap-2">
+        <i class="bi bi-plus-circle-fill"></i> Create New Strategy
+    </a>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Strategies</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ total_strategies }}</h3>
+                    <small class="text-success">{{ active_strategies }} active</small>
+                </div>
+                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-diagram-3-fill text-primary fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card green p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Invested</small>
+                    <h3 class="fw-bold mb-1 mt-2">${{ total_invested|floatformat:0|intcomma }}</h3>
+                    <small class="text-secondary">Across all strategies</small>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-cash-stack text-success fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card blue p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Spins</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ total_spins|intcomma }}</h3>
+                    <small class="text-secondary">All-time adjustments</small>
+                </div>
+                <div class="bg-info bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-activity text-info fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card orange p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Recent Spins</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ recent_spins }}</h3>
+                    <small class="text-warning">Last 24 hours</small>
+                </div>
+                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-lightning-charge-fill text-warning fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card card-custom p-4 mb-4">
+    <form method="GET" action="{% url 'coin:admin_strategies_list' %}">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label text-secondary small fw-semibold">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control bg-transparent border-secondary text-light" 
+                           name="search" placeholder="Search strategies..." value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-secondary small fw-semibold">Status</label>
+                <select class="form-select bg-transparent border-secondary text-light" name="status">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="paused" {% if status_filter == 'paused' %}selected{% endif %}>Paused</option>
+                    <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-secondary small fw-semibold">Risk Level</label>
+                <select class="form-select bg-transparent border-secondary text-light" name="risk">
+                    <option value="all" {% if risk_filter == 'all' %}selected{% endif %}>All Risk Levels</option>
+                    <option value="very_low" {% if risk_filter == 'very_low' %}selected{% endif %}>Very Low</option>
+                    <option value="low" {% if risk_filter == 'low' %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if risk_filter == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if risk_filter == 'high' %}selected{% endif %}>High</option>
+                    <option value="very_high" {% if risk_filter == 'very_high' %}selected{% endif %}>Very High</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Apply
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Strategies Table -->
+<div class="card card-custom p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">All Strategies ({{ strategies.count }})</h5>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Invested In</th>
+                    <th>Current Price</th>
+                    <th>24h Change</th>
+                    <th>Investors</th>
+                    <th>Total Invested</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for strategy in strategies %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-{{ strategy.risk_level|get_risk_color }} bg-opacity-10 p-2 rounded me-3">
+                                <i class="bi bi-{{ strategy.invested_coin|get_coin_icon }} text-{{ strategy.risk_level|get_risk_color }} fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold">{{ strategy.name }}</div>
+                                <small class="text-secondary">{{ strategy.get_risk_level_display }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ strategy.invested_coin|get_coin_badge_color }}">
+                            {{ strategy.get_invested_coin_display }}
+                        </span>
+                    </td>
+                    <td class="fw-bold fs-5">${{ strategy.current_price|floatformat:2|intcomma }}</td>
+                    <td>
+                        {% with change=strategy.price_change_24h %}
+                            {% if change > 0 %}
+                                <span class="text-success fw-bold">
+                                    <i class="bi bi-arrow-up-right"></i> +{{ change }}%
+                                </span>
+                            {% elif change < 0 %}
+                                <span class="text-danger fw-bold">
+                                    <i class="bi bi-arrow-down-right"></i> {{ change }}%
+                                </span>
+                            {% else %}
+                                <span class="text-secondary">0%</span>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>{{ strategy.total_investors|intcomma }}</td>
+                    <td class="fw-bold">${{ strategy.total_invested|floatformat:0|intcomma }}</td>
+                    <td>
+                        {% if strategy.status == 'active' %}
+                            <span class="badge-status badge-approved">Active</span>
+                        {% elif strategy.status == 'paused' %}
+                            <span class="badge-status badge-pending">Paused</span>
+                        {% else %}
+                            <span class="badge-status badge-rejected">Closed</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="">
+                                        <i class="bi bi-eye me-2"></i> View Details
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="">
+                                        <i class="bi bi-pencil me-2"></i> Edit Strategy
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-success" href="#" data-bs-toggle="modal" data-bs-target="#spinUpModal{{ strategy.id }}">
+                                        <i class="bi bi-arrow-up-circle me-2"></i> Spin Up Price
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#spinDownModal{{ strategy.id }}">
+                                        <i class="bi bi-arrow-down-circle me-2"></i> Spin Down Price
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-warning" href="">
+                                        {% if strategy.status == 'active' %}
+                                            <i class="bi bi-pause-circle me-2"></i> Pause Strategy
+                                        {% else %}
+                                            <i class="bi bi-play-circle me-2"></i> Resume Strategy
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ strategy.id }}">
+                                        <i class="bi bi-trash me-2"></i> Delete Strategy
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Spin Up Modal -->
+                <div class="modal fade" id="spinUpModal{{ strategy.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content bg-dark border-success">
+                            <form method="POST" action="">
+                                {% csrf_token %}
+                                <div class="modal-header border-success">
+                                    <h5 class="modal-title fw-bold text-success">
+                                        <i class="bi bi-arrow-up-circle-fill me-2"></i> Spin Up Price
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-info border-info bg-transparent" role="alert">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Increase the strategy's price. This will increase all investors' portfolio values.
+                                    </div>
+
+                                    <div class="bg-dark rounded p-3 mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-secondary">Strategy</span>
+                                            <span class="fw-bold">{{ strategy.name }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-secondary">Current Price</span>
+                                            <span class="fw-bold fs-5">${{ strategy.current_price|floatformat:2 }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">Affected Investors</span>
+                                            <span class="fw-bold">{{ strategy.total_investors }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label text-secondary fw-semibold">Amount to Increase *</label>
+                                        <div class="input-group input-group-lg">
+                                            <span class="input-group-text bg-transparent border-secondary text-secondary">$</span>
+                                            <input type="number" class="form-control bg-transparent border-secondary text-light" 
+                                                   name="amount" step="0.01" min="0.01" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label text-secondary fw-semibold">Reason (Optional)</label>
+                                        <textarea class="form-control bg-transparent border-secondary text-light" 
+                                                  name="reason" rows="2" placeholder="e.g., Market rally, positive news..."></textarea>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="confirmSpinUp{{ strategy.id }}" required>
+                                        <label class="form-check-label text-secondary" for="confirmSpinUp{{ strategy.id }}">
+                                            I confirm this price adjustment
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-success">
+                                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-success fw-semibold">
+                                        <i class="bi bi-arrow-up-circle me-2"></i> Spin Up
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spin Down Modal -->
+                <div class="modal fade" id="spinDownModal{{ strategy.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content bg-dark border-danger">
+                            <form method="POST" action="">
+                                {% csrf_token %}
+                                <div class="modal-header border-danger">
+                                    <h5 class="modal-title fw-bold text-danger">
+                                        <i class="bi bi-arrow-down-circle-fill me-2"></i> Spin Down Price
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-warning border-warning bg-transparent" role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <strong>Warning:</strong> This will decrease all investors' portfolio values.
+                                    </div>
+
+                                    <div class="bg-dark rounded p-3 mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-secondary">Strategy</span>
+                                            <span class="fw-bold">{{ strategy.name }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-secondary">Current Price</span>
+                                            <span class="fw-bold fs-5">${{ strategy.current_price|floatformat:2 }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">Affected Investors</span>
+                                            <span class="fw-bold text-warning">{{ strategy.total_investors }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label text-secondary fw-semibold">Amount to Decrease *</label>
+                                        <div class="input-group input-group-lg">
+                                            <span class="input-group-text bg-transparent border-secondary text-secondary">$</span>
+                                            <input type="number" class="form-control bg-transparent border-secondary text-light" 
+                                                   name="amount" step="0.01" min="0.01" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label text-secondary fw-semibold">Reason *</label>
+                                        <textarea class="form-control bg-transparent border-secondary text-light" 
+                                                  name="reason" rows="2" placeholder="e.g., Market correction..." required></textarea>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="confirmSpinDown{{ strategy.id }}" required>
+                                        <label class="form-check-label text-secondary" for="confirmSpinDown{{ strategy.id }}">
+                                            I understand this will decrease investor values
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-danger">
+                                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-danger fw-semibold">
+                                        <i class="bi bi-arrow-down-circle me-2"></i> Spin Down
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deleteModal{{ strategy.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content bg-dark border-danger">
+                            <form method="POST" action="">
+                                {% csrf_token %}
+                                <div class="modal-header border-danger">
+                                    <h5 class="modal-title fw-bold text-danger">
+                                        <i class="bi bi-trash-fill me-2"></i> Delete Strategy
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-danger border-danger bg-transparent" role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <strong>Warning:</strong> This will liquidate all {{ strategy.total_investors }} investors and return their funds.
+                                    </div>
+
+                                    <div class="bg-dark rounded p-3 mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-secondary">Strategy</span>
+                                            <span class="fw-bold">{{ strategy.name }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-secondary">Active Investors</span>
+                                            <span class="fw-bold text-warning">{{ strategy.total_investors }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary">Total Invested</span>
+                                            <span class="fw-bold">${{ strategy.total_invested|floatformat:2|intcomma }}</span>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-secondary small">
+                                        All investors will receive a notification that this strategy has been discontinued. 
+                                        Their funds will be returned to their available balance.
+                                    </p>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="confirmDelete{{ strategy.id }}" required>
+                                        <label class="form-check-label text-secondary" for="confirmDelete{{ strategy.id }}">
+                                            I confirm I want to delete this strategy and liquidate all investors
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-danger">
+                                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-danger fw-semibold">
+                                        <i class="bi bi-trash me-2"></i> Delete Strategy
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                        <p class="text-secondary mt-3 mb-0">No strategies found</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

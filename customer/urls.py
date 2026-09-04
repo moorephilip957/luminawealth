@@ -25,4 +25,7 @@ urlpatterns = [
 
     path('notifications/', views.notifications_view, name='notifications'),
     path('transactions/', views.transaction_history, name='transaction_history'),
+
+    path('verify-email-prompt/', views.email_verification_prompt_view, name='email_verification_prompt'),
+    path('kyc-status/', views.kyc_status_view, name='kyc_status'),
 ]
