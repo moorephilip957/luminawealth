@@ -564,7 +564,7 @@
                     <h4 class="fw-bold mb-2">Verification Successful!</h4>
                     <p class="text-secondary mb-0">Redirecting to your dashboard...</p>
                 </div>
-
+                {% include '../alerts/messages.html' %}
                 <!-- OTP Form -->
                 <form method="POST" action="{% url 'account:otp_verify' %}" id="otpForm">
                     {% csrf_token %}
@@ -608,7 +608,7 @@
                 </form>
 
                 <p class="text-center text-secondary mb-0">
-                    <a href="#" class="auth-link">
+                    <a href="{% url 'account:login' %}" class="auth-link">
                         <i class="bi bi-arrow-left me-1"></i> Back to Login
                     </a>
                 </p>
@@ -621,7 +621,7 @@
                     </div>
                     <p>
                         Check your spam folder if you don't see the email. The code expires in 10 minutes. 
-                        If you still have issues, <a href="#" class="auth-link">contact support</a>.
+                        If you still have issues, <a href="{% url 'frontend:contact' %}" class="auth-link">contact support</a>.
                     </p>
                 </div>
 
@@ -735,31 +735,7 @@
         }
     }, 1000);
 
-    // Resend OTP
-    resendLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        // Reset timer
-        timeLeft = 60;
-        resendTimer.style.display = 'flex';
-        resendLinkContainer.style.display = 'none';
-        timerValue.textContent = timeLeft;
-
-        // Restart countdown
-        const newCountdown = setInterval(() => {
-            timeLeft--;
-            timerValue.textContent = timeLeft;
-
-            if (timeLeft <= 0) {
-                clearInterval(newCountdown);
-                resendTimer.style.display = 'none';
-                resendLinkContainer.style.display = 'block';
-            }
-        }, 1000);
-
-        // Show success message (in real app, this would trigger resend)
-        alert('A new code has been sent to your email!');
-    });
+    
 
     // Form Submission
     otpForm.addEventListener('submit', (e) => {
@@ -811,3 +787,30 @@
     });
 </script>
 {% endblock %}
+
+
+// Resend OTP
+    <!-- resendLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Reset timer
+        timeLeft = 60;
+        resendTimer.style.display = 'flex';
+        resendLinkContainer.style.display = 'none';
+        timerValue.textContent = timeLeft;
+
+        // Restart countdown
+        const newCountdown = setInterval(() => {
+            timeLeft--;
+            timerValue.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(newCountdown);
+                resendTimer.style.display = 'none';
+                resendLinkContainer.style.display = 'block';
+            }
+        }, 1000);
+
+        // Show success message (in real app, this would trigger resend)
+        alert('A new code has been sent to your email!');
+    }); -->

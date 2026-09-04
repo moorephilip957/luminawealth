@@ -525,7 +525,7 @@ def resend_otp_view(request):
     except User.DoesNotExist:
         _clear_otp_session(request)
         messages.error(request, 'Account not found. Please try logging in again.')
-        return redirect('login')
+        return redirect('account:login')
     
     # Check rate limiting
     if OTP.has_recent_otp(user, minutes=settings.OTP_RATE_LIMIT_MINUTES):
@@ -533,7 +533,7 @@ def resend_otp_view(request):
             request,
             'Please wait a moment before requesting a new code.'
         )
-        return redirect('otp_verify')
+        return redirect('account:otp_verify')
     
     # Get device info from session
     ip_address = request.session.get('pending_login_ip')
@@ -571,7 +571,7 @@ def resend_otp_view(request):
         messages.error(request, 'Failed to send verification code. Please try again later.')
         print(f"Resend OTP email failed: {e}")
     
-    return redirect('otp_verify')
+    return redirect('account:otp_verify')
 
 
 def _clear_otp_session(request):
