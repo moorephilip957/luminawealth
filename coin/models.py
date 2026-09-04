@@ -27,6 +27,7 @@ class Strategy(models.Model):
         ('active', 'Active'),
         ('paused', 'Paused'),
         ('closed', 'Closed'),
+        ('deleted', 'Deleted'),
     ]
     
     # Coin Choices (what the strategy is invested in)
@@ -137,6 +138,27 @@ class Strategy(models.Model):
             'very_high': 'Very High',
         }
         return risk_map.get(self.risk_level, 'Medium')
+
+    def update_investor_values(self):
+        """
+        Recalculate current_value and total_profit for all active investors
+        based on the current price. Called after price changes (spin up/down).
+        """
+        from django.db.models import F
+        
+        # Update all active investors in one efficient query
+        active_investors = self.investors.filter(status='active')
+        
+        for investor in active_investors:
+            # Recalculate current value: shares × current_price
+            investor.current_value = investor.shares * self.current_price
+            
+            # Recalculate profit/loss
+            investor.total_profit = investor.current_value - investor.invested_amount
+            
+            investor.save(update_fields=['current_value', 'total_profit', 'updated_at'])
+        
+        return active_investors.count()
 
 
 class SpinRecord(models.Model):

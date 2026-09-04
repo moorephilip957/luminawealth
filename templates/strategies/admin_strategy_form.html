@@ -1,0 +1,307 @@
+{% extends '../staff/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'coin:admin_strategies_list' %}" class="text-decoration-none">Strategies</a></li>
+        <li class="breadcrumb-item active">{{ page_title }}</li>
+    </ol>
+</nav>
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">{{ page_title }}</h3>
+        <p class="text-secondary mb-0">
+            {% if action == 'Create' %}
+                Set up a new AI-powered investment strategy
+            {% else %}
+                Modify strategy details and settings
+            {% endif %}
+        </p>
+    </div>
+    <a href="{% url 'coin:admin_strategies_list' %}" class="btn btn-outline-light">
+        <i class="bi bi-arrow-left me-1"></i> Back to List
+    </a>
+</div>
+
+<!-- Show current price info when editing (not in form) -->
+{% if strategy %}
+<div class="mb-4 p-3 rounded" style="background: rgba(102, 126, 234, 0.1); border-left: 4px solid #667eea;">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+        <div>
+            <strong class="text-white">Current Price:</strong>
+            <span class="fs-5 fw-bold text-success ms-2">${{ strategy.current_price|floatformat:2 }}</span>
+            <small class="text-secondary d-block mt-1">
+                <i class="bi bi-lightning-charge me-1"></i>
+                To change the price, use the <strong>Spin Up/Spin Down</strong> actions from the strategy list.
+            </small>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Form -->
+<div class="card card-custom p-4">
+    <form method="POST" novalidate>
+        {% csrf_token %}
+        
+        <!-- Basic Information Section -->
+        <div class="mb-5">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                Basic Information
+            </h5>
+            
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.name.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.help_text %}
+                        <small class="text-secondary">{{ form.name.help_text }}</small>
+                    {% endif %}
+                    {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.strategy_type.label }}
+                    </label>
+                    {{ form.strategy_type }}
+                    {% if form.strategy_type.help_text %}
+                        <small class="text-secondary">{{ form.strategy_type.help_text }}</small>
+                    {% endif %}
+                    {% if form.strategy_type.errors %}
+                        <div class="text-danger small mt-1">{{ form.strategy_type.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.short_description.label }}
+                    </label>
+                    {{ form.short_description }}
+                    {% if form.short_description.help_text %}
+                        <small class="text-secondary">{{ form.short_description.help_text }}</small>
+                    {% endif %}
+                    {% if form.short_description.errors %}
+                        <div class="text-danger small mt-1">{{ form.short_description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.description.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.help_text %}
+                        <small class="text-secondary">{{ form.description.help_text }}</small>
+                    {% endif %}
+                    {% if form.description.errors %}
+                        <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <!-- Strategy Configuration Section -->
+        <div class="mb-5">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-gear-fill text-primary"></i>
+                Strategy Configuration
+            </h5>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.invested_coin.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.invested_coin }}
+                    {% if form.invested_coin.help_text %}
+                        <small class="text-secondary">{{ form.invested_coin.help_text }}</small>
+                    {% endif %}
+                    {% if form.invested_coin.errors %}
+                        <div class="text-danger small mt-1">{{ form.invested_coin.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.risk_level.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.risk_level }}
+                    {% if form.risk_level.help_text %}
+                        <small class="text-secondary">{{ form.risk_level.help_text }}</small>
+                    {% endif %}
+                    {% if form.risk_level.errors %}
+                        <div class="text-danger small mt-1">{{ form.risk_level.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.current_price.label }} <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary">$</span>
+                        {{ form.current_price }}
+                    </div>
+                    {% if form.current_price.help_text %}
+                        <small class="text-secondary">{{ form.current_price.help_text }}</small>
+                    {% endif %}
+                    {% if form.current_price.errors %}
+                        <div class="text-danger small mt-1">{{ form.current_price.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.min_investment.label }} <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary">$</span>
+                        {{ form.min_investment }}
+                    </div>
+                    {% if form.min_investment.help_text %}
+                        <small class="text-secondary">{{ form.min_investment.help_text }}</small>
+                    {% endif %}
+                    {% if form.min_investment.errors %}
+                        <div class="text-danger small mt-1">{{ form.min_investment.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.management_fee.label }} <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        {{ form.management_fee }}
+                        <span class="input-group-text bg-transparent border-secondary text-secondary">% / year</span>
+                    </div>
+                    {% if form.management_fee.help_text %}
+                        <small class="text-secondary">{{ form.management_fee.help_text }}</small>
+                    {% endif %}
+                    {% if form.management_fee.errors %}
+                        <div class="text-danger small mt-1">{{ form.management_fee.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <!-- Performance & AI Section -->
+        <div class="mb-5">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-graph-up-arrow text-primary"></i>
+                Performance & AI Metrics
+            </h5>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.ai_accuracy.label }}
+                    </label>
+                    <div class="input-group">
+                        {{ form.ai_accuracy }}
+                        <span class="input-group-text bg-transparent border-secondary text-secondary">%</span>
+                    </div>
+                    {% if form.ai_accuracy.help_text %}
+                        <small class="text-secondary">{{ form.ai_accuracy.help_text }}</small>
+                    {% endif %}
+                    {% if form.ai_accuracy.errors %}
+                        <div class="text-danger small mt-1">{{ form.ai_accuracy.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.min_holding_period.label }}
+                    </label>
+                    <div class="input-group">
+                        {{ form.min_holding_period }}
+                        <span class="input-group-text bg-transparent border-secondary text-secondary">months</span>
+                    </div>
+                    {% if form.min_holding_period.help_text %}
+                        <small class="text-secondary">{{ form.min_holding_period.help_text }}</small>
+                    {% endif %}
+                    {% if form.min_holding_period.errors %}
+                        <div class="text-danger small mt-1">{{ form.min_holding_period.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <!-- Visibility & Status Section -->
+        <div class="mb-5">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-eye-fill text-primary"></i>
+                Visibility & Status
+            </h5>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label text-secondary fw-semibold">
+                        {{ form.status.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.help_text %}
+                        <small class="text-secondary">{{ form.status.help_text }}</small>
+                    {% endif %}
+                    {% if form.status.errors %}
+                        <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label text-secondary fw-semibold d-block mb-2">Visibility Options</label>
+                    
+                    <div class="form-check mb-2">
+                        {{ form.is_public }}
+                        <label class="form-check-label text-secondary" for="{{ form.is_public.id_for_label }}">
+                            {{ form.is_public.label }}
+                        </label>
+                        {% if form.is_public.help_text %}
+                            <small class="text-secondary d-block ms-4">{{ form.is_public.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-check">
+                        {{ form.is_featured }}
+                        <label class="form-check-label text-secondary" for="{{ form.is_featured.id_for_label }}">
+                            {{ form.is_featured.label }}
+                        </label>
+                        {% if form.is_featured.help_text %}
+                            <small class="text-secondary d-block ms-4">{{ form.is_featured.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'coin:admin_strategies_list' %}" class="btn btn-outline-light">
+                <i class="bi bi-x-circle me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary px-4 py-2">
+                <i class="bi bi-check-circle me-2"></i> {{ action }} Strategy
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -12,7 +12,7 @@
         <h3 class="fw-bold mb-1">Strategies Management</h3>
         <p class="text-secondary mb-0">Create, edit, and control AI-powered investment strategies</p>
     </div>
-    <a href="" class="btn btn-primary d-flex align-items-center gap-2">
+    <a href="{% url 'coin:admin_strategy_create' %}" class="btn btn-primary d-flex align-items-center gap-2">
         <i class="bi bi-plus-circle-fill"></i> Create New Strategy
     </a>
 </div>
@@ -123,6 +123,23 @@
     </form>
 </div>
 
+<!-- Deleted Strategies Toggle -->
+{% if deleted_count > 0 %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        {% if show_deleted %}
+            <a href="{% url 'coin:admin_strategies_list' %}" class="btn btn-sm btn-outline-light">
+                <i class="bi bi-eye-slash me-1"></i> Hide Deleted Strategies
+            </a>
+        {% else %}
+            <a href="{% url 'coin:admin_strategies_list' %}?show_deleted=true" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash me-1"></i> Show {{ deleted_count }} Deleted Strateg{{ deleted_count|pluralize:"y,ies" }}
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 <!-- Strategies Table -->
 <div class="card card-custom p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -185,6 +202,8 @@
                             <span class="badge-status badge-approved">Active</span>
                         {% elif strategy.status == 'paused' %}
                             <span class="badge-status badge-pending">Paused</span>
+                        {% elif strategy.status == 'deleted' %}
+                            <span class="badge-status badge-rejected">Deleted</span>
                         {% else %}
                             <span class="badge-status badge-rejected">Closed</span>
                         {% endif %}
@@ -196,12 +215,12 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a class="dropdown-item" href="">
+                                    <a class="dropdown-item" href="{% url 'coin:admin_strategy_detail' strategy.id %}">
                                         <i class="bi bi-eye me-2"></i> View Details
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="">
+                                    <a class="dropdown-item" href="{% url 'coin:admin_strategy_edit' strategy.id %}">
                                         <i class="bi bi-pencil me-2"></i> Edit Strategy
                                     </a>
                                 </li>
@@ -218,7 +237,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item text-warning" href="">
+                                    <a class="dropdown-item text-warning" href="{% url 'coin:admin_strategy_toggle_status' strategy.id %}">
                                         {% if strategy.status == 'active' %}
                                             <i class="bi bi-pause-circle me-2"></i> Pause Strategy
                                         {% else %}
@@ -240,7 +259,7 @@
                 <div class="modal fade" id="spinUpModal{{ strategy.id }}" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content bg-dark border-success">
-                            <form method="POST" action="">
+                            <form method="POST" action="{% url 'coin:admin_strategy_spin_up' strategy.id %}">
                                 {% csrf_token %}
                                 <div class="modal-header border-success">
                                     <h5 class="modal-title fw-bold text-success">
@@ -273,15 +292,29 @@
                                         <label class="form-label text-secondary fw-semibold">Amount to Increase *</label>
                                         <div class="input-group input-group-lg">
                                             <span class="input-group-text bg-transparent border-secondary text-secondary">$</span>
-                                            <input type="number" class="form-control bg-transparent border-secondary text-light" 
-                                                   name="amount" step="0.01" min="0.01" required>
+                                            <input type="number" class="form-control bg-transparent border-secondary text-light spin-amount-input" 
+                                                name="amount" step="0.01" min="0.01" required
+                                                data-current-price="{{ strategy.current_price }}"
+                                                data-action="up"
+                                                data-preview-id="preview{{ strategy.id }}">
+                                        </div>
+                                    </div>
+
+                                    <!-- Live Preview -->
+                                    <div class="bg-success bg-opacity-10 rounded p-3 mb-3" id="preview{{ strategy.id }}" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-secondary small">New Price Preview:</span>
+                                            <div class="text-end">
+                                                <span class="fw-bold fs-5 text-success preview-new-price">$0.00</span>
+                                                <span class="badge bg-success ms-2 preview-percent-change">+0.00%</span>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label text-secondary fw-semibold">Reason (Optional)</label>
                                         <textarea class="form-control bg-transparent border-secondary text-light" 
-                                                  name="reason" rows="2" placeholder="e.g., Market rally, positive news..."></textarea>
+                                                name="reason" rows="2" placeholder="e.g., Market rally, positive news..."></textarea>
                                     </div>
 
                                     <div class="form-check">
@@ -306,7 +339,7 @@
                 <div class="modal fade" id="spinDownModal{{ strategy.id }}" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content bg-dark border-danger">
-                            <form method="POST" action="">
+                            <form method="POST" action="{% url 'coin:admin_strategy_spin_down' strategy.id %}">
                                 {% csrf_token %}
                                 <div class="modal-header border-danger">
                                     <h5 class="modal-title fw-bold text-danger">
@@ -339,15 +372,42 @@
                                         <label class="form-label text-secondary fw-semibold">Amount to Decrease *</label>
                                         <div class="input-group input-group-lg">
                                             <span class="input-group-text bg-transparent border-secondary text-secondary">$</span>
-                                            <input type="number" class="form-control bg-transparent border-secondary text-light" 
-                                                   name="amount" step="0.01" min="0.01" required>
+                                            <input type="number" class="form-control bg-transparent border-secondary text-light spin-amount-input" 
+                                                name="amount" step="0.01" min="0.01" required
+                                                data-current-price="{{ strategy.current_price }}"
+                                                data-action="down"
+                                                data-preview-id="previewDown{{ strategy.id }}">
+                                        </div>
+                                        <small class="text-secondary mt-1 d-block">
+                                            Maximum: ${{ strategy.current_price|floatformat:2 }} (price cannot go below $0)
+                                        </small>
+                                    </div>
+
+                                    <!-- Live Preview -->
+                                    <div class="bg-danger bg-opacity-10 rounded p-3 mb-3" id="previewDown{{ strategy.id }}" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-secondary small">New Price Preview:</span>
+                                            <div class="text-end">
+                                                <span class="fw-bold fs-5 text-danger preview-new-price">$0.00</span>
+                                                <span class="badge bg-danger ms-2 preview-percent-change">-0.00%</span>
+                                            </div>
+                                        </div>
+                                        <div class="preview-warning mt-2" style="display: none;">
+                                            <small class="text-warning">
+                                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                                <span class="preview-warning-text">Warning message</span>
+                                            </small>
                                         </div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label text-secondary fw-semibold">Reason *</label>
                                         <textarea class="form-control bg-transparent border-secondary text-light" 
-                                                  name="reason" rows="2" placeholder="e.g., Market correction..." required></textarea>
+                                                name="reason" rows="2" placeholder="e.g., Market correction, negative news..." required></textarea>
+                                        <small class="text-secondary mt-1 d-block">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            A reason is required for price decreases (audit trail)
+                                        </small>
                                     </div>
 
                                     <div class="form-check">
@@ -372,7 +432,7 @@
                 <div class="modal fade" id="deleteModal{{ strategy.id }}" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content bg-dark border-danger">
-                            <form method="POST" action="">
+                            <form method="POST" action="{% url 'coin:admin_strategy_delete' strategy.id %}">
                                 {% csrf_token %}
                                 <div class="modal-header border-danger">
                                     <h5 class="modal-title fw-bold text-danger">
@@ -435,4 +495,69 @@
         </table>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    // Live Preview for Spin Amounts
+    document.addEventListener('DOMContentLoaded', function() {
+        const spinInputs = document.querySelectorAll('.spin-amount-input');
+        
+        spinInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const amount = parseFloat(this.value) || 0;
+                const currentPrice = parseFloat(this.dataset.currentPrice);
+                const action = this.dataset.action;
+                const previewId = this.dataset.previewId;
+                const previewBox = document.getElementById(previewId);
+                
+                if (amount <= 0) {
+                    previewBox.style.display = 'none';
+                    return;
+                }
+                
+                let newPrice, percentChange;
+                
+                if (action === 'up') {
+                    newPrice = currentPrice + amount;
+                    percentChange = (amount / currentPrice) * 100;
+                } else {
+                    newPrice = currentPrice - amount;
+                    percentChange = -(amount / currentPrice) * 100;
+                }
+                
+                // Update preview
+                const newPriceEl = previewBox.querySelector('.preview-new-price');
+                const percentEl = previewBox.querySelector('.preview-percent-change');
+                const warningBox = previewBox.querySelector('.preview-warning');
+                const warningText = previewBox.querySelector('.preview-warning-text');
+                
+                newPriceEl.textContent = '$' + newPrice.toFixed(2);
+                
+                if (action === 'up') {
+                    percentEl.textContent = '+' + percentChange.toFixed(2) + '%';
+                    percentEl.className = 'badge bg-success ms-2 preview-percent-change';
+                } else {
+                    percentEl.textContent = percentChange.toFixed(2) + '%';
+                    percentEl.className = 'badge bg-danger ms-2 preview-percent-change';
+                    
+                    // Show warning for spin down
+                    if (warningBox && warningText) {
+                        if (newPrice <= 0) {
+                            warningBox.style.display = 'block';
+                            warningText.textContent = 'Invalid: Price would go below $0!';
+                            newPriceEl.classList.add('text-danger');
+                        } else if (percentChange < -50) {
+                            warningBox.style.display = 'block';
+                            warningText.textContent = 'Large decrease: ' + Math.abs(percentChange).toFixed(1) + '% drop!';
+                        } else {
+                            warningBox.style.display = 'none';
+                        }
+                    }
+                }
+                
+                previewBox.style.display = 'block';
+            });
+        });
+    });
+</script>
 {% endblock %}
