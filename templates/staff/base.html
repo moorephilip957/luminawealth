@@ -311,15 +311,19 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'staff:admin_deposits' %}">
-                    <span><i class="bi bi-credit-card-fill"></i> Deposits</span>
-                    <span class="badge bg-warning text-dark">12</span>
+                <a class="nav-link" href="{% url 'transaction:admin_deposits_list' %}">
+                    <span><i class="bi bi-arrow-down-circle-fill"></i> Deposits</span>
+                    {% if pending_deposit_count %}
+                        <span class="badge bg-warning text-dark">{{ pending_deposit_count }}</span>
+                    {% endif %}
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'staff:admin_withdrawals' %}">
+                <a class="nav-link" href="{% url 'transaction:admin_withdrawals_list' %}">
                     <span><i class="bi bi-arrow-up-circle-fill"></i> Withdrawals</span>
-                    <span class="badge bg-warning text-dark">8</span>
+                    {% if pending_withdrawal_count %}
+                        <span class="badge bg-warning text-dark">{{ pending_withdrawal_count }}</span>
+                    {% endif %}
                 </a>
             </li>
             <li class="nav-item">
