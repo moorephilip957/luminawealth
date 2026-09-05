@@ -571,6 +571,23 @@ class Transaction(models.Model):
         decimal_places=2,
         help_text="User's balance after this transaction"
     )
+
+    # NEW: Effective date for backdating
+    effective_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Effective date of the transaction (for backdating). If blank, uses created_at."
+    )
+    
+    # Track who created it manually (vs automatically)
+    created_by_admin = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='manually_created_transactions',
+        help_text="Admin who manually created this transaction (if applicable)"
+    )
     
     # Related objects (optional)
     related_deposit = models.ForeignKey(
@@ -612,6 +629,16 @@ class Transaction(models.Model):
             import uuid
             prefix = self.transaction_type[:3].upper()
             self.reference = f"{prefix}-{uuid.uuid4().hex[:10].upper()}"
+
+        is_new = self.pk is None
+
+        if is_new and not self.created_at:
+            self.created_at = timezone.now()
+        
+        # Auto-fill effective_date with created_at if not provided
+        if not self.effective_date:
+            self.effective_date = self.created_at or timezone.now()
+
         super().save(*args, **kwargs)
     
     @property
@@ -632,18 +659,22 @@ class Transaction(models.Model):
             self.TYPE_INVESTMENT,
             self.TYPE_FEE,
         ] or (self.transaction_type == self.TYPE_BALANCE_ADJUSTMENT and self.amount < 0)
+
+    @property
+    def display_date(self):
+        """Return effective_date if set, otherwise created_at"""
+        return self.effective_date or self.created_at or timezone.now()
     
     @classmethod
     def create_transaction(cls, user, transaction_type, amount, description='', 
                         related_deposit=None, related_withdrawal=None, 
-                        ip_address=None, status=None):
+                        ip_address=None, status=None, effective_date=None):
         """
         Helper method to create a transaction with automatic balance tracking.
         
         Args:
-            status: If None, defaults to COMPLETED. Use PENDING for requests awaiting approval.
+            effective_date: Optional. If None, will be auto-filled with created_at.
         """
-        # Default to COMPLETED if not specified
         if status is None:
             status = cls.STATUS_COMPLETED
         
@@ -651,10 +682,8 @@ class Transaction(models.Model):
         
         # Calculate balance_after based on status
         if status == cls.STATUS_PENDING:
-            # Pending: no balance change yet
             balance_after = balance_before
         else:
-            # Completed/other: apply the balance change
             if transaction_type in [cls.TYPE_DEPOSIT, cls.TYPE_STRATEGY_RETURN, 
                                 cls.TYPE_LIQUIDATION, cls.TYPE_BONUS]:
                 balance_after = balance_before + abs(amount)
@@ -675,7 +704,8 @@ class Transaction(models.Model):
             related_deposit=related_deposit,
             related_withdrawal=related_withdrawal,
             ip_address=ip_address,
-            status=status
+            status=status,
+            effective_date=effective_date,  # Will be auto-filled by save() if None
         )
         
         return transaction

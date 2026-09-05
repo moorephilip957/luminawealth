@@ -10,4 +10,5 @@ urlpatterns = [
     path('strategy/', include('coin.urls', namespace='coin')),
     path('transaction/', include('transaction.urls', namespace='transaction')),
     path('kyc/', include('kyc.urls', namespace='kyc')),
+    path('notification/', include('notification.urls', namespace='notification')),
 ]

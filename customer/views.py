@@ -41,7 +41,7 @@ def dashboard_view(request):
     total_portfolio_value = available_balance + total_current_value
     
     # 3. Recent Transactions (Last 5)
-    recent_transactions = Transaction.objects.filter(user=user).order_by('-created_at')[:5]
+    recent_transactions = Transaction.objects.filter(user=user).order_by('-effective_date')[:5]
     
     # 4. Asset Allocation Data for Chart
     allocation_data = []
@@ -955,7 +955,7 @@ def transaction_history(request):
     user = request.user
     
     # Base queryset: only this user's transactions, ordered newest first
-    transactions = Transaction.objects.filter(user=user).order_by('-created_at')
+    transactions = Transaction.objects.filter(user=user).order_by('-effective_date')
     
     # --- Server-Side Filtering ---
     type_filter = request.GET.get('type', 'all')

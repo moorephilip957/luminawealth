@@ -191,8 +191,8 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div>{{ txn.created_at|date:"M d, Y" }}</div>
-                        <small class="text-secondary">{{ txn.created_at|date:"H:i" }}</small>
+                        <div>{{ txn.display_date|date:"M d, Y" }}</div>
+                        <small class="text-secondary">{{ txn.display_date|date:"M d, Y" }}</small>
                     </td>
                     <td>
                         <a href="{% url 'transaction:admin_transaction_detail' txn.id %}" class="btn btn-sm btn-outline-light">

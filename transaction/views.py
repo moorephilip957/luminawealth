@@ -4,7 +4,10 @@ from django.contrib import messages
 from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from datetime import timedelta
+from django.db import transaction as db_transaction
+
 from .models import DepositRequest, WithdrawalRequest, Transaction
+from account.models import User
 
 
 def admin_check(user):
@@ -393,7 +396,7 @@ def admin_transactions_list(request):
         created_at__date=timezone.now().date()
     ).count()
     
-    transactions = transactions.order_by('-created_at')
+    transactions = transactions.order_by('-effective_date')
     
     context = {
         'transactions': transactions,
@@ -424,3 +427,154 @@ def admin_transaction_detail(request, transaction_id):
     
     return render(request, 'transaction/admin_transaction_detail.html', context)
 
+
+@login_required
+@user_passes_test(admin_check)
+def admin_fund_management(request):
+    """
+    Admin tool to directly deposit/withdraw funds from any user account.
+    Supports backdating for demo/testing purposes.
+    """
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')  # 'deposit' or 'withdraw'
+        user_id = request.POST.get('user_id')
+        amount_str = request.POST.get('amount')
+        txn_type = request.POST.get('transaction_type')
+        description = request.POST.get('description', '').strip()
+        effective_date_str = request.POST.get('effective_date', '').strip()
+        
+        # Validate user
+        try:
+            target_user = User.objects.get(id=user_id)
+        except (User.DoesNotExist, ValueError, TypeError):
+            messages.error(request, 'Please select a valid user.')
+            return redirect('transaction:admin_fund_management')
+        
+        # Validate amount
+        try:
+            from decimal import Decimal, InvalidOperation
+            amount = Decimal(amount_str)
+            if amount <= 0:
+                raise InvalidOperation("Amount must be greater than 0")
+        except (InvalidOperation, ValueError, TypeError):
+            messages.error(request, 'Please enter a valid amount.')
+            return redirect('transaction:admin_fund_management')
+        
+        # Validate transaction type
+        valid_types = [
+            Transaction.TYPE_DEPOSIT,
+            Transaction.TYPE_WITHDRAWAL,
+            Transaction.TYPE_BONUS,
+            Transaction.TYPE_FEE,
+            Transaction.TYPE_BALANCE_ADJUSTMENT,
+        ]
+        if txn_type not in valid_types:
+            messages.error(request, 'Please select a valid transaction type.')
+            return redirect('transaction:admin_fund_management')
+        
+        # For withdrawals/fees, check balance
+        if action == 'withdraw' and target_user.balance < amount:
+            messages.error(
+                request,
+                f'Insufficient balance. {target_user.email} only has ${target_user.balance:.2f}.'
+            )
+            return redirect('transaction:admin_fund_management')
+        
+        # Parse effective date (for backdating)
+        effective_date = None
+        if effective_date_str:
+            try:
+                from datetime import datetime
+                effective_date = datetime.strptime(effective_date_str, '%Y-%m-%dT%H:%M')
+                # Make timezone-aware
+                from django.utils import timezone
+                if timezone.is_naive(effective_date):
+                    effective_date = timezone.make_aware(effective_date)
+            except ValueError:
+                messages.error(request, 'Invalid date format.')
+                return redirect('transaction:admin_fund_management')
+        
+        # Use database transaction for atomicity
+        try:
+            with db_transaction.atomic():
+                # Calculate balance changes
+                if action == 'deposit':
+                    target_user.balance += amount
+                    if txn_type == Transaction.TYPE_DEPOSIT:
+                        target_user.total_deposited += amount
+                elif action == 'withdraw':
+                    target_user.balance -= amount
+                    if txn_type == Transaction.TYPE_WITHDRAWAL:
+                        target_user.total_withdrawn += amount
+                
+                target_user.save(update_fields=['balance', 'total_deposited', 'total_withdrawn', 'updated_at'])
+                
+                # Build description
+                if not description:
+                    if action == 'deposit':
+                        description = f'Admin {txn_type} - credited to account'
+                    else:
+                        description = f'Admin {txn_type} - debited from account'
+                
+                # Create transaction record
+                txn = Transaction.objects.create(
+                    user=target_user,
+                    transaction_type=txn_type,
+                    amount=amount,
+                    status=Transaction.STATUS_COMPLETED,
+                    description=description,
+                    balance_before=target_user.balance - amount if action == 'deposit' else target_user.balance + amount,
+                    balance_after=target_user.balance,
+                    effective_date=effective_date,
+                    created_by_admin=request.user,
+                    ip_address=request.META.get('REMOTE_ADDR')
+                )
+                
+                action_word = 'deposited' if action == 'deposit' else 'withdrew'
+                date_note = f' (backdated to {effective_date.strftime("%b %d, %Y")})' if effective_date else ''
+                
+                messages.success(
+                    request,
+                    f'✅ Successfully {action_word} ${amount:.2f} {action_word[:-2]}ed '
+                    f'{"to" if action == "deposit" else "from"} {target_user.email}. '
+                    f'New balance: ${target_user.balance:.2f}{date_note}'
+                )
+                
+                return redirect('transaction:admin_fund_management')
+                
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            print(f"Admin fund management error: {e}")
+            return redirect('transaction:admin_fund_management')
+    
+    # GET request: show the form
+    # Get all users for the dropdown
+    users = User.objects.all().order_by('email')
+    
+    # Get recent admin-created transactions
+    recent_admin_txns = Transaction.objects.filter(
+        created_by_admin__isnull=False
+    ).select_related('user', 'created_by_admin').order_by('-effective_date')[:10]
+    
+    # Stats
+    total_admin_txns = Transaction.objects.filter(created_by_admin__isnull=False).count()
+    total_credited = Transaction.objects.filter(
+        created_by_admin__isnull=False,
+        transaction_type__in=[Transaction.TYPE_DEPOSIT, Transaction.TYPE_BONUS]
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    total_debited = Transaction.objects.filter(
+        created_by_admin__isnull=False,
+        transaction_type__in=[Transaction.TYPE_WITHDRAWAL, Transaction.TYPE_FEE]
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    context = {
+        'users': users,
+        'recent_admin_txns': recent_admin_txns,
+        'total_admin_txns': total_admin_txns,
+        'total_credited': total_credited,
+        'total_debited': total_debited,
+    }
+    
+    return render(request, 'transaction/admin_fund_management.html', context)

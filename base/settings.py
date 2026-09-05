@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'staff',
     'transaction',
     'kyc',
+    'notification',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +80,7 @@ TEMPLATES = [
                 
                 'transaction.context_processors.pending_counts',
                 'kyc.context_processors.pending_kyc_count',
+                'notification.context_processors.unread_notifications',
             ],
         },
     },

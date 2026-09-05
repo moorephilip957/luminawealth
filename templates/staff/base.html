@@ -34,6 +34,174 @@
             overflow-x: hidden;
         }
 
+        /* Form Select Dropdown */
+        .form-select {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .form-select:focus {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+        }
+
+        .form-select option {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Bootstrap Dropdown Menu */
+        .dropdown-menu {
+            background-color: var(--bg-sidebar) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .dropdown-menu .dropdown-item {
+            color: var(--text-primary) !important;
+        }
+
+        .dropdown-menu .dropdown-item:hover,
+        .dropdown-menu .dropdown-item:focus {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .dropdown-menu .dropdown-divider {
+            border-color: var(--border-color) !important;
+        }
+
+        /* Input Groups */
+        .input-group-text {
+            background-color: var(--bg-card) !important;
+            color: var(--text-secondary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* Form Controls */
+        .form-control {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .form-control:focus {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Textarea */
+        textarea.form-control {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* Number Input Arrows (for Webkit) */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            opacity: 1;
+        }
+
+        /* Custom Scrollbar for Dropdowns */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+
+
+        /* --- DARK MODE ALERTS --- */
+        .alert {
+            border-radius: 8px;
+            border-width: 1px;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+            color: var(--accent-green) !important;
+        }
+
+        .alert-danger,
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+            color: var(--accent-red) !important;
+        }
+
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            border-color: rgba(245, 158, 11, 0.3) !important;
+            color: #f59e0b !important;
+        }
+
+        .alert-info {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+            border-color: rgba(59, 130, 246, 0.3) !important;
+            color: var(--accent-blue) !important;
+        }
+
+        .alert .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* --- FORM VALIDATION STYLES --- */
+        .was-validated .form-control:invalid,
+        .form-control.is-invalid {
+            border-color: var(--accent-red) !important;
+            background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        .was-validated .form-control:valid,
+        .form-control.is-valid {
+            border-color: var(--accent-green) !important;
+            background-color: rgba(16, 185, 129, 0.05) !important;
+        }
+
+        .was-validated .form-select:invalid,
+        .form-select.is-invalid {
+            border-color: var(--accent-red) !important;
+            background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        .invalid-feedback {
+            color: var(--accent-red) !important;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .valid-feedback {
+            color: var(--accent-green) !important;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Highlight field label when error */
+        .form-label.has-error {
+            color: var(--accent-red) !important;
+        }
+
         /* --- SIDEBAR --- */
         .sidebar {
             width: 280px;
@@ -327,6 +495,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="{% url 'transaction:admin_fund_management' %}">
+                    <span><i class="bi bi-bank"></i> Fund Management</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="{% url 'coin:admin_strategies_list' %}">
                     <span><i class="bi bi-diagram-3-fill"></i> Strategies</span>
                 </a>
@@ -472,7 +645,7 @@
                 setTimeout(function() {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
-                }, 5000); // 5 seconds
+                }, 15000); // 5 seconds
             });
         });
     </script>

@@ -571,12 +571,14 @@
             <div class="d-flex align-items-center gap-3">
                 <!-- Notification Bell -->
                 <!-- Replace the notification bell with a link to notifications page -->
-                <a href="{% url 'customer:notifications' %}" class="btn btn-link text-light position-relative">
+                <a href="{% url 'notification:notifications_list' %}" class="btn btn-link text-light position-relative">
                     <span class="position-relative">
                         <i class="bi bi-bell fs-5"></i>
+                        {% if unread_notification_count > 0 %}
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                            12
+                            {{ unread_notification_count }}
                         </span>
+                        {% endif %}
                     </span>
                 </a>
                 
@@ -656,7 +658,7 @@
                 setTimeout(function() {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
-                }, 5000); // 5 seconds
+                }, 15000); // 5 seconds
             });
         });
     </script>

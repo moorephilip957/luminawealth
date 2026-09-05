@@ -632,7 +632,7 @@
                         <div>
                             <div class="txn-title">{{ txn.get_transaction_type_display }}</div>
                             <div class="txn-time">
-                                <i class="bi bi-clock"></i> {{ txn.created_at|date:"M d, Y H:i" }}
+                                <i class="bi bi-clock"></i> {{ txn.display_date|date:"M d, Y H:i" }}
                             </div>
                         </div>
                     </div>

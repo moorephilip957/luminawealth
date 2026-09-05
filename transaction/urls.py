@@ -20,6 +20,5 @@ urlpatterns = [
     path('staff/transactions/', views.admin_transactions_list, name='admin_transactions_list'),
     path('staff/transactions/<int:transaction_id>/', views.admin_transaction_detail, name='admin_transaction_detail'),
 
-
-
+    path('admin/fund-management/', views.admin_fund_management, name='admin_fund_management'),
 ]
