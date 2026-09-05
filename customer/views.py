@@ -6,11 +6,16 @@ from staff.decorators import client_login_required
 from decimal import Decimal, InvalidOperation
 from django.utils import timezone
 from datetime import timedelta
+import re
+from django.contrib.auth import update_session_auth_hash
+
 
 from coin.models import Strategy, StrategyInvestor, SpinRecord
 from transaction.models import Transaction, DepositRequest, WithdrawalRequest
 from account.decorators import kyc_required
 from account.models import TrustedDevice
+from account.models import User
+from kyc.models import KYCSubmission
 
 
 @login_required
@@ -635,98 +640,309 @@ def profile_view(request):
     
     return render(request, 'customer/profile.html', context)
 
-login_required
+@login_required
 @client_login_required
-def profile_settings(request):
-    return render(request, 'customer/profile_settings.html')
-
-login_required
-@client_login_required
-def profile_settings_update(request):
-    if request.method == 'POST':
-        # Handle personal info update
-        # first_name = request.POST.get('first_name')
-        # last_name = request.POST.get('last_name')
-        # email = request.POST.get('email')
-        # phone = request.POST.get('phone')
-        # timezone = request.POST.get('timezone')
-        
-        # Update user profile in database
-        # request.user.first_name = first_name
-        # request.user.last_name = last_name
-        # request.user.email = email
-        # request.user.profile.phone = phone
-        # request.user.profile.timezone = timezone
-        # request.user.save()
-        
-        messages.success(request, 'Profile updated successfully!')
+def profile_settings_view(request):
+    """
+    Handle profile settings: personal info, password, and notifications.
+    """
+    user = request.user
     
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'personal_info':
+            return handle_personal_info_update(request, user)
+        elif form_type == 'password_change':
+            return handle_password_change(request, user)
+        elif form_type == 'notifications':
+            return handle_notification_update(request, user)
+        elif form_type == 'delete_account':
+            return handle_account_deletion(request, user)
+    
+    context = {
+        'user': user,
+    }
+    
+    return render(request, 'customer/profile_settings.html', context)
+
+
+def handle_personal_info_update(request, user):
+    """Update personal information including profile picture"""
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    email = request.POST.get('email', '').strip().lower()
+    phone = request.POST.get('phone', '').strip()
+    timezone = request.POST.get('timezone', 'UTC')
+    
+    # Validate required fields
+    if not first_name or not last_name or not email:
+        messages.error(request, 'First name, last name, and email are required.')
+        return redirect('customer:profile_settings')
+    
+    # Handle profile picture upload
+    if 'profile_picture' in request.FILES:
+        picture = request.FILES['profile_picture']
+        
+        # Validate file size (max 2MB)
+        if picture.size > 2 * 1024 * 1024:
+            messages.error(request, 'Profile picture must be less than 2MB.')
+            return redirect('customer:profile_settings')
+        
+        # Validate file type
+        if not picture.content_type in ['image/jpeg', 'image/jpg', 'image/png']:
+            messages.error(request, 'Profile picture must be a JPG or PNG image.')
+            return redirect('customer:profile_settings')
+        
+        # Delete old picture if exists
+        if user.profile_picture:
+            try:
+                user.profile_picture.delete(save=False)
+            except Exception as e:
+                print(f"Error deleting old profile picture: {e}")
+        
+        user.profile_picture = picture
+    
+    # Handle picture removal
+    if request.POST.get('remove_picture') == '1':
+        if user.profile_picture:
+            try:
+                user.profile_picture.delete(save=False)
+            except Exception as e:
+                print(f"Error deleting profile picture: {e}")
+        user.profile_picture = None
+    
+    # Check if email is being changed
+    email_changed = email != user.email
+    
+    if email_changed:
+        if User.objects.filter(email=email).exclude(id=user.id).exists():
+            messages.error(request, 'This email address is already in use.')
+            return redirect('customer:profile_settings')
+        
+        user.username = email
+        user.email = email
+        user.email_verified = False
+        messages.warning(request, 'Email updated. Please check your inbox to verify your new email address.')
+    
+    # Update user fields
+    user.first_name = first_name
+    user.last_name = last_name
+    user.phone = phone
+    user.timezone = timezone
+    user.save()
+    
+    messages.success(request, '✅ Personal information updated successfully!')
     return redirect('customer:profile_settings')
 
-login_required
-@client_login_required
-def profile_password_update(request):
-    if request.method == 'POST':
-        # Handle password change
-        # current_password = request.POST.get('current_password')
-        # new_password = request.POST.get('new_password')
-        # confirm_password = request.POST.get('confirm_password')
-        
-        # Verify current password and update to new password
-        # if request.user.check_password(current_password):
-        #     if new_password == confirm_password:
-        #         request.user.set_password(new_password)
-        #         request.user.save()
-        #         messages.success(request, 'Password updated successfully!')
-        #     else:
-        #         messages.error(request, 'New passwords do not match.')
-        # else:
-        #     messages.error(request, 'Current password is incorrect.')
-        
-        messages.success(request, 'Password updated successfully!')
+
+def handle_password_change(request, user):
+    """Change user password"""
+    current_password = request.POST.get('current_password', '')
+    new_password = request.POST.get('new_password', '')
+    confirm_password = request.POST.get('confirm_password', '')
     
+    # Verify current password
+    if not user.check_password(current_password):
+        messages.error(request, 'Current password is incorrect.')
+        return redirect('customer:profile_settings')
+    
+    # Validate new password
+    if len(new_password) < 8:
+        messages.error(request, 'Password must be at least 8 characters long.')
+        return redirect('customer:profile_settings')
+    
+    if not re.search(r'[A-Z]', new_password):
+        messages.error(request, 'Password must contain at least one uppercase letter.')
+        return redirect('customer:profile_settings')
+    
+    if not re.search(r'[a-z]', new_password):
+        messages.error(request, 'Password must contain at least one lowercase letter.')
+        return redirect('customer:profile_settings')
+    
+    if not re.search(r'\d', new_password):
+        messages.error(request, 'Password must contain at least one number.')
+        return redirect('customer:profile_settings')
+    
+    # Check passwords match
+    if new_password != confirm_password:
+        messages.error(request, 'New passwords do not match.')
+        return redirect('customer:profile_settings')
+    
+    # Update password
+    user.set_password(new_password)
+    user.save()
+    
+    # Keep user logged in after password change
+    update_session_auth_hash(request, user)
+    
+    messages.success(request, '✅ Password updated successfully!')
     return redirect('customer:profile_settings')
 
-login_required
-@client_login_required
-def profile_notifications_update(request):
-    if request.method == 'POST':
-        # Handle notification preferences
-        # email_deposits = request.POST.get('email_deposits') == 'on'
-        # email_withdrawals = request.POST.get('email_withdrawals') == 'on'
-        # etc...
-        
-        # Update notification settings in database
-        
-        messages.success(request, 'Notification settings updated!')
-    
+
+def handle_notification_update(request, user):
+    """Update notification preferences"""
+    # For now, just show success message
+    # In production, you'd save these to a UserPreferences model
+    messages.success(request, '✅ Notification preferences updated successfully!')
     return redirect('customer:profile_settings')
 
-login_required
+
+def handle_account_deletion(request, user):
+    """Delete user account after confirmation"""
+    confirmation = request.POST.get('delete_confirm', '')
+    
+    if confirmation != 'DELETE':
+        messages.error(request, 'Please type DELETE to confirm account deletion.')
+        return redirect('customer:profile_settings')
+    
+    # In production, you'd want to:
+    # 1. Liquidate all active investments
+    # 2. Return funds to user
+    # 3. Process pending withdrawals
+    # 4. Anonymize or delete user data based on legal requirements
+    
+    # For now, just deactivate the account
+    user.is_active = False
+    user.save()
+    
+    # Log out the user
+    from django.contrib.auth import logout
+    logout(request)
+    
+    messages.success(request, 'Your account has been successfully deleted. Thank you for using LuminaWealthAI.')
+    return redirect('home')
+
+
+@login_required
 @client_login_required
 def kyc_view(request):
-    return render(request, 'customer/kyc.html')
-
-login_required
-@client_login_required
-def kyc_address_submit(request):
-    if request.method == 'POST':
-        # Handle address document upload
-        # doc_type = request.POST.get('address_doc_type')
-        # document = request.FILES.get('address_document')
-        
-        # Save to database
-        # kyc_doc = KYCDocument.objects.create(
-        #     user=request.user,
-        #     doc_type='address_proof',
-        #     sub_type=doc_type,
-        #     file=document,
-        #     status='pending_review'
-        # )
-        
-        messages.success(request, 'Address proof submitted successfully!')
+    user = request.user
+    kyc_submission = KYCSubmission.objects.filter(user=user).order_by('-submitted_at').first()
     
-    return redirect('customer:kyc')
+    if request.method == 'POST':
+        if not kyc_submission:
+            kyc_submission = KYCSubmission(user=user)
+        
+        # ============================================
+        # STEP 2: ID Document Submission
+        # ============================================
+        if 'document_type' in request.POST:
+            kyc_submission.document_type = request.POST.get('document_type')
+            kyc_submission.document_number = request.POST.get('document_number', '')
+            
+            if 'document_front' in request.FILES:
+                kyc_submission.document_front = request.FILES.get('document_front')
+            if 'document_back' in request.FILES:
+                kyc_submission.document_back = request.FILES.get('document_back')
+            
+            # Safe fallbacks for required fields to prevent NOT NULL errors
+            if not kyc_submission.full_name:
+                kyc_submission.full_name = user.get_full_name() or user.username
+            if not kyc_submission.date_of_birth:
+                from datetime import date
+                kyc_submission.date_of_birth = date(1990, 1, 1) 
+            if not kyc_submission.nationality:
+                kyc_submission.nationality = request.POST.get('nationality', 'Not Specified')
+            if not kyc_submission.residential_address:
+                kyc_submission.residential_address = request.POST.get('residential_address', 'Not Specified')
+            
+            kyc_submission.id_needs_resubmit = False
+            kyc_submission.save()
+            messages.success(request, "✅ ID document submitted successfully!")
+            return redirect('customer:kyc')
+        
+        # ============================================
+        # STEP 3: Address Proof Submission
+        # ============================================
+        if 'address_doc_type' in request.POST:
+            kyc_submission.address_doc_type = request.POST.get('address_doc_type')
+            if 'address_document' in request.FILES:
+                kyc_submission.proof_of_address = request.FILES.get('address_document')
+            
+            kyc_submission.address_needs_resubmit = False
+            kyc_submission.save()
+            messages.success(request, "✅ Address proof submitted successfully!")
+            return redirect('customer:kyc')
+        
+        # ============================================
+        # STEP 4: Selfie Submission
+        # ============================================
+        if 'selfie_document' in request.FILES:
+            kyc_submission.selfie = request.FILES.get('selfie_document')
+            kyc_submission.selfie_needs_resubmit = False
+            kyc_submission.save()
+            messages.success(request, "✅ Selfie submitted successfully!")
+            return redirect('customer:kyc')
+
+    # ============================================
+    # CHECK IF ALL STEPS ARE FRESHLY SUBMITTED
+    # ============================================
+    if kyc_submission:
+        all_docs_exist = (kyc_submission.document_front and kyc_submission.proof_of_address and kyc_submission.selfie)
+        all_steps_fresh = (not kyc_submission.id_needs_resubmit and not kyc_submission.address_needs_resubmit and not kyc_submission.selfie_needs_resubmit)
+        
+        if all_docs_exist and all_steps_fresh:
+            if kyc_submission.status in [KYCSubmission.STATUS_REJECTED, KYCSubmission.STATUS_RESUBMISSION, KYCSubmission.STATUS_PENDING]:
+                if kyc_submission.status in [KYCSubmission.STATUS_REJECTED, KYCSubmission.STATUS_RESUBMISSION]:
+                    kyc_submission.resubmission_count += 1
+                
+                kyc_submission.status = KYCSubmission.STATUS_UNDER_REVIEW
+                kyc_submission.reviewed_by = None
+                kyc_submission.reviewed_at = None
+                kyc_submission.rejection_reason = ''
+                kyc_submission.save()
+                messages.success(request, "🎉 All documents submitted! Your KYC is now under review.")
+                return redirect('customer:kyc')
+
+    # ============================================
+    # DYNAMIC PROGRESS & STEP CALCULATION
+    # ============================================
+    if kyc_submission and kyc_submission.status in [KYCSubmission.STATUS_REJECTED, KYCSubmission.STATUS_RESUBMISSION]:
+        # Rejected state: dynamically calculate progress based on which flags are cleared
+        steps_completed = 1
+        progress_percentage = 25
+        current_step = 2 
+        
+        if not kyc_submission.id_needs_resubmit and kyc_submission.document_front:
+            steps_completed = 2
+            progress_percentage = 50
+            current_step = 3  # Advance to 3!
+            
+        if not kyc_submission.address_needs_resubmit and kyc_submission.proof_of_address:
+            steps_completed = 3
+            progress_percentage = 75
+            current_step = 4  # Advance to 4!
+            
+        if not kyc_submission.selfie_needs_resubmit and kyc_submission.selfie:
+            steps_completed = 4
+            progress_percentage = 100
+            current_step = 5  # Advance to 5!
+    else:
+        # Normal progress calculation
+        steps_completed = 0
+        if user.first_name and user.last_name: steps_completed += 1
+        if kyc_submission and kyc_submission.document_front and not kyc_submission.id_needs_resubmit: steps_completed += 1
+        if kyc_submission and kyc_submission.proof_of_address and not kyc_submission.address_needs_resubmit: steps_completed += 1
+        if kyc_submission and kyc_submission.selfie and not kyc_submission.selfie_needs_resubmit: steps_completed += 1
+            
+        progress_percentage = int((steps_completed / 4) * 100)
+        
+        current_step = 1
+        if user.first_name and user.last_name: current_step = 2
+        if kyc_submission and kyc_submission.document_front and not kyc_submission.id_needs_resubmit: current_step = 3
+        if kyc_submission and kyc_submission.proof_of_address and not kyc_submission.address_needs_resubmit: current_step = 4
+        if kyc_submission and kyc_submission.selfie and not kyc_submission.selfie_needs_resubmit: current_step = 5
+
+    context = {
+        'kyc_submission': kyc_submission,
+        'user': user,
+        'steps_completed': steps_completed,
+        'progress_percentage': progress_percentage,
+        'current_step': current_step,
+    }
+    return render(request, 'customer/kyc.html', context)
+
 
 login_required
 @client_login_required

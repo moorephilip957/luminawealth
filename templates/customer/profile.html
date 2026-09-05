@@ -21,7 +21,7 @@
         <div class="card card-custom p-4 mb-4">
             <div class="text-center mb-4">
                 <div class="position-relative d-inline-block mb-3">
-                    <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username }}&background=3b82f6&color=fff&size=120" 
+                    <img src="{{ request.user.get_avatar_url }}" 
                          alt="Profile" 
                          class="rounded-circle"
                          style="width: 120px; height: 120px; object-fit: cover; border: 4px solid var(--accent-blue);">
@@ -160,7 +160,7 @@
                             <div>
                                 <div class="fw-semibold">Password</div>
                                 <small class="text-secondary">
-                                    <a href="{% url 'account:forgot_password' %}" class="text-decoration-none">Change Password</a>
+                                    <a href="{% url 'customer:profile_settings' %}" class="text-decoration-none">Change Password</a>
                                 </small>
                             </div>
                         </div>

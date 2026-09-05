@@ -24,22 +24,39 @@
                 <i class="bi bi-person-fill me-2"></i> Personal Information
             </h5>
 
-            <form method="POST" action="{% url 'customer:profile_settings_update' %}">
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
+                <input type="hidden" name="form_type" value="personal_info">
                 
                 <!-- Profile Picture -->
                 <div class="mb-4">
                     <label class="form-label text-secondary fw-semibold">Profile Picture</label>
                     <div class="d-flex align-items-center gap-3">
-                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=3b82f6&color=fff&size=80" 
-                             alt="Profile" 
-                             class="rounded-circle"
-                             style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--accent-blue);">
-                        <div>
-                            <button type="button" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-upload me-1"></i> Upload New
+                        <img src="{{ user.get_avatar_url }}" 
+                            alt="Profile" 
+                            class="rounded-circle"
+                            id="profilePicturePreview"
+                            style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--accent-blue);">
+                        <div class="flex-grow-1">
+                            <input type="file" 
+                                name="profile_picture" 
+                                id="profilePictureInput"
+                                class="d-none" 
+                                accept="image/jpeg,image/png"
+                                onchange="previewProfilePicture(this)">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('profilePictureInput').click()">
+                                <i class="bi bi-upload me-1"></i> {% if user.profile_picture %}Change Picture{% else %}Upload Picture{% endif %}
                             </button>
-                            <small class="text-secondary d-block mt-1">JPG, PNG or GIF. Max 2MB.</small>
+                            {% if user.profile_picture %}
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeProfilePicture()">
+                                <i class="bi bi-trash me-1"></i> Remove
+                            </button>
+                            <input type="hidden" name="remove_picture" id="removePictureInput" value="0">
+                            {% endif %}
+                            <small class="text-secondary d-block mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                JPG or PNG. Max 2MB. Square images work best.
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -49,12 +66,12 @@
                     <div class="col-md-6">
                         <label class="form-label text-secondary fw-semibold">First Name *</label>
                         <input type="text" class="form-control bg-transparent border-secondary text-light" 
-                               name="first_name" value="John" required>
+                               name="first_name" value="{{ user.first_name }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-secondary fw-semibold">Last Name *</label>
                         <input type="text" class="form-control bg-transparent border-secondary text-light" 
-                               name="last_name" value="Doe" required>
+                               name="last_name" value="{{ user.last_name }}" required>
                     </div>
                 </div>
 
@@ -63,19 +80,29 @@
                     <label class="form-label text-secondary fw-semibold">Email Address *</label>
                     <div class="input-group">
                         <input type="email" class="form-control bg-transparent border-secondary text-light" 
-                               name="email" value="john.doe@example.com" required>
+                               name="email" value="{{ user.email }}" required>
+                        {% if user.email_verified %}
                         <span class="input-group-text bg-transparent border-secondary">
                             <i class="bi bi-check-circle-fill text-success"></i>
                         </span>
+                        {% else %}
+                        <span class="input-group-text bg-transparent border-secondary">
+                            <i class="bi bi-exclamation-circle-fill text-warning"></i>
+                        </span>
+                        {% endif %}
                     </div>
+                    {% if not user.email_verified %}
+                    <small class="text-warning">Email not verified. Please check your inbox.</small>
+                    {% else %}
                     <small class="text-secondary">This email is used for login and notifications.</small>
+                    {% endif %}
                 </div>
 
                 <!-- Phone -->
                 <div class="mb-3">
-                    <label class="form-label text-secondary fw-semibold">Phone Number *</label>
+                    <label class="form-label text-secondary fw-semibold">Phone Number</label>
                     <input type="tel" class="form-control bg-transparent border-secondary text-light" 
-                           name="phone" value="+1 (555) 123-4567" required>
+                           name="phone" value="{{ user.phone }}" placeholder="+1 (555) 123-4567">
                     <small class="text-secondary">Used for two-factor authentication and account recovery.</small>
                 </div>
 
@@ -83,12 +110,12 @@
                 <div class="mb-4">
                     <label class="form-label text-secondary fw-semibold">Timezone</label>
                     <select class="form-select bg-transparent border-secondary text-light" name="timezone">
-                        <option value="UTC-05:00" selected>UTC-05:00 (Eastern Time)</option>
-                        <option value="UTC-06:00">UTC-06:00 (Central Time)</option>
-                        <option value="UTC-07:00">UTC-07:00 (Mountain Time)</option>
-                        <option value="UTC-08:00">UTC-08:00 (Pacific Time)</option>
-                        <option value="UTC+00:00">UTC+00:00 (GMT)</option>
-                        <option value="UTC+01:00">UTC+01:00 (Central European Time)</option>
+                        <option value="UTC-05:00" {% if user.timezone == 'UTC-05:00' %}selected{% endif %}>UTC-05:00 (Eastern Time)</option>
+                        <option value="UTC-06:00" {% if user.timezone == 'UTC-06:00' %}selected{% endif %}>UTC-06:00 (Central Time)</option>
+                        <option value="UTC-07:00" {% if user.timezone == 'UTC-07:00' %}selected{% endif %}>UTC-07:00 (Mountain Time)</option>
+                        <option value="UTC-08:00" {% if user.timezone == 'UTC-08:00' %}selected{% endif %}>UTC-08:00 (Pacific Time)</option>
+                        <option value="UTC+00:00" {% if user.timezone == 'UTC+00:00' %}selected{% endif %}>UTC+00:00 (GMT)</option>
+                        <option value="UTC+01:00" {% if user.timezone == 'UTC+01:00' %}selected{% endif %}>UTC+01:00 (Central European Time)</option>
                     </select>
                 </div>
 
@@ -104,8 +131,9 @@
                 <i class="bi bi-key-fill me-2"></i> Change Password
             </h5>
 
-            <form method="POST" action="{% url 'customer:profile_password_update' %}">
+            <form method="POST">
                 {% csrf_token %}
+                <input type="hidden" name="form_type" value="password_change">
                 
                 <div class="mb-3">
                     <label class="form-label text-secondary fw-semibold">Current Password *</label>
@@ -132,49 +160,15 @@
             </form>
         </div>
 
-        <!-- Two-Factor Authentication -->
-        <div class="card card-custom p-4 mb-4">
-            <h5 class="fw-bold mb-4">
-                <i class="bi bi-shield-lock-fill me-2"></i> Two-Factor Authentication (2FA)
-            </h5>
-
-            <div class="alert alert-success border-success bg-transparent mb-4" role="alert">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-                    <div>
-                        <strong>2FA is currently enabled</strong>
-                        <p class="mb-0 small mt-1">Your account is protected with Google Authenticator.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label text-secondary fw-semibold">Authentication Method</label>
-                <select class="form-select bg-transparent border-secondary text-light" name="2fa_method">
-                    <option value="authenticator" selected>Authenticator App (Recommended)</option>
-                    <option value="sms">SMS Code</option>
-                    <option value="email">Email Code</option>
-                </select>
-            </div>
-
-            <div class="d-flex gap-2">
-                <button type="button" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-repeat me-2"></i> Reconfigure 2FA
-                </button>
-                <button type="button" class="btn btn-outline-danger">
-                    <i class="bi bi-x-circle me-2"></i> Disable 2FA
-                </button>
-            </div>
-        </div>
-
         <!-- Notification Preferences -->
         <div class="card card-custom p-4">
             <h5 class="fw-bold mb-4">
                 <i class="bi bi-bell-fill me-2"></i> Notification Preferences
             </h5>
 
-            <form method="POST" action="{% url 'customer:profile_notifications_update' %}">
+            <form method="POST">
                 {% csrf_token %}
+                <input type="hidden" name="form_type" value="notifications">
                 
                 <div class="mb-4">
                     <h6 class="fw-semibold mb-3">Email Notifications</h6>
@@ -194,48 +188,9 @@
                     </div>
 
                     <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" name="email_trades" id="emailTrades" checked>
-                        <label class="form-check-label text-secondary" for="emailTrades">
-                            Trade execution notifications
-                        </label>
-                    </div>
-
-                    <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" name="email_security" id="emailSecurity" checked>
                         <label class="form-check-label text-secondary" for="emailSecurity">
                             Security alerts and login notifications
-                        </label>
-                    </div>
-
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="email_marketing" id="emailMarketing">
-                        <label class="form-check-label text-secondary" for="emailMarketing">
-                            Marketing and promotional emails
-                        </label>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="fw-semibold mb-3">SMS Notifications</h6>
-                    
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" name="sms_security" id="smsSecurity" checked>
-                        <label class="form-check-label text-secondary" for="smsSecurity">
-                            Security alerts and 2FA codes
-                        </label>
-                    </div>
-
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" name="sms_trades" id="smsTrades">
-                        <label class="form-check-label text-secondary" for="smsTrades">
-                            Large trade notifications (over $10,000)
-                        </label>
-                    </div>
-
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="sms_withdrawals" id="smsWithdrawals" checked>
-                        <label class="form-check-label text-secondary" for="smsWithdrawals">
-                            Withdrawal confirmations
                         </label>
                     </div>
                 </div>
@@ -256,27 +211,37 @@
             <div class="mb-3">
                 <div class="d-flex justify-content-between mb-1">
                     <span class="text-secondary small">Verification Level</span>
-                    <span class="fw-semibold small text-success">Fully Verified</span>
+                    {% if user.email_verified and user.kyc_status == 'approved' %}
+                        <span class="fw-semibold small text-success">Fully Verified</span>
+                    {% elif user.email_verified %}
+                        <span class="fw-semibold small text-warning">Partially Verified</span>
+                    {% else %}
+                        <span class="fw-semibold small text-danger">Unverified</span>
+                    {% endif %}
                 </div>
                 <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                    {% if user.email_verified and user.kyc_status == 'approved' %}
+                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                    {% elif user.email_verified %}
+                        <div class="progress-bar bg-warning" style="width: 50%"></div>
+                    {% else %}
+                        <div class="progress-bar bg-danger" style="width: 25%"></div>
+                    {% endif %}
                 </div>
             </div>
 
-            <div class="mb-3">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="text-secondary small">Security Score</span>
-                    <span class="fw-semibold small text-success">Excellent (95/100)</span>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: 95%"></div>
-                </div>
-            </div>
-
-            <div class="alert alert-success border-success bg-transparent mb-0" role="alert">
+            <div class="alert alert-{% if user.email_verified and user.kyc_status == 'approved' %}success{% elif user.email_verified %}warning{% else %}danger{% endif %} border-{% if user.email_verified and user.kyc_status == 'approved' %}success{% elif user.email_verified %}warning{% else %}danger{% endif %} bg-transparent mb-0" role="alert">
                 <small>
-                    <i class="bi bi-shield-check me-1"></i>
-                    Your account security is excellent!
+                    {% if user.email_verified and user.kyc_status == 'approved' %}
+                        <i class="bi bi-shield-check me-1"></i>
+                        Your account is fully verified!
+                    {% elif user.email_verified %}
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Complete KYC to unlock all features.
+                    {% else %}
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        Please verify your email address.
+                    {% endif %}
                 </small>
             </div>
         </div>
@@ -324,10 +289,6 @@
             <button type="button" class="btn btn-outline-danger btn-sm w-100 mb-2" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
                 <i class="bi bi-trash me-2"></i> Delete Account
             </button>
-
-            <button type="button" class="btn btn-outline-warning btn-sm w-100">
-                <i class="bi bi-archive me-2"></i> Archive Account
-            </button>
         </div>
     </div>
 </div>
@@ -336,36 +297,34 @@
 <div class="modal fade" id="deleteAccountModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark border-danger">
-            <div class="modal-header border-danger">
-                <h5 class="modal-title fw-bold text-danger">Delete Account</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger border-danger bg-transparent" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <strong>Warning:</strong> This action cannot be undone. All your data, investments, and balance will be permanently deleted.
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="delete_account">
+                
+                <div class="modal-header border-danger">
+                    <h5 class="modal-title fw-bold text-danger">Delete Account</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger border-danger bg-transparent" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone. Your account will be permanently deactivated.
+                    </div>
 
-                <p class="text-secondary mb-3">
-                    To confirm deletion, please type <strong class="text-light">DELETE</strong> in the box below:
-                </p>
+                    <p class="text-secondary mb-3">
+                        To confirm deletion, please type <strong class="text-light">DELETE</strong> in the box below:
+                    </p>
 
-                <input type="text" class="form-control bg-transparent border-danger text-light mb-3" 
-                       placeholder="Type DELETE to confirm" id="deleteConfirmInput">
-
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="deleteFinalConfirm">
-                    <label class="form-check-label text-secondary" for="deleteFinalConfirm">
-                        I understand this action is permanent and irreversible.
-                    </label>
+                    <input type="text" class="form-control bg-transparent border-danger text-light mb-3" 
+                           placeholder="Type DELETE to confirm" name="delete_confirm" id="deleteConfirmInput">
                 </div>
-            </div>
-            <div class="modal-footer border-danger">
-                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger fw-semibold" id="confirmDeleteBtn" disabled>
-                    <i class="bi bi-trash me-2"></i> Permanently Delete Account
-                </button>
-            </div>
+                <div class="modal-footer border-danger">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger fw-semibold" id="confirmDeleteBtn" disabled>
+                        <i class="bi bi-trash me-2"></i> Permanently Delete Account
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -375,18 +334,54 @@
 <script>
     // Delete account confirmation logic
     const deleteInput = document.getElementById('deleteConfirmInput');
-    const deleteCheckbox = document.getElementById('deleteFinalConfirm');
     const deleteBtn = document.getElementById('confirmDeleteBtn');
 
-    function checkDeleteConditions() {
-        const inputValid = deleteInput.value === 'DELETE';
-        const checkboxValid = deleteCheckbox.checked;
-        deleteBtn.disabled = !(inputValid && checkboxValid);
+    function checkDeleteCondition() {
+        deleteBtn.disabled = deleteInput.value !== 'DELETE';
     }
 
-    if (deleteInput && deleteCheckbox && deleteBtn) {
-        deleteInput.addEventListener('input', checkDeleteConditions);
-        deleteCheckbox.addEventListener('change', checkDeleteConditions);
+    if (deleteInput && deleteBtn) {
+        deleteInput.addEventListener('input', checkDeleteCondition);
+    }
+</script>
+
+<script>
+    function previewProfilePicture(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            
+            if (file.size > maxSize) {
+                alert('File size must be less than 2MB');
+                input.value = '';
+                return;
+            }
+            
+            if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+                alert('Please upload a JPG or PNG image');
+                input.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profilePicturePreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            // Reset remove flag if user selects a new picture
+            const removeInput = document.getElementById('removePictureInput');
+            if (removeInput) removeInput.value = '0';
+        }
+    }
+    
+    function removeProfilePicture() {
+        if (confirm('Are you sure you want to remove your profile picture?')) {
+            document.getElementById('profilePicturePreview').src = 'https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=3b82f6&color=fff&size=80';
+            document.getElementById('profilePictureInput').value = '';
+            const removeInput = document.getElementById('removePictureInput');
+            if (removeInput) removeInput.value = '1';
+        }
     }
 </script>
 {% endblock %}

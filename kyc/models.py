@@ -86,6 +86,12 @@ class KYCSubmission(models.Model):
         null=True,
         help_text="Proof of address (utility bill, bank statement)"
     )
+    # Add this field to the KYCSubmission model
+    address_doc_type = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Type of address proof document (e.g., utility_bill, bank_statement)"
+    )
     
     # Status & Review
     status = models.CharField(
@@ -116,6 +122,20 @@ class KYCSubmission(models.Model):
     # Tracking
     submission_number = models.IntegerField(default=1)
     resubmission_count = models.IntegerField(default=0)
+
+    # NEW: Per-step resubmission tracking
+    id_needs_resubmit = models.BooleanField(
+        default=False,
+        help_text="True if admin requested ID document resubmission"
+    )
+    address_needs_resubmit = models.BooleanField(
+        default=False,
+        help_text="True if admin requested address proof resubmission"
+    )
+    selfie_needs_resubmit = models.BooleanField(
+        default=False,
+        help_text="True if admin requested selfie resubmission"
+    )
     
     # Timestamps
     submitted_at = models.DateTimeField(auto_now_add=True)

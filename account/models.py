@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from datetime import timedelta
+from django.core.validators import FileExtensionValidator
+
 
 
 class User(AbstractUser):
@@ -199,6 +201,15 @@ class User(AbstractUser):
         related_name='suspended_users',
         help_text="Admin who suspended this account"
     )
+
+    # Profile Picture
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/%Y/%m/',
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])],
+        help_text="Profile picture (JPG, PNG. Max 2MB)"
+    )
     
     # ===== METADATA =====
     created_at = models.DateTimeField(auto_now_add=True)
@@ -367,6 +378,19 @@ class User(AbstractUser):
             data = session.get_decoded()
             if data.get('_auth_user_id') == user_id_str:
                 session.delete()
+
+    def get_avatar_url(self, size=120):
+        """
+        Returns the user's profile picture URL if uploaded,
+        otherwise falls back to UI Avatars API.
+        """
+        if self.profile_picture and hasattr(self.profile_picture, 'url'):
+            return self.profile_picture.url
+        
+        # Fallback to UI Avatars
+        name = self.get_full_name() or self.username or 'User'
+        name = name.replace(' ', '+')
+        return f"https://ui-avatars.com/api/?name={name}&background=3b82f6&color=fff&size={size}"
 
 
 class OTP(models.Model):

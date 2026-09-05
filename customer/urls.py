@@ -17,13 +17,9 @@ urlpatterns = [
     path('withdraw/', views.withdraw_view, name='withdraw'),
 
     path('profile/', views.profile_view, name='profile'),
-    path('profile/settings/', views.profile_settings, name='profile_settings'),
-    path('profile/settings/update/', views.profile_settings_update, name='profile_settings_update'),
-    path('profile/password/update/', views.profile_password_update, name='profile_password_update'),
-    path('profile/notifications/update/', views.profile_notifications_update, name='profile_notifications_update'),
+    path('profile/settings/', views.profile_settings_view, name='profile_settings'),
 
     path('kyc/', views.kyc_view, name='kyc'),
-    path('kyc/address/submit/', views.kyc_address_submit, name='kyc_address_submit'),
 
     path('notifications/', views.notifications_view, name='notifications'),
     path('transactions/', views.transaction_history, name='transaction_history'),

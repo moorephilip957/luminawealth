@@ -127,7 +127,6 @@ def admin_kyc_approve(request, submission_id):
 @login_required
 @user_passes_test(admin_check)
 def admin_kyc_reject(request, submission_id):
-    """Reject a KYC submission."""
     submission = get_object_or_404(KYCSubmission, id=submission_id)
     
     if not submission.is_pending:
@@ -144,6 +143,14 @@ def admin_kyc_reject(request, submission_id):
         
         try:
             submission.reject(admin_user=request.user, reason=reason, notes=notes)
+            
+            # 🚨 NEW: Flag ALL steps as needing resubmission
+            submission.id_needs_resubmit = True
+            submission.address_needs_resubmit = True
+            submission.selfie_needs_resubmit = True
+            submission.save(update_fields=[
+                'id_needs_resubmit', 'address_needs_resubmit', 'selfie_needs_resubmit'
+            ])
             
             messages.warning(
                 request,
@@ -162,7 +169,6 @@ def admin_kyc_reject(request, submission_id):
 @login_required
 @user_passes_test(admin_check)
 def admin_kyc_resubmit(request, submission_id):
-    """Request resubmission from user."""
     submission = get_object_or_404(KYCSubmission, id=submission_id)
     
     if not submission.is_pending:
@@ -183,6 +189,14 @@ def admin_kyc_resubmit(request, submission_id):
                 reason=reason, 
                 notes=notes
             )
+            
+            # 🚨 NEW: Flag ALL steps as needing resubmission
+            submission.id_needs_resubmit = True
+            submission.address_needs_resubmit = True
+            submission.selfie_needs_resubmit = True
+            submission.save(update_fields=[
+                'id_needs_resubmit', 'address_needs_resubmit', 'selfie_needs_resubmit'
+            ])
             
             messages.info(
                 request,

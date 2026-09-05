@@ -583,7 +583,7 @@
                 <!-- User Profile -->
                 <div class="dropdown user-profile">
                     <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-light" data-bs-toggle="dropdown">
-                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=3b82f6&color=fff" alt="Profile">
+                        <img src="{{ request.user.get_avatar_url }}" alt="Profile">
                         <span class="ms-2 d-none d-md-inline">John Doe</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow">
