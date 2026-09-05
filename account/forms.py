@@ -159,6 +159,7 @@ class LoginForm(forms.Form):
         """
         Validate credentials and check account status.
         Returns cleaned data with user object if valid.
+        For suspended accounts, returns user with 'account_suspended' flag.
         """
         cleaned_data = super().clean()
         email = cleaned_data.get('email', '').lower().strip()
@@ -176,7 +177,16 @@ class LoginForm(forms.Form):
                 'Invalid email or password. Please try again.'
             )
         
-        # Check if account is locked
+        # Verify password FIRST (security: only show suspension to legitimate users)
+        if not user.check_password(password):
+            # Record failed login attempt
+            user.record_failed_login()
+            raise forms.ValidationError(
+                'Invalid email or password. Please try again.'
+            )
+        
+        # Password is correct - now check account status
+        # Check if account is locked (too many failed attempts)
         if user.is_account_locked():
             from django.utils import timezone
             time_remaining = user.account_locked_until - timezone.now()
@@ -186,25 +196,18 @@ class LoginForm(forms.Form):
                 f'Please try again in {minutes} minute(s).'
             )
         
-        # Check if account is active
+        # Check if account is suspended (is_active=False)
         if not user.is_active:
-            raise forms.ValidationError(
-                'Your account has been deactivated. Please contact support.'
-            )
+            # DON'T raise error - instead, store user with a flag
+            # The view will redirect to the suspended page
+            cleaned_data['user'] = user
+            cleaned_data['account_suspended'] = True
+            return cleaned_data
         
-        # Verify password
-        if not user.check_password(password):
-            # Record failed login attempt
-            user.record_failed_login()
-            raise forms.ValidationError(
-                'Invalid email or password. Please try again.'
-            )
-        
-        # Successful authentication - reset failed attempts
+        # Account is active - reset failed attempts and proceed
         user.record_successful_login()
-        
-        # Store user in cleaned_data for view to use
         cleaned_data['user'] = user
+        cleaned_data['account_suspended'] = False
         
         return cleaned_data
 

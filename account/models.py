@@ -12,6 +12,18 @@ class User(AbstractUser):
     Custom User Model for LuminaWealthAI
     Extends Django's AbstractUser to add platform-specific fields.
     """
+
+    # NEW: Account Status Choices
+    STATUS_ACTIVE = 'active'
+    STATUS_SUSPENDED = 'suspended'
+    STATUS_BANNED = 'banned'
+
+    STATUS_CHOICES = [
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_SUSPENDED, 'Suspended'),
+        (STATUS_BANNED, 'Permanently Banned'),
+    ]
+
     
     # KYC Status Choices
     KYC_NOT_STARTED = 'not_started'
@@ -25,6 +37,13 @@ class User(AbstractUser):
         (KYC_APPROVED, 'Approved'),
         (KYC_REJECTED, 'Rejected'),
     ]
+
+    account_status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_ACTIVE,
+        help_text="Current status of the user's account"
+    )
     
     # ===== EMAIL VERIFICATION FIELDS =====
     email_verified = models.BooleanField(
@@ -144,6 +163,41 @@ class User(AbstractUser):
     password_reset_token_created_at = models.DateTimeField(
         null=True,
         blank=True
+    )
+
+    # ===== SECURITY & TRACKING =====
+    last_login_ip = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        help_text="IP address of last login"
+    )
+    failed_login_attempts = models.IntegerField(
+        default=0,
+        help_text="Number of consecutive failed login attempts"
+    )
+    account_locked_until = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Account is locked until this time (after too many failed attempts)"
+    )
+
+    # NEW: Suspension tracking
+    suspension_reason = models.TextField(
+        blank=True,
+        help_text="Reason for account suspension (shown to user)"
+    )
+    suspended_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the account was suspended"
+    )
+    suspended_by = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='suspended_users',
+        help_text="Admin who suspended this account"
     )
     
     # ===== METADATA =====

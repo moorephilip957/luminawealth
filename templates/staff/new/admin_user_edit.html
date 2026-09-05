@@ -1,0 +1,201 @@
+{% extends '../base.html' %}
+{% load humanize%}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'staff:admin_users' %}" class="text-decoration-none">Users</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'staff:admin_user_detail' profile_user.id %}" class="text-decoration-none">{{ profile_user.get_full_name|default:profile_user.email }}</a></li>
+        <li class="breadcrumb-item active">Edit</li>
+    </ol>
+</nav>
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">{{ page_title }}</h3>
+        <p class="text-secondary mb-0">Update user information and account settings</p>
+    </div>
+    <a href="{% url 'staff:admin_user_detail' profile_user.id %}" class="btn btn-outline-light">
+        <i class="bi bi-arrow-left me-1"></i> Back to User
+    </a>
+</div>
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <div class="row g-4">
+        <!-- Left Column: Form Fields -->
+        <div class="col-lg-8">
+            <!-- Personal Information -->
+            <div class="card card-custom p-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-person-fill me-2"></i>Personal Information
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary fw-semibold">{{ form.first_name.label }}</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary fw-semibold">{{ form.last_name.label }}</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary fw-semibold">{{ form.email.label }} *</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary fw-semibold">{{ form.phone.label }}</label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary fw-semibold">{{ form.timezone.label }}</label>
+                        {{ form.timezone }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary fw-semibold">{{ form.preferred_currency.label }}</label>
+                        {{ form.preferred_currency }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verification Status -->
+            <div class="card card-custom p-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-shield-check me-2"></i>Verification Status
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mb-3">
+                            {{ form.email_verified }}
+                            <label class="form-check-label text-secondary" for="{{ form.email_verified.id_for_label }}">
+                                {{ form.email_verified.label }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary fw-semibold">{{ form.kyc_status.label }}</label>
+                        {{ form.kyc_status }}
+                    </div>
+                    {% if profile_user.kyc_status == 'rejected' %}
+                    <div class="col-12">
+                        <label class="form-label text-secondary fw-semibold">{{ form.kyc_rejection_reason.label }}</label>
+                        {{ form.kyc_rejection_reason }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Financial & Account -->
+            <div class="card card-custom p-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-gear-fill me-2"></i>Account Settings
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary fw-semibold">{{ form.balance.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary text-secondary">$</span>
+                            {{ form.balance }}
+                        </div>
+                        <small class="text-secondary mt-1 d-block">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Adjusting balance creates an audit trail
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mb-3">
+                            {{ form.is_active }}
+                            <label class="form-check-label text-secondary" for="{{ form.is_active.id_for_label }}">
+                                {{ form.is_active.label }}
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            {{ form.is_staff }}
+                            <label class="form-check-label text-secondary" for="{{ form.is_staff.id_for_label }}">
+                                {{ form.is_staff.label }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Sidebar -->
+        <div class="col-lg-4">
+            <!-- Save Actions -->
+            <div class="card card-custom p-4 mb-4 sticky-top" style="top: 80px;">
+                <h6 class="fw-bold mb-3">Save Changes</h6>
+                <button type="submit" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-check-circle me-2"></i> Save All Changes
+                </button>
+                <a href="{% url 'staff:admin_user_detail' profile_user.id %}" class="btn btn-outline-light w-100">
+                    <i class="bi bi-x-circle me-2"></i> Cancel
+                </a>
+            </div>
+
+            <!-- Quick Info -->
+            <div class="card card-custom p-4 mb-4">
+                <h6 class="fw-bold mb-3">User Quick Info</h6>
+                <div class="mb-2">
+                    <small class="text-secondary d-block">User ID</small>
+                    <span class="fw-semibold">#{{ profile_user.id|stringformat:"06d" }}</span>
+                </div>
+                <div class="mb-2">
+                    <small class="text-secondary d-block">Member Since</small>
+                    <span class="fw-semibold">{{ profile_user.date_joined|date:"M d, Y" }}</span>
+                </div>
+                <div class="mb-2">
+                    <small class="text-secondary d-block">Last Login</small>
+                    <span class="fw-semibold">
+                        {% if profile_user.last_login %}
+                            {{ profile_user.last_login|date:"M d, Y" }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </span>
+                </div>
+                <div>
+                    <small class="text-secondary d-block">Failed Attempts</small>
+                    <span class="fw-semibold">{{ profile_user.failed_login_attempts }}</span>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card card-custom p-4 border-danger" style="border-width: 2px !important;">
+                <h6 class="fw-bold text-danger mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Danger Zone
+                </h6>
+                <p class="text-secondary small mb-3">
+                    These actions are irreversible. Please proceed with caution.
+                </p>
+                <button type="button" class="btn btn-outline-danger btn-sm w-100 mb-2">
+                    <i class="bi bi-key-fill me-2"></i> Reset Password
+                </button>
+                <button type="button" class="btn btn-outline-warning btn-sm w-100">
+                    <i class="bi bi-shield-x me-2"></i> Disable 2FA
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

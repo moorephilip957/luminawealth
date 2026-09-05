@@ -28,4 +28,6 @@ urlpatterns = [
 
     path('verify-email-prompt/', views.email_verification_prompt_view, name='email_verification_prompt'),
     path('kyc-status/', views.kyc_status_view, name='kyc_status'),
+
+     path('account-suspended/', views.account_suspended_view, name='account_suspended'),
 ]

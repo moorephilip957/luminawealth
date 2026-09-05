@@ -1,0 +1,814 @@
+{% extends '../base.html' %}
+{% load humanize%}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.email }} - User Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Active Strategy Card */
+    .strategy-investment-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.15);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .strategy-investment-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    .strategy-investment-card.profit::before {
+        background: linear-gradient(180deg, #10b981, #00f2fe);
+    }
+
+    .strategy-investment-card.loss::before {
+        background: linear-gradient(180deg, #ef4444, #f5576c);
+    }
+
+    .strategy-investment-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    }
+
+    .strategy-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .strategy-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .strategy-card-icon.btc {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(240, 147, 251, 0.2));
+        color: #f59e0b;
+    }
+
+    .strategy-card-icon.eth {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+
+    .strategy-card-icon.stable {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 242, 254, 0.2));
+        color: #10b981;
+    }
+
+    .strategy-card-icon.defi {
+        background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));
+        color: #f093fb;
+    }
+
+    .strategy-card-icon.default {
+        background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+        color: #4facfe;
+    }
+
+    .strategy-card-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .strategy-card-subtitle {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .strategy-card-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .strategy-stat {
+        text-align: center;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+    }
+
+    .strategy-stat-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .strategy-stat-value {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .strategy-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(102, 126, 234, 0.1);
+        font-size: 0.85rem;
+    }
+
+    .profit-badge {
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .profit-badge.positive {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+    }
+
+    .profit-badge.negative {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .profit-badge.neutral {
+        background: rgba(156, 163, 175, 0.15);
+        color: #9ca3af;
+    }
+
+    /* Empty State */
+    .strategies-empty {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px dashed rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+    }
+
+    .strategies-empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        background: rgba(102, 126, 234, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #667eea;
+    }
+
+    /* User Header Card */
+    .user-header-card {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+    }
+
+    .user-avatar-large {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 4px solid transparent;
+        background: linear-gradient(135deg, #667eea, #764ba2) border-box;
+        padding: 4px;
+        position: relative;
+    }
+
+    .user-avatar-large img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    /* Info Row */
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'staff:admin_users' %}" class="text-decoration-none">Users</a></li>
+        <li class="breadcrumb-item active">{{ profile_user.get_full_name|default:profile_user.email }}</li>
+    </ol>
+</nav>
+
+<!-- User Header Card -->
+<div class="user-header-card mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-md-auto text-center">
+            <div class="user-avatar-large mx-auto">
+                <img src="https://ui-avatars.com/api/?name={{ profile_user.get_full_name|default:profile_user.username }}&background=667eea&color=fff&size=200" 
+                     alt="{{ profile_user.get_full_name }}">
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                <div>
+                    <h2 class="fw-bold mb-2">{{ profile_user.get_full_name|default:profile_user.username }}</h2>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="text-secondary">{{ profile_user.email }}</span>
+                        <span class="text-secondary">•</span>
+                        <span class="text-secondary">ID: #{{ profile_user.id|stringformat:"06d" }}</span>
+                        {% if profile_user.email_verified %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i> Email Verified
+                            </span>
+                        {% endif %}
+                        {% if profile_user.kyc_status == 'approved' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-shield-check me-1"></i> KYC Approved
+                            </span>
+                        {% elif profile_user.kyc_status == 'pending' %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-hourglass-split me-1"></i> KYC Pending
+                            </span>
+                        {% endif %}
+                        {% if profile_user.is_staff %}
+                            <span class="badge bg-primary">
+                                <i class="bi bi-person-badge me-1"></i> Admin
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'staff:admin_user_edit' profile_user.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-1"></i> Edit User
+                    </a>
+                    
+                    {% if profile_user.account_status == 'active' %}
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#suspendModal">
+                            <i class="bi bi-pause-circle me-1"></i> Suspend Account
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#reactivateModal">
+                            <i class="bi bi-play-circle me-1"></i> Reactivate Account
+                        </button>
+                    {% endif %}
+                    
+                    <a href="{% url 'staff:admin_users' %}" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left me-1"></i> Back
+                    </a>
+                </div>
+                <!-- <div class="d-flex gap-2">
+                    <a href="{% url 'staff:admin_user_edit' profile_user.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-1"></i> Edit User
+                    </a>
+                    <a href="{% url 'staff:admin_users' %}" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left me-1"></i> Back
+                    </a>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card green p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Available Balance</small>
+                    <h3 class="fw-bold mb-1 mt-2 text-success">${{ profile_user.balance|floatformat:2|intcomma }}</h3>
+                    <small class="text-secondary">Ready to invest</small>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-wallet2 text-success fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card blue p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Invested</small>
+                    <h3 class="fw-bold mb-1 mt-2">${{ total_invested|floatformat:2|intcomma }}</h3>
+                    <small class="text-secondary">Across {{ active_investments|length }} strateg{{ active_investments|length|pluralize:"y,ies" }}</small>
+                </div>
+                <div class="bg-info bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-piggy-bank text-info fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Current Portfolio</small>
+                    <h3 class="fw-bold mb-1 mt-2">${{ total_current_value|floatformat:2|intcomma }}</h3>
+                    <small class="{% if total_profit > 0 %}text-success{% elif total_profit < 0 %}text-danger{% else %}text-secondary{% endif %}">
+                        {% if total_profit > 0 %}
+                            <i class="bi bi-arrow-up-right"></i> +${{ total_profit|floatformat:2 }} (+{{ profit_percent|floatformat:2 }}%)
+                        {% elif total_profit < 0 %}
+                            <i class="bi bi-arrow-down-right"></i> ${{ total_profit|floatformat:2 }} ({{ profit_percent|floatformat:2 }}%)
+                        {% else %}
+                            Break even
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-graph-up-arrow text-primary fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card orange p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Lifetime Activity</small>
+                    <h3 class="fw-bold mb-1 mt-2">${{ profile_user.total_deposited|floatformat:0|intcomma }}</h3>
+                    <small class="text-secondary">${{ profile_user.total_withdrawn|floatformat:0|intcomma }} withdrawn</small>
+                </div>
+                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-clock-history text-warning fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Strategies Cards (THE STAR FEATURE!) -->
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0">
+            <i class="bi bi-diagram-3-fill text-primary me-2"></i>
+            Active Strategies ({{ active_investments|length }})
+        </h4>
+        {% if active_investments %}
+            <span class="badge bg-primary px-3 py-2">
+                Total Value: ${{ total_current_value|floatformat:2|intcomma }}
+            </span>
+        {% endif %}
+    </div>
+
+    {% if active_investments %}
+        <div class="row g-4">
+            {% for investment in active_investments %}
+            <div class="col-md-6 col-xl-4">
+                <div class="strategy-investment-card {% if investment.total_profit > 0 %}profit{% elif investment.total_profit < 0 %}loss{% endif %}">
+                    <!-- Card Header -->
+                    <div class="strategy-card-header">
+                        <div class="strategy-card-icon {% if investment.strategy.invested_coin == 'btc' %}btc{% elif investment.strategy.invested_coin == 'eth' %}eth{% elif investment.strategy.invested_coin == 'usdt' or investment.strategy.invested_coin == 'usdc' %}stable{% elif 'defi' in investment.strategy.strategy_type|lower %}defi{% else %}default{% endif %}">
+                            {% if investment.strategy.invested_coin == 'btc' %}
+                                <i class="bi bi-currency-bitcoin"></i>
+                            {% elif investment.strategy.invested_coin == 'eth' %}
+                                <i class="bi bi-currency-euro"></i>
+                            {% elif investment.strategy.invested_coin == 'usdt' or investment.strategy.invested_coin == 'usdc' %}
+                                <i class="bi bi-cash-stack"></i>
+                            {% else %}
+                                <i class="bi bi-diagram-3"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="strategy-card-title">{{ investment.strategy.name }}</div>
+                            <div class="strategy-card-subtitle">
+                                {{ investment.strategy.get_risk_level_display }} • {{ investment.strategy.get_invested_coin_display }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="strategy-card-stats">
+                        <div class="strategy-stat">
+                            <div class="strategy-stat-label">Invested</div>
+                            <div class="strategy-stat-value">${{ investment.invested_amount|floatformat:2|intcomma }}</div>
+                        </div>
+                        <div class="strategy-stat">
+                            <div class="strategy-stat-label">Current Value</div>
+                            <div class="strategy-stat-value">${{ investment.current_value|floatformat:2|intcomma }}</div>
+                        </div>
+                        <div class="strategy-stat">
+                            <div class="strategy-stat-label">Shares</div>
+                            <div class="strategy-stat-value">{{ investment.shares|floatformat:4 }}</div>
+                        </div>
+                        <div class="strategy-stat">
+                            <div class="strategy-stat-label">Profit/Loss</div>
+                            <div class="strategy-stat-value {% if investment.total_profit > 0 %}text-success{% elif investment.total_profit < 0 %}text-danger{% else %}text-secondary{% endif %}">
+                                {% if investment.total_profit > 0 %}
+                                    +${{ investment.total_profit|floatformat:2 }}
+                                {% elif investment.total_profit < 0 %}
+                                    ${{ investment.total_profit|floatformat:2 }}
+                                {% else %}
+                                    $0.00
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="strategy-card-footer">
+                        <small class="text-secondary">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            Invested {{ investment.invested_at|date:"M d, Y" }}
+                        </small>
+                        <span class="profit-badge {% if investment.total_profit > 0 %}positive{% elif investment.total_profit < 0 %}negative{% else %}neutral{% endif %}">
+                            {% if investment.total_profit > 0 %}
+                                <i class="bi bi-arrow-up-right"></i> +{{ investment.profit_loss_percent }}%
+                            {% elif investment.total_profit < 0 %}
+                                <i class="bi bi-arrow-down-right"></i> {{ investment.profit_loss_percent }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="strategies-empty">
+            <div class="strategies-empty-icon">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+            <h5 class="fw-bold mb-2">No Active Strategies</h5>
+            <p class="text-secondary mb-0">
+                This user hasn't invested in any strategies yet.
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Liquidated Strategies (History) -->
+{% if liquidated_investments %}
+<div class="card card-custom p-4 mb-4">
+    <h5 class="fw-bold mb-3">
+        <i class="bi bi-clock-history me-2"></i>Recently Liquidated Strategies
+    </h5>
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Invested</th>
+                    <th>Returned</th>
+                    <th>P/L</th>
+                    <th>Liquidated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for investment in liquidated_investments %}
+                <tr>
+                    <td class="fw-semibold">{{ investment.strategy.name }}</td>
+                    <td>${{ investment.invested_amount|floatformat:2 }}</td>
+                    <td>${{ investment.current_value|floatformat:2 }}</td>
+                    <td>
+                        {% if investment.total_profit > 0 %}
+                            <span class="text-success">+${{ investment.total_profit|floatformat:2 }}</span>
+                        {% elif investment.total_profit < 0 %}
+                            <span class="text-danger">${{ investment.total_profit|floatformat:2 }}</span>
+                        {% else %}
+                            <span class="text-secondary">$0.00</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <small>{{ investment.liquidated_at|date:"M d, Y H:i" }}</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- User Details Grid -->
+<div class="row g-4">
+    <!-- Personal Information -->
+    <div class="col-lg-6">
+        <div class="card card-custom p-4 h-100">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-person-lines-fill me-2"></i>Personal Information
+            </h5>
+            
+            <div class="info-row">
+                <span class="info-label">Full Name</span>
+                <span class="info-value">{{ profile_user.get_full_name|default:"—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ profile_user.email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value">{{ profile_user.phone|default:"—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Timezone</span>
+                <span class="info-value">{{ profile_user.timezone|default:"UTC" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Preferred Currency</span>
+                <span class="info-value">{{ profile_user.preferred_currency|default:"USD" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Member Since</span>
+                <span class="info-value">{{ profile_user.date_joined|date:"M d, Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Last Login</span>
+                <span class="info-value">
+                    {% if profile_user.last_login %}
+                        {{ profile_user.last_login|date:"M d, Y H:i" }}
+                    {% else %}
+                        Never
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Last Login IP</span>
+                <span class="info-value">{{ profile_user.last_login_ip|default:"—" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security & Verification -->
+    <div class="col-lg-6">
+        <div class="card card-custom p-4 h-100">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-shield-lock-fill me-2"></i>Security & Verification
+            </h5>
+            
+            <div class="info-row">
+                <span class="info-label">Account Status</span>
+                <span class="info-value">
+                    {% if profile_user.account_status == 'suspended' %}
+                        <span class="badge bg-danger">Suspended</span>
+                    {% elif profile_user.account_status == 'banned' %}
+                        <span class="badge bg-dark">Banned</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </span>
+            </div>
+            {% if not profile_user.is_active %}
+            <div class="info-row">
+                <span class="info-label">Suspension Reason</span>
+                <span class="info-value text-danger">{{ profile_user.suspension_reason|default:"—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Suspended On</span>
+                <span class="info-value">
+                    {% if profile_user.suspended_at %}
+                        {{ profile_user.suspended_at|date:"M d, Y H:i" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Suspended By</span>
+                <span class="info-value">
+                    {% if profile_user.suspended_by %}
+                        {{ profile_user.suspended_by.get_full_name|default:profile_user.suspended_by.email }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <span class="info-label">Email Verification</span>
+                <span class="info-value">
+                    {% if profile_user.email_verified %}
+                        <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Verified {{ profile_user.email_verified_at|date:"M d, Y" }}</span>
+                    {% else %}
+                        <span class="text-warning"><i class="bi bi-clock-fill me-1"></i>Not Verified</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">KYC Status</span>
+                <span class="info-value">
+                    {% if profile_user.kyc_status == 'approved' %}
+                        <span class="text-success"><i class="bi bi-shield-fill-check me-1"></i>Approved</span>
+                    {% elif profile_user.kyc_status == 'pending' %}
+                        <span class="text-warning"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                    {% elif profile_user.kyc_status == 'rejected' %}
+                        <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Rejected</span>
+                    {% else %}
+                        <span class="text-secondary">Not Started</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Failed Login Attempts</span>
+                <span class="info-value">{{ profile_user.failed_login_attempts }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Admin Access</span>
+                <span class="info-value">
+                    {% if profile_user.is_staff %}
+                        <span class="text-primary"><i class="bi bi-person-badge-fill me-1"></i>Yes</span>
+                    {% else %}
+                        <span class="text-secondary">No</span>
+                    {% endif %}
+                </span>
+            </div>
+
+            <!-- Trusted Devices -->
+            {% if trusted_devices %}
+            <div class="mt-4 pt-3 border-top border-secondary">
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-laptop me-2"></i>Trusted Devices ({{ trusted_devices|length }})
+                </h6>
+                {% for device in trusted_devices %}
+                <div class="d-flex justify-content-between align-items-center py-2">
+                    <div>
+                        <div class="fw-semibold small">{{ device.device_name }}</div>
+                        <small class="text-secondary">{{ device.ip_address|default:"—" }}</small>
+                    </div>
+                    <small class="text-secondary">{{ device.last_used_at|date:"M d" }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Admin Notes -->
+<div class="card card-custom p-4 mt-4">
+    <h5 class="fw-bold mb-3">
+        <i class="bi bi-journal-text text-warning me-2"></i>Admin Notes
+    </h5>
+    <textarea class="form-control bg-transparent border-secondary text-light" rows="3" 
+              placeholder="Add notes about this user...">{{ profile_user.admin_notes|default:"" }}</textarea>
+    <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-primary btn-sm">
+            <i class="bi bi-check-circle me-1"></i> Save Notes
+        </button>
+    </div>
+</div>
+
+
+
+<!-- Suspend Account Modal -->
+<div class="modal fade" id="suspendModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-danger">
+            <form method="POST" action="{% url 'staff:admin_user_suspend' profile_user.id %}">
+                {% csrf_token %}
+                <div class="modal-header border-danger">
+                    <h5 class="modal-title fw-bold text-danger">
+                        <i class="bi bi-pause-circle-fill me-2"></i> Suspend Account
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger border-danger bg-transparent" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Warning:</strong> This will immediately log out the user and prevent them from accessing their account.
+                    </div>
+
+                    <div class="bg-dark rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">User</span>
+                            <span class="fw-bold">{{ profile_user.get_full_name|default:profile_user.email }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Email</span>
+                            <span class="fw-bold">{{ profile_user.email }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Current Balance</span>
+                            <span class="fw-bold text-success">${{ profile_user.balance|floatformat:2|intcomma }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">Reason for Suspension *</label>
+                        <textarea class="form-control bg-transparent border-secondary text-light" 
+                                  name="reason" rows="3" required
+                                  placeholder="e.g., Violation of terms of service, suspicious activity, etc."></textarea>
+                        <small class="text-secondary mt-1 d-block">
+                            <i class="bi bi-info-circle me-1"></i>
+                            This reason will be shown to the user when they try to log in.
+                        </small>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmSuspend" required>
+                        <label class="form-check-label text-secondary" for="confirmSuspend">
+                            I confirm I want to suspend this account and terminate all active sessions
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-danger">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger fw-semibold">
+                        <i class="bi bi-pause-circle me-2"></i> Suspend Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reactivate Account Modal -->
+<div class="modal fade" id="reactivateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-success">
+            <form method="POST" action="{% url 'staff:admin_user_reactivate' profile_user.id %}">
+                {% csrf_token %}
+                <div class="modal-header border-success">
+                    <h5 class="modal-title fw-bold text-success">
+                        <i class="bi bi-play-circle-fill me-2"></i> Reactivate Account
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info border-info bg-transparent" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        This will restore the user's access to their account. They will be able to log in immediately.
+                    </div>
+
+                    <div class="bg-dark rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">User</span>
+                            <span class="fw-bold">{{ profile_user.get_full_name|default:profile_user.email }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Suspended On</span>
+                            <span class="fw-bold">
+                                {% if profile_user.suspended_at %}
+                                    {{ profile_user.suspended_at|date:"M d, Y H:i" }}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Suspension Reason</span>
+                            <span class="fw-bold text-danger">{{ profile_user.suspension_reason|default:"—" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmReactivate" required>
+                        <label class="form-check-label text-secondary" for="confirmReactivate">
+                            I confirm I want to reactivate this account
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-success">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success fw-semibold">
+                        <i class="bi bi-play-circle me-2"></i> Reactivate Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

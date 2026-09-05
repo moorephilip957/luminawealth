@@ -227,20 +227,142 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+# def login_view(request):
+#     """
+#     Handle user login with smart OTP logic.
+    
+#     Flow:
+#     1. User submits email + password
+#     2. Validate credentials
+#     3. Check if device is trusted (via cookie)
+#     4. If trusted: log in directly → dashboard
+#     5. If not trusted: send OTP → OTP page
+#     """
+    
+#     # If already logged in, redirect to dashboard
+#     if request.user.is_authenticated:
+#         return redirect('customer:dashboard')
+    
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST)
+        
+#         if form.is_valid():
+#             user = form.cleaned_data['user']
+#             remember_device = form.cleaned_data.get('remember_device', False)
+            
+#             # Get device info
+#             ip_address = get_client_ip(request)
+#             user_agent = request.META.get('HTTP_USER_AGENT', '')
+#             device_name = TrustedDevice.get_friendly_device_name(user_agent)
+            
+#             # Check if device is trusted (via cookie)
+#             device_token = request.COOKIES.get(settings.TRUSTED_DEVICE_COOKIE_NAME)
+#             trusted_device = None
+            
+#             if device_token:
+#                 trusted_device = TrustedDevice.get_device_by_token(device_token)
+                
+#                 # Verify it belongs to this user and is valid
+#                 if trusted_device and trusted_device.user != user:
+#                     trusted_device = None
+                
+#                 if trusted_device and not trusted_device.is_valid():
+#                     trusted_device = None
+            
+#             # If device is trusted, skip OTP
+#             if trusted_device:
+#                 # Update last used and extend expiry
+#                 trusted_device.update_last_used(ip_address=ip_address)
+#                 trusted_device.extend_expiry()
+                
+#                 # Log the user in
+#                 auth_login(request, user)
+                
+#                 messages.success(
+#                     request,
+#                     f'Welcome back, {user.first_name}! 🎉'
+#                 )
+                
+#                 # Redirect to dashboard or next page
+#                 next_url = request.GET.get('next', 'customer:dashboard')
+#                 return redirect(next_url)
+            
+#             # Device not trusted - need OTP
+#             # Check rate limiting (don't spam OTPs)
+#             if OTP.has_recent_otp(user, minutes=settings.OTP_RATE_LIMIT_MINUTES):
+#                 messages.warning(
+#                     request,
+#                     'An OTP was recently sent to your email. Please check your inbox '
+#                     'or wait a minute before requesting a new one.'
+#                 )
+#                 return redirect('account:login')
+            
+#             # Create new OTP
+#             otp = OTP.create_otp(
+#                 user=user,
+#                 ip_address=ip_address,
+#                 user_agent=user_agent
+#             )
+            
+#             # Send OTP email
+#             try:
+#                 # Try to get location from IP (simplified - use IP as location for demo)
+#                 location = f"IP: {ip_address}"
+                
+#                 send_otp_email(
+#                     user=user,
+#                     otp_code=otp.code,
+#                     device_name=device_name,
+#                     location=location,
+#                     request=request
+#                 )
+                
+#                 # Store user info in session for OTP verification
+#                 request.session['pending_login_user_id'] = user.id
+#                 request.session['pending_login_remember_device'] = remember_device
+#                 request.session['pending_login_ip'] = ip_address
+#                 request.session['pending_login_user_agent'] = user_agent
+#                 request.session['otp_attempts'] = 0
+                
+#                 messages.info(
+#                     request,
+#                     f'We sent a 6-digit verification code to {user.email}. '
+#                     f'The code expires in 10 minutes.'
+#                 )
+                
+#                 # Redirect to OTP verification page
+#                 return redirect('account:otp_verify')
+                
+#             except Exception as e:
+#                 messages.error(
+#                     request,
+#                     'Failed to send verification code. Please try again later.'
+#                 )
+#                 print(f"OTP email failed: {e}")
+#         else:
+#             # Form has errors - display them
+#             for field, errors in form.errors.items():
+#                 for error in errors:
+#                     messages.error(request, error)
+#     else:
+#         # GET request - show empty form
+#         form = LoginForm()
+    
+#     return render(request, 'account/login.html', {
+#         'form': form,
+#         'page_title': 'Sign In'
+#     })
+
 def login_view(request):
     """
     Handle user login with smart OTP logic.
-    
-    Flow:
-    1. User submits email + password
-    2. Validate credentials
-    3. Check if device is trusted (via cookie)
-    4. If trusted: log in directly → dashboard
-    5. If not trusted: send OTP → OTP page
+    Redirects suspended users to the suspended page.
     """
     
-    # If already logged in, redirect to dashboard
+    # If already logged in, redirect based on account status
     if request.user.is_authenticated:
+        if getattr(request.user, 'account_status', 'active') == 'suspended':
+            return redirect('staff:account_suspended')
         return redirect('customer:dashboard')
     
     if request.method == 'POST':
@@ -248,6 +370,14 @@ def login_view(request):
         
         if form.is_valid():
             user = form.cleaned_data['user']
+            
+            # ✅ NEW CHECK: If they logged in successfully but are suspended
+            if getattr(user, 'account_status', 'active') == 'suspended':
+                auth_login(request, user) # This now works perfectly!
+                messages.error(request, 'Your account has been suspended.')
+                return redirect('customer:account_suspended')
+            
+            # Account is active - proceed with OTP flow
             remember_device = form.cleaned_data.get('remember_device', False)
             
             # Get device info
@@ -262,7 +392,6 @@ def login_view(request):
             if device_token:
                 trusted_device = TrustedDevice.get_device_by_token(device_token)
                 
-                # Verify it belongs to this user and is valid
                 if trusted_device and trusted_device.user != user:
                     trusted_device = None
                 
@@ -271,11 +400,9 @@ def login_view(request):
             
             # If device is trusted, skip OTP
             if trusted_device:
-                # Update last used and extend expiry
                 trusted_device.update_last_used(ip_address=ip_address)
                 trusted_device.extend_expiry()
                 
-                # Log the user in
                 auth_login(request, user)
                 
                 messages.success(
@@ -283,12 +410,10 @@ def login_view(request):
                     f'Welcome back, {user.first_name}! 🎉'
                 )
                 
-                # Redirect to dashboard or next page
                 next_url = request.GET.get('next', 'customer:dashboard')
                 return redirect(next_url)
             
             # Device not trusted - need OTP
-            # Check rate limiting (don't spam OTPs)
             if OTP.has_recent_otp(user, minutes=settings.OTP_RATE_LIMIT_MINUTES):
                 messages.warning(
                     request,
@@ -306,7 +431,6 @@ def login_view(request):
             
             # Send OTP email
             try:
-                # Try to get location from IP (simplified - use IP as location for demo)
                 location = f"IP: {ip_address}"
                 
                 send_otp_email(
@@ -317,7 +441,6 @@ def login_view(request):
                     request=request
                 )
                 
-                # Store user info in session for OTP verification
                 request.session['pending_login_user_id'] = user.id
                 request.session['pending_login_remember_device'] = remember_device
                 request.session['pending_login_ip'] = ip_address
@@ -330,7 +453,6 @@ def login_view(request):
                     f'The code expires in 10 minutes.'
                 )
                 
-                # Redirect to OTP verification page
                 return redirect('account:otp_verify')
                 
             except Exception as e:
@@ -345,7 +467,6 @@ def login_view(request):
                 for error in errors:
                     messages.error(request, error)
     else:
-        # GET request - show empty form
         form = LoginForm()
     
     return render(request, 'account/login.html', {

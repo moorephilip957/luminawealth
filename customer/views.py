@@ -1,23 +1,36 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from staff.decorators import client_login_required
 
 
+login_required
+@client_login_required
 def dashboard_view(request):
     return render(request, 'customer/dashboard.html')
 
+login_required
+@client_login_required
 def portfolio_view(request):
     return render(request, 'customer/portfolio.html')
 
+login_required
+@client_login_required
 def strategies_view(request):
     return render(request, 'customer/strategies.html')
 
+login_required
+@client_login_required
 def strategy_details(request):
     return render(request, 'customer/strategy_details.html')
 
+login_required
+@client_login_required
 def deposit_view(request):
     return render(request, 'customer/deposit_request.html')
 
+login_required
+@client_login_required
 def deposit_submit(request):
     if request.method == 'POST':
         # Get form data
@@ -56,11 +69,13 @@ def deposit_submit(request):
     
     return redirect('customer:deposit')
 
-
+login_required
+@client_login_required
 def withdraw_view(request):
     return render(request, 'customer/withdraw.html')
 
-
+login_required
+@client_login_required
 def withdraw_submit(request):
     if request.method == 'POST':
         # Get form data
@@ -104,13 +119,18 @@ def withdraw_submit(request):
     
     return redirect('customer:withdraw')
 
-
+login_required
+@client_login_required
 def profile_view(request):
     return render(request, 'customer/profile.html')
 
+login_required
+@client_login_required
 def profile_settings(request):
     return render(request, 'customer/profile_settings.html')
 
+login_required
+@client_login_required
 def profile_settings_update(request):
     if request.method == 'POST':
         # Handle personal info update
@@ -132,6 +152,8 @@ def profile_settings_update(request):
     
     return redirect('customer:profile_settings')
 
+login_required
+@client_login_required
 def profile_password_update(request):
     if request.method == 'POST':
         # Handle password change
@@ -154,6 +176,8 @@ def profile_password_update(request):
     
     return redirect('customer:profile_settings')
 
+login_required
+@client_login_required
 def profile_notifications_update(request):
     if request.method == 'POST':
         # Handle notification preferences
@@ -167,10 +191,13 @@ def profile_notifications_update(request):
     
     return redirect('customer:profile_settings')
 
-
+login_required
+@client_login_required
 def kyc_view(request):
     return render(request, 'customer/kyc.html')
 
+login_required
+@client_login_required
 def kyc_address_submit(request):
     if request.method == 'POST':
         # Handle address document upload
@@ -190,24 +217,50 @@ def kyc_address_submit(request):
     
     return redirect('customer:kyc')
 
-
+login_required
+@client_login_required
 def notifications_view(request):
     return render(request, 'customer/notifications.html')
 
+login_required
+@client_login_required
 def transaction_history(request):
     return render(request, 'customer/transaction_history.html')
 
-@login_required
+login_required
+@client_login_required
 def email_verification_prompt_view(request):
     """
     Show a prompt page asking user to verify their email.
     """
     return render(request, 'customer/email_verification_prompt.html')
 
-
-@login_required
+login_required
+@client_login_required
 def kyc_status_view(request):
     """
     Show KYC status page when KYC is pending.
     """
     return render(request, 'customer/kyc_status.html')
+
+login_required
+def account_suspended_view(request):
+    """
+    Display account suspended page.
+    """
+    # 1. If completely logged out, send to login
+    if not request.user.is_authenticated:
+        return redirect('account:login')
+    
+    # 2. If they are active, they shouldn't be here. Send to dashboard.
+    if getattr(request.user, 'account_status', 'active') != 'suspended':
+        return redirect('customer:dashboard') # Adjust to your dashboard namespace
+    
+    # 3. They are logged in AND suspended. Show the page safely.
+    context = {
+        'suspension_reason': getattr(request.user, 'suspension_reason', None) or 'Your account has been suspended.',
+        'suspended_at': getattr(request.user, 'suspended_at', None),
+        'suspended_by': getattr(request.user, 'suspended_by', None),
+    }
+    
+    return render(request, 'customer/account_suspended.html', context)

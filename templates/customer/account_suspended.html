@@ -1,0 +1,353 @@
+{% extends './base.html' %}
+
+{% block title %}Account Suspended - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .suspended-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .suspended-card {
+        max-width: 700px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 24px;
+        padding: 3rem;
+        position: relative;
+        z-index: 2;
+        animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .suspended-icon {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        margin: 0 auto 2rem;
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        box-shadow: 0 0 60px rgba(239, 68, 68, 0.3);
+        animation: pulse-warning 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-warning {
+        0%, 100% {
+            box-shadow: 0 0 60px rgba(239, 68, 68, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 80px rgba(239, 68, 68, 0.5);
+        }
+    }
+
+    .suspended-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-align: center;
+        background: linear-gradient(135deg, #ef4444, #f5576c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .suspended-subtitle {
+        color: var(--text-secondary);
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .suspension-info {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .suspension-info-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ef4444;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(239, 68, 68, 0.1);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+        font-weight: 600;
+        text-align: right;
+        max-width: 60%;
+    }
+
+    .what-you-can-do {
+        background: rgba(102, 126, 234, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .what-you-can-do-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        color: var(--text-secondary);
+    }
+
+    .action-item i {
+        color: #667eea;
+        font-size: 1.2rem;
+        margin-top: 0.1rem;
+    }
+
+    .suspended-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-shiny {
+        padding: 0.85rem 2rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 50px;
+        color: white;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-shiny:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        color: white;
+    }
+
+    .btn-outline-custom {
+        padding: 0.85rem 2rem;
+        background: transparent;
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 50px;
+        color: var(--text-primary);
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-custom:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.6);
+        color: var(--text-primary);
+    }
+
+    .support-note {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .support-note p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .support-note a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .support-note a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="suspended-container">
+    <!-- Background decorations -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="particle-bg" id="particles"></div>
+
+    <div class="suspended-card">
+        <!-- Icon -->
+        <div class="suspended-icon">
+            <i class="bi bi-shield-x"></i>
+        </div>
+
+        <!-- Title -->
+        <h1 class="suspended-title">Account Suspended</h1>
+        
+        <!-- Subtitle -->
+        <p class="suspended-subtitle">
+            Your LuminaWealthAI account has been suspended and you can no longer access your portfolio or trading features.
+        </p>
+
+        <!-- Suspension Info -->
+        <div class="suspension-info">
+            <div class="suspension-info-title">
+                <i class="bi bi-info-circle-fill"></i>
+                Suspension Details
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Reason:</span>
+                <span class="info-value">{{ suspension_reason }}</span>
+            </div>
+            
+            {% if suspended_at %}
+            <div class="info-row">
+                <span class="info-label">Suspended On:</span>
+                <span class="info-value">{{ suspended_at|date:"F d, Y \a\t H:i" }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="info-row">
+                <span class="info-label">Account Email:</span>
+                <span class="info-value">{{ request.user.email }}</span>
+            </div>
+        </div>
+
+        <!-- What You Can Do -->
+        <div class="what-you-can-do">
+            <div class="what-you-can-do-title">
+                <i class="bi bi-lightbulb-fill"></i>
+                What You Can Do
+            </div>
+            
+            <div class="action-item">
+                <i class="bi bi-envelope-fill"></i>
+                <div>
+                    <strong class="text-white">Contact Support:</strong> 
+                    Reach out to our support team to discuss your account status and resolve any issues.
+                </div>
+            </div>
+            
+            <div class="action-item">
+                <i class="bi bi-chat-dots-fill"></i>
+                <div>
+                    <strong class="text-white">Request Review:</strong> 
+                    If you believe this suspension was made in error, you can request a review of your account.
+                </div>
+            </div>
+            
+            <div class="action-item">
+                <i class="bi bi-download"></i>
+                <div>
+                    <strong class="text-white">Access Your Data:</strong> 
+                    You may be eligible to withdraw your remaining balance. Contact support for assistance.
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="suspended-actions">
+            <a href="{% url 'frontend:contact' %}" class="btn-shiny">
+                <i class="bi bi-headset"></i> Contact Support
+            </a>
+            <a href="{% url 'account:logout' %}" class="btn-outline-custom">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+
+        <!-- Support Note -->
+        <div class="support-note">
+            <p>
+                <i class="bi bi-clock me-1"></i>
+                Our support team typically responds within 24 hours.
+            </p>
+            <p>
+                Or email us directly at <a href="mailto:support@luminawealthai.com">support@luminawealthai.com</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Create particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', createParticles);
+</script>
+{% endblock %}
