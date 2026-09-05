@@ -6,13 +6,15 @@ app_name = 'customer'
 urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('portfolio/', views.portfolio_view, name='portfolio'),
+
     path('strategies/', views.strategies_view, name='strategies'),
-    path('strategy-details/', views.strategy_details, name='strategy_details'),
+    path('strategies/<int:strategy_id>/', views.strategy_detail_view, name='strategy_detail'),
+    path('strategies/<int:strategy_id>/add-funds/', views.add_funds_to_strategy, name='add_funds_to_strategy'),
+    path('strategies/<int:strategy_id>/liquidate/', views.strategy_liquidate_view, name='strategy_liquidate'),
 
     path('deposit/', views.deposit_view, name='deposit'),
-    path('deposit/submit/', views.deposit_submit, name='deposit_submit'),
+    # path('deposit/submit/', views.deposit_submit, name='deposit_submit'),
     path('withdraw/', views.withdraw_view, name='withdraw'),
-    path('withdraw/submit/', views.withdraw_submit, name='withdraw_submit'),
 
     path('profile/', views.profile_view, name='profile'),
     path('profile/settings/', views.profile_settings, name='profile_settings'),

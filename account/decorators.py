@@ -58,7 +58,7 @@ def kyc_required(view_func):
                 'This is required for security and regulatory compliance.'
             )
             request.session['kyc_next'] = request.get_full_path()
-            return redirect('kyc')
+            return redirect('customer:kyc')
         
         elif request.user.kyc_status == User.KYC_PENDING:
             messages.info(
@@ -75,7 +75,7 @@ def kyc_required(view_func):
                 f'Reason: {request.user.kyc_rejection_reason or "Please review the requirements and resubmit."}'
             )
             request.session['kyc_next'] = request.get_full_path()
-            return redirect('kyc')
+            return redirect('customer:kyc')
         
         # KYC_APPROVED - allow access
         return view_func(request, *args, **kwargs)

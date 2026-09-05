@@ -1,0 +1,605 @@
+{% extends '../staff/base.html' %}
+{% load humanize %}
+
+{% block title %}KYC Review #{{ submission.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .document-viewer {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .document-viewer:hover {
+        border-color: rgba(102, 126, 234, 0.5);
+        transform: scale(1.02);
+    }
+    
+    .document-viewer img {
+        max-width: 100%;
+        max-height: 400px;
+        border-radius: 8px;
+    }
+    
+    .document-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .submission-timeline {
+        border-left: 2px solid rgba(102, 126, 234, 0.3);
+        padding-left: 1.5rem;
+        margin-left: 0.5rem;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.75rem;
+        top: 0.5rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #667eea;
+        border: 2px solid var(--dark-bg);
+    }
+    
+    .timeline-item.approved::before { background: #10b981; }
+    .timeline-item.rejected::before { background: #ef4444; }
+    .timeline-item.resubmission::before { background: #f59e0b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'kyc:admin_kyc_list' %}" class="text-decoration-none">KYC Queue</a></li>
+        <li class="breadcrumb-item active">Submission #{{ submission.id|stringformat:"05d" }}</li>
+    </ol>
+</nav>
+
+<!-- Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div class="d-flex align-items-center gap-3">
+        <div class="bg-{% if submission.status == 'pending' %}warning{% elif submission.status == 'approved' %}success{% elif submission.status == 'rejected' %}danger{% else %}info{% endif %} bg-opacity-10 p-3 rounded">
+            <i class="bi bi-{% if submission.status == 'pending' %}hourglass-split text-warning{% elif submission.status == 'approved' %}patch-check-fill text-success{% elif submission.status == 'rejected' %}x-circle-fill text-danger{% else %}clock-fill text-info{% endif %} fs-2"></i>
+        </div>
+        <div>
+            <h3 class="fw-bold mb-1">KYC Submission #{{ submission.id|stringformat:"05d" }}</h3>
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                {% if submission.status == 'pending' %}
+                    <span class="badge-status badge-pending">Pending Review</span>
+                {% elif submission.status == 'approved' %}
+                    <span class="badge-status badge-approved">Approved</span>
+                {% elif submission.status == 'rejected' %}
+                    <span class="badge-status badge-rejected">Rejected</span>
+                {% elif submission.status == 'resubmission_requested' %}
+                    <span class="badge bg-warning text-dark">Resubmission Requested</span>
+                {% endif %}
+                <span class="text-secondary small">• Submitted {{ submission.submitted_at|date:"M d, Y H:i" }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="d-flex gap-2 flex-wrap">
+        {% if submission.is_pending %}
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+                <i class="bi bi-check-circle me-1"></i> Approve
+            </button>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#resubmitModal">
+                <i class="bi bi-arrow-repeat me-1"></i> Request Resubmit
+            </button>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                <i class="bi bi-x-circle me-1"></i> Reject
+            </button>
+        {% endif %}
+        <a href="{% url 'kyc:admin_kyc_list' %}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- User Information -->
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-person-fill me-2"></i>User Information
+            </h5>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Account Holder</small>
+                    <div class="d-flex align-items-center mt-1">
+                        <img src="https://ui-avatars.com/api/?name={{ submission.user.get_full_name|default:submission.user.username }}&background=667eea&color=fff&size=50" 
+                             class="rounded-circle me-2" width="50" height="50">
+                        <div>
+                            <div class="fw-bold">{{ submission.user.get_full_name|default:submission.user.username }}</div>
+                            <small class="text-secondary">{{ submission.user.email }}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Submitted Name</small>
+                    <span class="fw-bold fs-5">{{ submission.full_name }}</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Date of Birth</small>
+                    <span class="fw-semibold">{{ submission.date_of_birth|date:"M d, Y" }}</span>
+                    <small class="text-secondary d-block">
+                        Age: {{ submission.date_of_birth|timesince }} (approx)
+                    </small>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Nationality</small>
+                    <span class="fw-semibold">{{ submission.nationality }}</span>
+                </div>
+                <div class="col-12">
+                    <small class="text-secondary d-block">Residential Address</small>
+                    <p class="text-light mb-0 mt-1">{{ submission.residential_address }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Information -->
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-card-heading me-2"></i>Document Information
+            </h5>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Document Type</small>
+                    <span class="fw-bold fs-5">{{ submission.get_document_type_display }}</span>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Document Number</small>
+                    <code class="text-light fs-5 d-block mt-1">{{ submission.document_number }}</code>
+                </div>
+                {% if submission.document_expiry %}
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Expiry Date</small>
+                    <span class="fw-semibold">
+                        {{ submission.document_expiry|date:"M d, Y" }}
+                        {% if submission.document_expiry < today %}
+                            <span class="badge bg-danger ms-2">Expired</span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+                <div class="col-md-6">
+                    <small class="text-secondary d-block">Submission #</small>
+                    <span class="fw-semibold">
+                        {{ submission.submission_number }}
+                        {% if submission.resubmission_count > 0 %}
+                            <span class="badge bg-warning text-dark ms-2">
+                                {{ submission.resubmission_count }} resubmission{{ submission.resubmission_count|pluralize }}
+                            </span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Viewer -->
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-images me-2"></i>Uploaded Documents
+            </h5>
+            
+            <div class="row g-3">
+                <!-- Front of Document -->
+                <div class="col-md-6">
+                    <div class="document-label">
+                        <i class="bi bi-file-earmark-text me-1"></i>
+                        Document Front
+                    </div>
+                    <div class="document-viewer" onclick="window.open('{{ submission.document_front.url }}', '_blank')">
+                        <img src="{{ submission.document_front.url }}" alt="Document Front">
+                    </div>
+                </div>
+                
+                <!-- Back of Document -->
+                <div class="col-md-6">
+                    <div class="document-label">
+                        <i class="bi bi-file-earmark-text me-1"></i>
+                        Document Back
+                    </div>
+                    {% if submission.document_back %}
+                    <div class="document-viewer" onclick="window.open('{{ submission.document_back.url }}', '_blank')">
+                        <img src="{{ submission.document_back.url }}" alt="Document Back">
+                    </div>
+                    {% else %}
+                    <div class="document-viewer">
+                        <div class="text-secondary">
+                            <i class="bi bi-file-earmark-x fs-1"></i>
+                            <p class="mt-2 mb-0 small">Not provided</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Selfie -->
+                <div class="col-md-6">
+                    <div class="document-label">
+                        <i class="bi bi-person-circle me-1"></i>
+                        Selfie Photo
+                    </div>
+                    <div class="document-viewer" onclick="window.open('{{ submission.selfie.url }}', '_blank')">
+                        <img src="{{ submission.selfie.url }}" alt="Selfie">
+                    </div>
+                </div>
+                
+                <!-- Proof of Address -->
+                <div class="col-md-6">
+                    <div class="document-label">
+                        <i class="bi bi-house-door me-1"></i>
+                        Proof of Address
+                    </div>
+                    {% if submission.proof_of_address %}
+                    <div class="document-viewer" onclick="window.open('{{ submission.proof_of_address.url }}', '_blank')">
+                        {% if submission.proof_of_address.url|slice:"-4:" == ".jpg" or submission.proof_of_address.url|slice:"-5:" == ".jpeg" or submission.proof_of_address.url|slice:"-4:" == ".png" %}
+                            <img src="{{ submission.proof_of_address.url }}" alt="Proof of Address">
+                        {% else %}
+                            <div class="text-secondary">
+                                <i class="bi bi-file-earmark-pdf fs-1"></i>
+                                <p class="mt-2 mb-0 small">PDF Document<br>Click to view</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="document-viewer">
+                        <div class="text-secondary">
+                            <i class="bi bi-file-earmark-x fs-1"></i>
+                            <p class="mt-2 mb-0 small">Not provided</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="alert alert-info border-info bg-transparent mt-3 mb-0" role="alert">
+                <i class="bi bi-info-circle me-2"></i>
+                <small>Click any document to open in a new tab for detailed viewing.</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Status Card -->
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-info-circle me-2"></i>Status
+            </h5>
+            
+            <div class="info-row">
+                <span class="text-secondary">Current Status</span>
+                <span>
+                    {% if submission.status == 'pending' %}
+                        <span class="badge-status badge-pending">Pending</span>
+                    {% elif submission.status == 'approved' %}
+                        <span class="badge-status badge-approved">Approved</span>
+                    {% elif submission.status == 'rejected' %}
+                        <span class="badge-status badge-rejected">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Resubmit</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="text-secondary">Submitted</span>
+                <span class="fw-semibold">{{ submission.submitted_at|date:"M d, Y H:i" }}</span>
+            </div>
+            {% if submission.reviewed_at %}
+            <div class="info-row">
+                <span class="text-secondary">Reviewed</span>
+                <span class="fw-semibold">{{ submission.reviewed_at|date:"M d, Y H:i" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="text-secondary">Reviewed By</span>
+                <span class="fw-semibold">
+                    {{ submission.reviewed_by.get_full_name|default:submission.reviewed_by.email }}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Rejection Reason -->
+        {% if submission.rejection_reason %}
+        <div class="card card-custom p-4 mb-4 border-danger">
+            <h5 class="fw-bold mb-3 text-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Rejection Reason
+            </h5>
+            <p class="text-light mb-0">{{ submission.rejection_reason }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Admin Notes -->
+        {% if submission.admin_notes %}
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-journal-text text-warning me-2"></i>Admin Notes
+            </h5>
+            <p class="text-light mb-0">{{ submission.admin_notes }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Submission History -->
+        {% if user_submissions.count > 1 %}
+        <div class="card card-custom p-4 mb-4">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-clock-history me-2"></i>Submission History
+            </h5>
+            <div class="submission-timeline">
+                {% for hist in user_submissions %}
+                <div class="timeline-item {% if hist.status == 'approved' %}approved{% elif hist.status == 'rejected' %}rejected{% elif hist.status == 'resubmission_requested' %}resubmission{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-semibold small">
+                                Submission #{{ hist.submission_number }}
+                            </div>
+                            <small class="text-secondary">
+                                {{ hist.submitted_at|date:"M d, Y H:i" }}
+                            </small>
+                        </div>
+                        {% if hist.status == 'pending' %}
+                            <span class="badge-status badge-pending small">Pending</span>
+                        {% elif hist.status == 'approved' %}
+                            <span class="badge-status badge-approved small">Approved</span>
+                        {% elif hist.status == 'rejected' %}
+                            <span class="badge-status badge-rejected small">Rejected</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark small">Resubmit</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick User Info -->
+        <div class="card card-custom p-4">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-person me-2"></i>User Account
+            </h5>
+            <div class="info-row">
+                <span class="text-secondary small">Email Verified</span>
+                <span>
+                    {% if submission.user.email_verified %}
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                    {% else %}
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="text-secondary small">Account Status</span>
+                <span>
+                    {% if submission.user.is_active %}
+                        <span class="text-success small">Active</span>
+                    {% else %}
+                        <span class="text-danger small">Suspended</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="text-secondary small">Balance</span>
+                <span class="fw-semibold">${{ submission.user.balance|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="info-row">
+                <span class="text-secondary small">Member Since</span>
+                <span class="fw-semibold small">{{ submission.user.date_joined|date:"M d, Y" }}</span>
+            </div>
+            <a href="{% url 'staff:admin_user_detail' submission.user.id %}" class="btn btn-outline-light btn-sm w-100 mt-3">
+                <i class="bi bi-eye me-1"></i> View Full Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Modal -->
+{% if submission.is_pending %}
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-success">
+            <form method="POST" action="{% url 'kyc:admin_kyc_approve' submission.id %}">
+                {% csrf_token %}
+                <div class="modal-header border-success">
+                    <h5 class="modal-title fw-bold text-success">
+                        <i class="bi bi-patch-check-fill me-2"></i> Approve KYC
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success border-success bg-transparent" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        This will verify the user's identity and allow them to make withdrawals.
+                    </div>
+
+                    <div class="bg-dark rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">User</span>
+                            <span class="fw-bold">{{ submission.user.email }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Name on Document</span>
+                            <span class="fw-bold">{{ submission.full_name }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Document</span>
+                            <span class="fw-bold">{{ submission.get_document_type_display }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">Admin Notes (Optional)</label>
+                        <textarea class="form-control bg-transparent border-secondary text-light" 
+                                  name="notes" rows="2" placeholder="Add any notes..."></textarea>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmApprove" required>
+                        <label class="form-check-label text-secondary" for="confirmApprove">
+                            I have verified the documents and confirm identity
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-success">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success fw-semibold">
+                        <i class="bi bi-patch-check-fill me-2"></i> Approve KYC
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Resubmit Modal -->
+<div class="modal fade" id="resubmitModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-warning">
+            <form method="POST" action="{% url 'kyc:admin_kyc_resubmit' submission.id %}">
+                {% csrf_token %}
+                <div class="modal-header border-warning">
+                    <h5 class="modal-title fw-bold text-warning">
+                        <i class="bi bi-arrow-repeat me-2"></i> Request Resubmission
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning border-warning bg-transparent" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        The user will be asked to submit new documents with corrections.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">What needs to be corrected? *</label>
+                        <select class="form-select bg-transparent border-secondary text-light mb-2" 
+                                name="reason" id="resubmitReason" required>
+                            <option value="" disabled selected>Select issue...</option>
+                            <option value="blurry">Document image is blurry or unclear</option>
+                            <option value="expired">Document has expired</option>
+                            <option value="mismatch">Name on document doesn't match account</option>
+                            <option value="incomplete">Missing required information</option>
+                            <option value="selfie_mismatch">Selfie doesn't match document photo</option>
+                            <option value="wrong_document">Wrong document type submitted</option>
+                            <option value="other">Other (specify in notes)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">Additional Instructions</label>
+                        <textarea class="form-control bg-transparent border-secondary text-light" 
+                                  name="notes" rows="3" placeholder="Provide specific instructions for the user..."></textarea>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmResubmit" required>
+                        <label class="form-check-label text-secondary" for="confirmResubmit">
+                            I confirm the user needs to resubmit
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-warning">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning fw-semibold">
+                        <i class="bi bi-arrow-repeat me-2"></i> Request Resubmission
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-danger">
+            <form method="POST" action="{% url 'kyc:admin_kyc_reject' submission.id %}">
+                {% csrf_token %}
+                <div class="modal-header border-danger">
+                    <h5 class="modal-title fw-bold text-danger">
+                        <i class="bi bi-x-circle-fill me-2"></i> Reject KYC
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger border-danger bg-transparent" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        This will reject the user's KYC and they won't be able to withdraw.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">Rejection Reason *</label>
+                        <select class="form-select bg-transparent border-secondary text-light mb-2" 
+                                name="reason" required>
+                            <option value="" disabled selected>Select reason...</option>
+                            <option value="fake_document">Suspected fake/forged document</option>
+                            <option value="identity_fraud">Identity fraud detected</option>
+                            <option value="sanctions">User on sanctions list</option>
+                            <option value="incomplete_info">Incomplete or insufficient information</option>
+                            <option value="multiple_resubmissions">Failed multiple resubmission attempts</option>
+                            <option value="other">Other (specify in notes)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">Additional Notes</label>
+                        <textarea class="form-control bg-transparent border-secondary text-light" 
+                                  name="notes" rows="2" placeholder="Additional details..."></textarea>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmReject" required>
+                        <label class="form-check-label text-secondary" for="confirmReject">
+                            I confirm I want to reject this KYC submission
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-danger">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger fw-semibold">
+                        <i class="bi bi-x-circle me-2"></i> Reject KYC
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

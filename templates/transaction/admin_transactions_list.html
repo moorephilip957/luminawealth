@@ -1,0 +1,215 @@
+{% extends '../staff/base.html' %}
+{% load humanize%}
+
+{% block title %}Transaction History{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+        <h3 class="fw-bold mb-1">Transaction History</h3>
+        <p class="text-secondary mb-0">Complete record of all platform transactions</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="card card-custom stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Transactions</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ total_transactions|intcomma }}</h3>
+                    <small class="text-secondary">All-time</small>
+                </div>
+                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-receipt text-primary fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card card-custom stat-card green p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Volume</small>
+                    <h3 class="fw-bold mb-1 mt-2">${{ total_volume|floatformat:0|intcomma }}</h3>
+                    <small class="text-secondary">Completed transactions</small>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-cash-stack text-success fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card card-custom stat-card blue p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Today</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ today_count }}</h3>
+                    <small class="text-secondary">Transactions today</small>
+                </div>
+                <div class="bg-info bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-calendar-check-fill text-info fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card card-custom p-4 mb-4">
+    <form method="GET" action="{% url 'transaction:admin_transactions_list' %}">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label text-secondary small fw-semibold">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control bg-transparent border-secondary text-light" 
+                           name="search" placeholder="User, reference, or description..." value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label text-secondary small fw-semibold">Type</label>
+                <select class="form-select bg-transparent border-secondary text-light" name="type">
+                    <option value="all" {% if type_filter == 'all' %}selected{% endif %}>All Types</option>
+                    <option value="deposit" {% if type_filter == 'deposit' %}selected{% endif %}>Deposit</option>
+                    <option value="withdrawal" {% if type_filter == 'withdrawal' %}selected{% endif %}>Withdrawal</option>
+                    <option value="investment" {% if type_filter == 'investment' %}selected{% endif %}>Investment</option>
+                    <option value="strategy_return" {% if type_filter == 'strategy_return' %}selected{% endif %}>Strategy Return</option>
+                    <option value="liquidation" {% if type_filter == 'liquidation' %}selected{% endif %}>Liquidation</option>
+                    <option value="fee" {% if type_filter == 'fee' %}selected{% endif %}>Fee</option>
+                    <option value="bonus" {% if type_filter == 'bonus' %}selected{% endif %}>Bonus</option>
+                    <option value="balance_adjustment" {% if type_filter == 'balance_adjustment' %}selected{% endif %}>Adjustment</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label text-secondary small fw-semibold">Status</label>
+                <select class="form-select bg-transparent border-secondary text-light" name="status">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-secondary small fw-semibold">Date Range</label>
+                <select class="form-select bg-transparent border-secondary text-light" name="date">
+                    <option value="all" {% if date_filter == 'all' %}selected{% endif %}>All Time</option>
+                    <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+                    <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Transactions Table -->
+<div class="card card-custom p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">All Transactions ({{ transactions.count }})</h5>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>User</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Balance Impact</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                <tr>
+                    <td>
+                        <code class="text-light small">{{ txn.reference }}</code>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="https://ui-avatars.com/api/?name={{ txn.user.get_full_name|default:txn.user.username }}&background=667eea&color=fff&size=32" 
+                                 class="rounded-circle me-2" width="32" height="32">
+                            <div>
+                                <div class="fw-semibold small">{{ txn.user.get_full_name|default:txn.user.username }}</div>
+                                <small class="text-secondary">{{ txn.user.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if txn.transaction_type == 'deposit' %}
+                            <span class="badge bg-success"><i class="bi bi-arrow-down-circle me-1"></i>Deposit</span>
+                        {% elif txn.transaction_type == 'withdrawal' %}
+                            <span class="badge bg-danger"><i class="bi bi-arrow-up-circle me-1"></i>Withdrawal</span>
+                        {% elif txn.transaction_type == 'investment' %}
+                            <span class="badge bg-primary"><i class="bi bi-piggy-bank me-1"></i>Investment</span>
+                        {% elif txn.transaction_type == 'strategy_return' %}
+                            <span class="badge bg-info"><i class="bi bi-graph-up me-1"></i>Return</span>
+                        {% elif txn.transaction_type == 'liquidation' %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-x-circle me-1"></i>Liquidation</span>
+                        {% elif txn.transaction_type == 'fee' %}
+                            <span class="badge bg-secondary"><i class="bi bi-cash-coin me-1"></i>Fee</span>
+                        {% elif txn.transaction_type == 'bonus' %}
+                            <span class="badge" style="background: #f093fb;"><i class="bi bi-gift me-1"></i>Bonus</span>
+                        {% elif txn.transaction_type == 'balance_adjustment' %}
+                            <span class="badge bg-dark"><i class="bi bi-sliders me-1"></i>Adjustment</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-bold fs-6">${{ txn.amount|floatformat:2|intcomma }}</td>
+                    <td>
+                        {% if txn.is_credit %}
+                            <span class="text-success fw-bold">+${{ txn.amount|floatformat:2 }}</span>
+                        {% else %}
+                            <span class="text-danger fw-bold">-${{ txn.amount|floatformat:2 }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if txn.status == 'completed' %}
+                            <span class="badge-status badge-approved">Completed</span>
+                        {% elif txn.status == 'pending' %}
+                            <span class="badge-status badge-pending">Pending</span>
+                        {% elif txn.status == 'failed' %}
+                            <span class="badge-status badge-rejected">Failed</span>
+                        {% elif txn.status == 'cancelled' %}
+                            <span class="badge bg-secondary">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>{{ txn.created_at|date:"M d, Y" }}</div>
+                        <small class="text-secondary">{{ txn.created_at|date:"H:i" }}</small>
+                    </td>
+                    <td>
+                        <a href="{% url 'transaction:admin_transaction_detail' txn.id %}" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                        <p class="text-secondary mt-3 mb-0">No transactions found</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

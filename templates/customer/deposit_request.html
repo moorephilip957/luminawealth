@@ -11,7 +11,7 @@
     </div>
     <div class="d-flex gap-2">
         <span class="badge bg-dark border border-secondary px-3 py-2">
-            <i class="bi bi-wallet2 me-2"></i> Available Balance: <strong>$12,000.00</strong>
+            <i class="bi bi-wallet2 me-2"></i> Available Balance: <strong>${{ request.user.balance|floatformat:2 }}</strong>
         </span>
     </div>
 </div>
@@ -22,7 +22,7 @@
         <div class="card card-custom p-4">
             <h5 class="fw-bold mb-4">Deposit Request Form</h5>
 
-            <form method="POST" action="{% url 'customer:deposit_submit' %}">
+            <form method="POST" action="{% url 'customer:deposit' %}">
                 {% csrf_token %}
                 
                 <!-- Amount -->
@@ -46,7 +46,6 @@
                         <option value="crypto_usdt">Cryptocurrency (USDT - TRC20)</option>
                         <option value="bank_wire">Bank Wire Transfer</option>
                         <option value="bank_sepa">Bank Transfer (SEPA)</option>
-                        <option value="card">Credit/Debit Card</option>
                         <option value="other">Other (Please specify in notes)</option>
                     </select>
                 </div>
@@ -117,50 +116,34 @@
                     <div class="progress-bar bg-warning" style="width: 60%"></div>
                 </div>
             </div>
-            <div>
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="text-secondary small">Credit/Debit Card</span>
-                    <span class="fw-semibold small">Instant - 24 hours</span>
-                </div>
-                <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-primary" style="width: 10%"></div>
-                </div>
-            </div>
         </div>
 
-        <!-- Recent Deposit Requests -->
+        <!-- Recent Deposit Requests (DYNAMIC!) -->
         <div class="card card-custom p-4 mb-4">
             <h6 class="fw-bold mb-3">Recent Deposit Requests</h6>
             
-            <div class="deposit-item p-3 rounded mb-2">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fw-semibold">$5,000.00</div>
-                        <small class="text-secondary">Bitcoin • Sep 2, 2026</small>
+            {% if recent_deposits %}
+                {% for deposit in recent_deposits %}
+                <div class="deposit-item p-3 rounded mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold">${{ deposit.amount|floatformat:2 }}</div>
+                            <small class="text-secondary">
+                                {{ deposit.get_payment_method_display }} • {{ deposit.created_at|date:"M d, Y" }}
+                            </small>
+                        </div>
+                        <span class="badge-status badge-{% if deposit.status == 'completed' %}active{% elif deposit.status == 'pending' %}pending{% elif deposit.status == 'rejected' %}rejected{% else %}pending{% endif %}">
+                            {{ deposit.get_status_display }}
+                        </span>
                     </div>
-                    <span class="badge-status badge-active">Completed</span>
                 </div>
-            </div>
-
-            <div class="deposit-item p-3 rounded mb-2">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fw-semibold">$10,000.00</div>
-                        <small class="text-secondary">Bank Wire • Aug 28, 2026</small>
-                    </div>
-                    <span class="badge-status badge-active">Completed</span>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-inbox text-secondary" style="font-size: 2rem;"></i>
+                    <p class="text-secondary small mt-2 mb-0">No deposit requests yet</p>
                 </div>
-            </div>
-
-            <div class="deposit-item p-3 rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fw-semibold">$2,000.00</div>
-                        <small class="text-secondary">Card • Aug 25, 2026</small>
-                    </div>
-                    <span class="badge-status badge-pending">Pending</span>
-                </div>
-            </div>
+            {% endif %}
         </div>
 
         <!-- Support Contact -->
@@ -171,7 +154,7 @@
             <p class="text-secondary small mb-3">
                 Our support team is available 24/7 to assist you with your deposit.
             </p>
-            <a href="#" class="btn btn-outline-primary w-100">
+            <a href="{% url 'frontend:contact' %}" class="btn btn-outline-primary w-100">
                 <i class="bi bi-chat-dots me-2"></i> Contact Support
             </a>
         </div>

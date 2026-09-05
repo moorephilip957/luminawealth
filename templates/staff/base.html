@@ -299,11 +299,11 @@
             </div>
         </div>
         <ul class="nav flex-column mt-3">
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link active" href="#">
                     <span><i class="bi bi-speedometer2"></i> Dashboard</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'staff:admin_users' %}">
                     <span><i class="bi bi-people-fill"></i> Users</span>
@@ -331,10 +331,13 @@
                     <span><i class="bi bi-diagram-3-fill"></i> Strategies</span>
                 </a>
             </li>
+
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'staff:admin_kyc' %}">
-                    <span><i class="bi bi-shield-check"></i> KYC Queue</span>
-                    <span class="badge bg-danger">5</span>
+                <a class="nav-link" href="{% url 'kyc:admin_kyc_list' %}">
+                    <span><i class="bi bi-person-badge-fill"></i> KYC Queue</span>
+                    {% if pending_kyc_count %}
+                        <span class="badge bg-warning text-dark">{{ pending_kyc_count }}</span>
+                    {% endif %}
                 </a>
             </li>
             
@@ -342,26 +345,26 @@
                 <small class="text-secondary px-3 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Reports</small>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'staff:admin_transactions' %}">
-                    <span><i class="bi bi-file-earmark-text"></i> Transactions</span>
+                <a class="nav-link" href="{% url 'transaction:admin_transactions_list' %}">
+                    <span><i class="bi bi-receipt"></i> All Transactions</span>
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link" href="#">
                     <span><i class="bi bi-graph-up"></i> Analytics</span>
                 </a>
-            </li>
+            </li> -->
 
-            <li class="nav-item mt-4">
+            <!-- <li class="nav-item mt-4">
                 <small class="text-secondary px-3 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Account</small>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'staff:admin_settings' %}">
                     <span><i class="bi bi-gear-fill"></i> Settings</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-danger" href="#">
+                <a class="nav-link text-danger" href="{% url 'account:logout' %}">
                     <span><i class="bi bi-box-arrow-right"></i> Logout</span>
                 </a>
             </li>

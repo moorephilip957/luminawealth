@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from .models import DepositRequest, WithdrawalRequest
+from .models import DepositRequest, WithdrawalRequest, Transaction
 
 
 def admin_check(user):
@@ -343,4 +343,84 @@ def admin_withdrawal_reject(request, withdrawal_id):
     
     return redirect('transaction:admin_withdrawal_detail', withdrawal_id=withdrawal.id)
 
+
+@login_required
+@user_passes_test(admin_check)
+def admin_transactions_list(request):
+    """
+    Display all transactions with filters.
+    """
+    transactions = Transaction.objects.select_related('user').all()
+    
+    # Apply filters
+    type_filter = request.GET.get('type', 'all')
+    status_filter = request.GET.get('status', 'all')
+    search_query = request.GET.get('search', '')
+    date_filter = request.GET.get('date', 'all')
+    
+    if type_filter != 'all':
+        transactions = transactions.filter(transaction_type=type_filter)
+    
+    if status_filter != 'all':
+        transactions = transactions.filter(status=status_filter)
+    
+    if search_query:
+        transactions = transactions.filter(
+            Q(user__email__icontains=search_query) |
+            Q(user__first_name__icontains=search_query) |
+            Q(reference__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+    
+    if date_filter == 'today':
+        transactions = transactions.filter(created_at__date=timezone.now().date())
+    elif date_filter == 'week':
+        transactions = transactions.filter(
+            created_at__gte=timezone.now() - timedelta(days=7)
+        )
+    elif date_filter == 'month':
+        transactions = transactions.filter(
+            created_at__gte=timezone.now() - timedelta(days=30)
+        )
+    
+    # Stats
+    total_transactions = Transaction.objects.count()
+    total_volume = Transaction.objects.filter(
+        status=Transaction.STATUS_COMPLETED
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    today_count = Transaction.objects.filter(
+        created_at__date=timezone.now().date()
+    ).count()
+    
+    transactions = transactions.order_by('-created_at')
+    
+    context = {
+        'transactions': transactions,
+        'total_transactions': total_transactions,
+        'total_volume': total_volume,
+        'today_count': today_count,
+        'type_filter': type_filter,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'date_filter': date_filter,
+    }
+    
+    return render(request, 'transaction/admin_transactions_list.html', context)
+
+
+@login_required
+@user_passes_test(admin_check)
+def admin_transaction_detail(request, transaction_id):
+    """Display transaction details."""
+    transaction = get_object_or_404(
+        Transaction.objects.select_related('user', 'related_deposit', 'related_withdrawal'),
+        id=transaction_id
+    )
+    
+    context = {
+        'transaction': transaction,
+    }
+    
+    return render(request, 'transaction/admin_transaction_detail.html', context)
 

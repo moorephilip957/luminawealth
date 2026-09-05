@@ -1,69 +1,70 @@
 {% extends './base.html' %}
+{% load humanize %}
 {% block title %}Dashboard{% endblock %}
+
 {% block content %}
 <!-- 1. PAGE HEADER -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h3 class="fw-bold mb-1">Dashboard</h3>
-        <p class="text-secondary mb-0">Here is your financial overview for today.</p>
+        <p class="text-secondary mb-0">Welcome back, {{ request.user.first_name|default:request.user.username }}! Here is your financial overview.</p>
     </div>
     <div class="d-none d-md-block">
-        <!-- A nice little date badge -->
         <span class="badge bg-dark border border-secondary px-3 py-2">
-            <i class="bi bi-calendar3 me-2"></i> Thursday, Sep 03, 2026
+            <i class="bi bi-calendar3 me-2"></i> {% now "l, M d, Y" %}
         </span>
     </div>
 </div>
 
 <!-- 2. STATS CARDS ROW -->
-<!-- g-4 adds a nice gap between the columns -->
 <div class="row g-4 mb-4"> 
-    
-    <!-- Card 1: Total Balance -->
+    <!-- Card 1: Total Portfolio Value -->
     <div class="col-12 col-md-4">
         <div class="card card-custom p-4 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Total Balance</span>
+                <span class="text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Total Portfolio Value</span>
                 <div class="bg-primary bg-opacity-10 p-2 rounded">
                     <i class="bi bi-wallet2 text-primary fs-5"></i>
                 </div>
             </div>
-            <h2 class="fw-bold mb-1">$45,231.89</h2>
-            <div class="d-flex align-items-center text-profit" style="font-size: 0.9rem;">
-                <i class="bi bi-arrow-up-right me-1"></i>
-                <span>+2.4% from last month</span>
+            <h2 class="fw-bold mb-1">${{ total_portfolio_value|floatformat:2|intcomma }}</h2>
+            <div class="d-flex align-items-center text-secondary" style="font-size: 0.9rem;">
+                <span>Across all strategies & cash</span>
             </div>
         </div>
     </div>
 
-    <!-- Card 2: Total Profit/Loss -->
+    <!-- Card 2: Total PnL -->
     <div class="col-12 col-md-4">
         <div class="card card-custom p-4 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Total PnL (Profit/Loss)</span>
-                <div class="bg-success bg-opacity-10 p-2 rounded">
-                    <i class="bi bi-graph-up-arrow text-profit fs-5"></i>
+                <span class="text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Total PnL</span>
+                <div class="bg-{% if total_profit >= 0 %}success{% else %}danger{% endif %} bg-opacity-10 p-2 rounded">
+                    <i class="bi bi-graph-{% if total_profit >= 0 %}up{% else %}down{% endif %}-arrow text-{% if total_profit >= 0 %}profit{% else %}loss{% endif %} fs-5"></i>
                 </div>
             </div>
-            <h2 class="fw-bold text-profit mb-1">+$1,240.50</h2>
-            <div class="d-flex align-items-center text-secondary" style="font-size: 0.9rem;">
-                <span>Across 14 active trades</span>
+            <h2 class="fw-bold mb-1 {% if total_profit >= 0 %}text-profit{% else %}text-loss{% endif %}">
+                {% if total_profit >= 0 %}+{% endif %}${{ total_profit|floatformat:2|intcomma }}
+            </h2>
+            <div class="d-flex align-items-center {% if total_profit >= 0 %}text-profit{% else %}text-loss{% endif %}" style="font-size: 0.9rem;">
+                <i class="bi bi-arrow-{% if total_profit >= 0 %}up{% else %}down{% endif %}-right me-1"></i>
+                <span>{{ profit_percent|floatformat:2|intcomma }}% all-time return</span>
             </div>
         </div>
     </div>
 
-    <!-- Card 3: Available Margin -->
+    <!-- Card 3: Available Balance -->
     <div class="col-12 col-md-4">
         <div class="card card-custom p-4 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Available Margin</span>
+                <span class="text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Available Balance</span>
                 <div class="bg-warning bg-opacity-10 p-2 rounded">
                     <i class="bi bi-shield-check text-warning fs-5"></i>
                 </div>
             </div>
-            <h2 class="fw-bold mb-1">$12,000.00</h2>
+            <h2 class="fw-bold mb-1">${{ available_balance|floatformat:2|intcomma }}</h2>
             <div class="d-flex align-items-center text-secondary" style="font-size: 0.9rem;">
-                <span>Ready for new trades</span>
+                <span>Ready for new investments</span>
             </div>
         </div>
     </div>
@@ -75,19 +76,14 @@
         <div class="card card-custom p-4">
             <h5 class="fw-bold mb-3">Quick Actions</h5>
             <div class="d-flex flex-wrap gap-3">
-                <!-- Deposit Button -->
-                <a href="#" class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-semibold">
+                <a href="{% url 'customer:deposit' %}" class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-semibold">
                     <i class="bi bi-plus-circle-fill"></i> Deposit Funds
                 </a>
-                
-                <!-- Withdraw Button -->
-                <a href="#" class="btn btn-outline-light d-flex align-items-center gap-2 px-4 py-2 fw-semibold">
+                <a href="{% url 'customer:withdraw' %}" class="btn btn-outline-light d-flex align-items-center gap-2 px-4 py-2 fw-semibold">
                     <i class="bi bi-arrow-up-circle"></i> Withdraw
                 </a>
-                
-                <!-- Transfer Button -->
-                <a href="#" class="btn btn-outline-light d-flex align-items-center gap-2 px-4 py-2 fw-semibold">
-                    <i class="bi bi-arrow-left-right"></i> Internal Transfer
+                <a href="{% url 'customer:strategies' %}" class="btn btn-outline-light d-flex align-items-center gap-2 px-4 py-2 fw-semibold">
+                    <i class="bi bi-diagram-3"></i> Explore Strategies
                 </a>
             </div>
         </div>
@@ -98,15 +94,13 @@
 <div class="row g-4 mt-2">
     <div class="col-12">
         <div class="card card-custom p-4">
-            <!-- Table Header -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">Active Investments</h5>
-                <a href="#" class="btn btn-sm btn-outline-light">
-                    View All Strategies <i class="bi bi-arrow-right ms-1"></i>
+                <a href="{% url 'customer:portfolio' %}" class="btn btn-sm btn-outline-light">
+                    View All <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
             
-            <!-- Responsive Table Wrapper -->
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle mb-0 custom-table">
                     <thead>
@@ -121,74 +115,44 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Row 1: A winning strategy -->
+                        {% for inv in active_investments %}
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <div class="bg-warning bg-opacity-10 p-2 rounded me-3">
-                                        <i class="bi bi-currency-bitcoin text-warning"></i>
+                                    <div class="bg-{% if inv.strategy.invested_coin == 'btc' %}warning{% elif inv.strategy.invested_coin == 'eth' %}primary{% else %}success{% endif %} bg-opacity-10 p-2 rounded me-3">
+                                        <i class="bi bi-{% if inv.strategy.invested_coin == 'btc' %}currency-bitcoin text-warning{% elif inv.strategy.invested_coin == 'eth' %}currency-euro text-primary{% else %}shield-check text-success{% endif %}"></i>
                                     </div>
                                     <div>
-                                        <div class="fw-bold">Conservative BTC</div>
-                                        <small class="text-secondary">Low Risk</small>
+                                        <div class="fw-bold">{{ inv.strategy.name }}</div>
+                                        <small class="text-secondary">{{ inv.strategy.get_risk_level_display }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td class="fw-semibold">BTC</td>
-                            <td>$5,000.00</td>
-                            <td class="fw-semibold">$5,450.20</td>
-                            <td class="text-profit fw-bold">+$450.20 <br><small>(+9.0%)</small></td>
-                            <td><span class="badge-status badge-active">Active</span></td>
+                            <td class="fw-semibold">{{ inv.strategy.invested_coin|upper }}</td>
+                            <td>${{ inv.invested_amount|floatformat:2|intcomma }}</td>
+                            <td class="fw-semibold">${{ inv.current_value|floatformat:2|intcomma }}</td>
+                            <td class="{% if inv.total_profit >= 0 %}text-profit{% else %}text-loss{% endif %} fw-bold">
+                                {% if inv.total_profit >= 0 %}+{% endif %}${{ inv.total_profit|floatformat:2 }} 
+                                <br><small>({{ inv.profit_loss_percent|floatformat:2 }}%)</small>
+                            </td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-outline-primary">Manage</a>
+                                <span class="badge-status badge-{% if inv.status == 'active' %}active{% else %}paused{% endif %}">
+                                    {{ inv.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'customer:strategy_detail' inv.strategy.id %}" class="btn btn-sm btn-outline-primary">Manage</a>
                             </td>
                         </tr>
-
-                        <!-- Row 2: A losing strategy -->
+                        {% empty %}
                         <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
-                                        <i class="bi bi-ethereum text-primary"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold">Aggressive ETH</div>
-                                        <small class="text-secondary">High Risk</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="fw-semibold">ETH</td>
-                            <td>$2,000.00</td>
-                            <td class="fw-semibold">$1,850.00</td>
-                            <td class="text-loss fw-bold">-$150.00 <br><small>(-7.5%)</small></td>
-                            <td><span class="badge-status badge-active">Active</span></td>
-                            <td>
-                                <a href="#" class="btn btn-sm btn-outline-primary">Manage</a>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="bi bi-piggy-bank text-secondary" style="font-size: 2.5rem;"></i>
+                                <p class="text-secondary mt-2 mb-0">You don't have any active investments yet.</p>
+                                <a href="{% url 'customer:strategies' %}" class="btn btn-primary btn-sm mt-3">Explore Strategies</a>
                             </td>
                         </tr>
-
-                        <!-- Row 3: A stable strategy -->
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-success bg-opacity-10 p-2 rounded me-3">
-                                        <i class="bi bi-shield-check text-success"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold">Stablecoin Yield</div>
-                                        <small class="text-secondary">Very Low Risk</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="fw-semibold">USDT</td>
-                            <td>$10,000.00</td>
-                            <td class="fw-semibold">$10,120.50</td>
-                            <td class="text-profit fw-bold">+$120.50 <br><small>(+1.2%)</small></td>
-                            <td><span class="badge-status badge-paused">Paused</span></td>
-                            <td>
-                                <a href="#" class="btn btn-sm btn-outline-primary">Manage</a>
-                            </td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -196,25 +160,19 @@
     </div>
 </div>
 
-
 <!-- 5. CHARTS & ANALYTICS ROW -->
 <div class="row g-4 mt-2">
-    
     <!-- Left Column: Performance Line Chart -->
     <div class="col-12 col-lg-8">
         <div class="card card-custom p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">Portfolio Performance</h5>
-                <!-- Timeframe Toggle Buttons -->
                 <div class="btn-group btn-group-sm" role="group">
                     <button type="button" class="btn btn-outline-secondary active">1M</button>
                     <button type="button" class="btn btn-outline-secondary">3M</button>
                     <button type="button" class="btn btn-outline-secondary">1Y</button>
-                    <button type="button" class="btn btn-outline-secondary">All</button>
                 </div>
             </div>
-            <!-- The Canvas where the chart draws -->
-            <!-- NEW CODE: Fixed height container -->
             <div style="position: relative; height: 340px;">
                 <canvas id="performanceChart"></canvas>
             </div>
@@ -229,45 +187,94 @@
                 <canvas id="allocationChart" width="200" height="200"></canvas>
             </div>
             
-            <!-- Custom HTML Legend (Looks much better than the default) -->
+            <!-- Dynamic HTML Legend -->
             <div class="mt-3">
+                {% for item in allocation_data %}
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-secondary"><span class="legend-color" style="background:#f59e0b"></span> BTC Strategies</span>
-                    <span class="fw-bold">$5,450</span>
+                    <span class="text-secondary">
+                        <span class="legend-color d-inline-block rounded-circle me-2" style="background:{{ item.color }}; width: 12px; height: 12px;"></span>
+                        {{ item.label }}
+                    </span>
+                    <span class="fw-bold">${{ item.value|floatformat:0|intcomma }}</span>
                 </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-secondary"><span class="legend-color" style="background:#3b82f6"></span> ETH Strategies</span>
-                    <span class="fw-bold">$1,850</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-secondary"><span class="legend-color" style="background:#10b981"></span> Stablecoin Yield</span>
-                    <span class="fw-bold">$10,120</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-secondary"><span class="legend-color" style="background:#6b7280"></span> Available Cash</span>
-                    <span class="fw-bold">$12,000</span>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
+<!-- 6. RECENT ACTIVITY ROW (Newly Added) -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card card-custom p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Recent Activity</h5>
+                <a href="{% url 'customer:transaction_history' %}" class="btn btn-sm btn-outline-light">
+                    View All <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0 custom-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Reference</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in recent_transactions %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-{% if txn.is_credit %}success{% else %}danger{% endif %} bg-opacity-10 p-2 rounded me-3">
+                                        <i class="bi bi-{% if txn.is_credit %}arrow-down-left{% else %}arrow-up-right{% endif %} text-{% if txn.is_credit %}success{% else %}danger{% endif %}"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ txn.get_transaction_type_display }}</div>
+                                        <small class="text-secondary">{{ txn.description|truncatechars:30 }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><code class="text-secondary small">{{ txn.reference }}</code></td>
+                            <td class="fw-bold {% if txn.is_credit %}text-profit{% else %}text-loss{% endif %}">
+                                {% if txn.is_credit %}+{% else %}-{% endif %}${{ txn.amount|floatformat:2|intcomma }}
+                            </td>
+                            <td>
+                                <span class="badge-status badge-{% if txn.status == 'completed' %}active{% elif txn.status == 'pending' %}paused{% else %}rejected{% endif %}">
+                                    {{ txn.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="text-secondary small">{{ txn.created_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-secondary">
+                                No recent transactions found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     // ==========================================
-    // 1. PORTFOLIO PERFORMANCE LINE CHART (PRO VERSION)
+    // 1. PORTFOLIO PERFORMANCE LINE CHART
     // ==========================================
     const ctxPerf = document.getElementById('performanceChart').getContext('2d');
-    
-    // 1. Create a more vibrant, premium gradient fill
     const gradient = ctxPerf.createLinearGradient(0, 0, 0, 350);
-    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.25)'); // Bright blue at the top
-    gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.05)'); // Fades out in the middle
-    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');   // Completely transparent at the bottom
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
+    gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.05)');
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
 
-    // 2. Custom Plugin: Draws the vertical crosshair line when hovering
     const crosshairPlugin = {
         id: 'crosshair',
         afterDraw: (chart) => {
@@ -277,14 +284,13 @@
                 const x = activePoint.element.x;
                 const topY = chart.scales.y.top;
                 const bottomY = chart.scales.y.bottom;
-
                 ctx.save();
                 ctx.beginPath();
                 ctx.moveTo(x, topY);
                 ctx.lineTo(x, bottomY);
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; // Faint white line
-                ctx.setLineDash([4, 4]); // Makes it dashed
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.setLineDash([4, 4]);
                 ctx.stroke();
                 ctx.restore();
             }
@@ -297,13 +303,25 @@
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
             datasets: [{
                 label: 'Portfolio Value',
-                data: [20000, 22000, 21500, 25000, 28000, 27500, 32000, 38000, 45231],
+                // Note: For a real app, you'd pass historical portfolio snapshots from the backend.
+                // This remains a visual placeholder that scales to the user's current total.
+                data: [
+                    {{ total_portfolio_value|floatformat:2|default:0 }} * 0.6,
+                    {{ total_portfolio_value|floatformat:2|default:0 }} * 0.7,
+                    {{ total_portfolio_value|floatformat:2|default:0 }} * 0.65,
+                    {{ total_portfolio_value|floatformat:2|default:0 }} * 0.8,
+                    {{ total_portfolio_value|floatformat:2|default:0 }} * 0.85,
+                    {{ total_portfolio_value|floatformat:2|default:0 }} * 0.9,
+                    {{ total_portfolio_value|floatformat:2|default:0 }} * 0.95,
+                    {{ total_portfolio_value|floatformat:2|default:0 }} * 0.98,
+                    {{ total_portfolio_value|floatformat:2|default:0 }}
+                ],
                 borderColor: '#3b82f6',
                 backgroundColor: gradient,
-                borderWidth: 2.5, // Slightly thicker line
+                borderWidth: 2.5,
                 fill: true,
-                tension: 0.4, 
-                pointRadius: 0, 
+                tension: 0.4,
+                pointRadius: 0,
                 pointHoverRadius: 6,
                 pointHoverBackgroundColor: '#3b82f6',
                 pointHoverBorderColor: '#fff',
@@ -313,22 +331,12 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            
-            // SECRET SAUCE: Makes the hover track smoothly without needing to touch the exact dot
-            interaction: {
-                mode: 'index',
-                intersect: false, 
-            },
-
+            interaction: { mode: 'index', intersect: false },
             plugins: { 
                 legend: { display: false },
-                // Register our custom crosshair plugin
-                crosshair: {}, 
-                
-                // Upgraded Tooltip styling
+                crosshair: {},
                 tooltip: {
-                    enabled: true,
-                    backgroundColor: 'rgba(17, 24, 39, 0.95)', // Deep dark background
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
                     titleColor: '#9ca3af',
                     bodyColor: '#f3f4f6',
                     bodyFont: { size: 14, weight: 'bold' },
@@ -336,75 +344,60 @@
                     borderWidth: 1,
                     padding: 12,
                     cornerRadius: 8,
-                    displayColors: false, // Hides the ugly default color box
+                    displayColors: false,
                     callbacks: {
-                        title: function(tooltipItems) {
-                            return tooltipItems[0].label + ' 2026'; // Adds the year
-                        },
                         label: function(context) {
-                            return '  $ ' + context.raw.toLocaleString();
+                            return '  $ ' + context.raw.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
                         }
                     }
                 }
             },
             scales: {
-                x: { 
-                    grid: { display: false, drawBorder: false }, 
-                    ticks: { color: '#6b7280', font: { size: 11 }, padding: 10 },
-                    border: { display: false }
-                },
+                x: { grid: { display: false, drawBorder: false }, ticks: { color: '#6b7280', font: { size: 11 }, padding: 10 }, border: { display: false } },
                 y: { 
-                    // PRO MOVE: Put the price axis on the RIGHT side!
                     position: 'right', 
-                    grid: { 
-                        color: 'rgba(255, 255, 255, 0.05)', 
-                        drawBorder: false,
-                        borderDash: [4, 4] // Dashed horizontal lines
-                    }, 
-                    ticks: { 
-                        color: '#6b7280', 
-                        font: { size: 11 }, 
-                        padding: 10,
-                        callback: function(value) {
-                            return '$' + value.toLocaleString();
-                        }
-                    },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false, borderDash: [4, 4] }, 
+                    ticks: { color: '#6b7280', font: { size: 11 }, padding: 10, callback: function(value) { return '$' + value.toLocaleString(); } },
                     border: { display: false }
                 }
             }
         },
-        // Pass the custom plugin to the chart instance
         plugins: [crosshairPlugin]
     });
 
     // ==========================================
-    // 2. ASSET ALLOCATION DOUGHNUT CHART
+    // 2. ASSET ALLOCATION DOUGHNUT CHART (Dynamic)
     // ==========================================
     const ctxAlloc = document.getElementById('allocationChart').getContext('2d');
+
+    // Safely pass Django context data to JavaScript
+    const allocationLabels = [{% for item in allocation_data %}'{{ item.label|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+    const allocationValues = [{% for item in allocation_data %}{{ item.value }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+    const allocationColors = [{% for item in allocation_data %}'{{ item.color }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
 
     new Chart(ctxAlloc, {
         type: 'doughnut',
         data: {
-            labels: ['BTC', 'ETH', 'Stablecoin', 'Cash'],
+            labels: allocationLabels,
             datasets: [{
-                data: [5450, 1850, 10120, 12000], // Must match the HTML legend values
-                backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#6b7280'],
-                borderColor: '#1f2937', // Matches the card background to create a "cut" effect
+                data: allocationValues,
+                backgroundColor: allocationColors,
+                borderColor: '#1f2937',
                 borderWidth: 3,
-                hoverOffset: 10 // Makes the slice pop out slightly when hovered
+                hoverOffset: 10
             }]
         },
         options: {
-            cutout: '70%', // This is what makes it a doughnut instead of a pie!
+            cutout: '70%',
             plugins: { 
-                legend: { display: false }, // Hiding default legend because we built a custom HTML one
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: '#1f2937',
                     titleColor: '#f3f4f6',
                     bodyColor: '#f3f4f6',
                     callbacks: {
                         label: function(context) {
-                            return '$ ' + context.raw.toLocaleString();
+                            return '$ ' + context.raw.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
                         }
                     }
                 }

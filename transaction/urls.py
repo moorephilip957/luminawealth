@@ -16,5 +16,10 @@ urlpatterns = [
     path('staff/withdrawals/<int:withdrawal_id>/approve/', views.admin_withdrawal_approve, name='admin_withdrawal_approve'),
     path('staff/withdrawals/<int:withdrawal_id>/reject/', views.admin_withdrawal_reject, name='admin_withdrawal_reject'),
 
+     # Admin Transaction History
+    path('staff/transactions/', views.admin_transactions_list, name='admin_transactions_list'),
+    path('staff/transactions/<int:transaction_id>/', views.admin_transaction_detail, name='admin_transaction_detail'),
+
+
 
 ]

@@ -9,4 +9,5 @@ urlpatterns = [
     path('staff/', include('staff.urls', namespace='staff')),
     path('strategy/', include('coin.urls', namespace='coin')),
     path('transaction/', include('transaction.urls', namespace='transaction')),
+    path('kyc/', include('kyc.urls', namespace='kyc')),
 ]

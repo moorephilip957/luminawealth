@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'coin',
     'staff',
     'transaction',
+    'kyc',
 ]
 
 MIDDLEWARE = [
@@ -72,7 +73,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
                 'transaction.context_processors.pending_counts',
+                'kyc.context_processors.pending_kyc_count',
             ],
         },
     },
