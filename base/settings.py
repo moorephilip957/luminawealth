@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'transaction',
     'kyc',
     'notification',
+    'emails',
 ]
 
 MIDDLEWARE = [
@@ -172,6 +173,7 @@ AUTH_USER_MODEL = 'account.User'
 LOGIN_URL = 'account:login'
 LOGIN_REDIRECT_URL = 'customer:dashboard'
 LOGOUT_REDIRECT_URL = 'frontend:home'
+SITE_URL = os.getenv("SITE_URL")
 
 # Session settings
 SESSION_COOKIE_AGE = 86400  # 24 hours (default session length)

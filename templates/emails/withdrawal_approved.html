@@ -1,0 +1,79 @@
+{% extends 'emails/base.html' %}
+
+{% block title %}Withdrawal Processed{% endblock %}
+{% block preheader %}Your withdrawal of ${{ withdrawal.amount }} has been processed successfully.{% endblock %}
+
+{% block hero_icon %}💸{% endblock %}
+{% block hero_color %}#10b981{% endblock %}
+{% block hero_title %}Withdrawal Processed!{% endblock %}
+{% block hero_subtitle %}Your funds are on their way to you.{% endblock %}
+
+{% block content %}
+<p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+    Hi {{ user.first_name }}, your withdrawal has been successfully processed. Your funds have been sent to your designated destination.
+</p>
+
+<!-- Withdrawal Details -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f9fafb; border-radius: 8px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 24px;">
+            <h4 style="margin: 0 0 16px 0; color: #111827; font-size: 16px; font-weight: 600;">
+                📋 Withdrawal Details
+            </h4>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Amount Requested</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">${{ withdrawal.amount|floatformat:2 }}</td>
+                </tr>
+                {% if withdrawal.network_fee > 0 %}
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Network Fee</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">-${{ withdrawal.network_fee|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Payment Method</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">{{ withdrawal.get_payment_method_display }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Destination</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 13px; font-weight: 600; text-align: right; word-break: break-all;">{{ withdrawal.destination_address|truncatechars:25 }}</td>
+                </tr>
+                {% if withdrawal.transaction_hash %}
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Transaction Hash</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 12px; font-weight: 600; text-align: right; word-break: break-all;">{{ withdrawal.transaction_hash|truncatechars:20 }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td style="padding: 14px 0 0 0; color: #065f46; font-size: 15px; font-weight: 600;">Amount Received</td>
+                    <td style="padding: 14px 0 0 0; color: #10b981; font-size: 20px; font-weight: 700; text-align: right;">${{ withdrawal.amount_after_fee|floatformat:2 }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 6px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 16px;">
+            <p style="margin: 0; color: #1e3a8a; font-size: 14px; line-height: 1.5;">
+                <strong>⏱️ Processing Times:</strong><br>
+                • Cryptocurrency: Usually within 1-6 hours<br>
+                • Bank Wire: 1-3 business days<br>
+                • SEPA: 1-2 business days
+            </p>
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center" style="padding: 24px 0;">
+            <a href="{{ transactions_url }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                View Transaction History →
+            </a>
+        </td>
+    </tr>
+</table>
+{% endblock %}

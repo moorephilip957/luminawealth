@@ -1,0 +1,62 @@
+{% extends 'emails/base.html' %}
+
+{% block title %}KYC Verification Approved{% endblock %}
+{% block preheader %}Great news! Your identity has been verified successfully.{% endblock %}
+
+{% block hero_icon %}✅{% endblock %}
+{% block hero_color %}#10b981{% endblock %}
+{% block hero_title %}KYC Verification Approved!{% endblock %}
+{% block hero_subtitle %}Congratulations, {{ user.first_name }}. Your identity has been verified.{% endblock %}
+
+{% block content %}
+<p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+    Great news! Our team has successfully reviewed and approved your KYC verification. You now have full access to all platform features.
+</p>
+
+<!-- Benefits Unlocked -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f0fdf4; border-radius: 8px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; color: #065f46; font-size: 18px; font-weight: 600;">
+                🎉 You've Unlocked
+            </h3>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="padding: 8px 0; color: #065f46; font-size: 15px;">
+                        ✓ Higher deposit and withdrawal limits (up to $100,000/day)
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #065f46; font-size: 15px;">
+                        ✓ Access to all premium investment strategies
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #065f46; font-size: 15px;">
+                        ✓ Priority withdrawal processing
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #065f46; font-size: 15px;">
+                        ✓ Dedicated account manager support
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center" style="padding: 24px 0;">
+            <a href="{{ dashboard_url }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Go to Dashboard →
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+    Ready to start investing? Check out our <a href="{{ strategies_url }}" style="color: #3b82f6; text-decoration: underline;">premium strategies</a> and start growing your wealth today!
+</p>
+{% endblock %}

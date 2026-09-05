@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Templates Preview</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f3f4f6; padding: 40px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #111827; margin-bottom: 24px; }
+        .template-list { list-style: none; padding: 0; }
+        .template-list li { margin-bottom: 12px; }
+        .template-list a { 
+            display: block; 
+            padding: 16px 20px; 
+            background: #f9fafb; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            color: #374151; 
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .template-list a:hover { 
+            background: #3b82f6; 
+            color: white; 
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Email Templates Preview</h1>
+        <p style="color: #6b7280;">Click any template below to preview it:</p>
+        <ul class="template-list">
+            {% for template, name in templates %}
+            <li>
+                <a href="{% url 'emails:email_preview' template %}" target="_blank">
+                    {{ name }} <span style="color: #9ca3af; font-size: 12px;">({{ template }})</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

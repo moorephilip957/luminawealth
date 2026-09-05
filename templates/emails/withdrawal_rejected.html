@@ -1,0 +1,77 @@
+{% extends 'emails/base.html' %}
+
+{% block title %}Withdrawal Not Processed{% endblock %}
+{% block preheader %}Your withdrawal request could not be processed.{% endblock %}
+
+{% block hero_icon %}❌{% endblock %}
+{% block hero_color %}#ef4444{% endblock %}
+{% block hero_title %}Withdrawal Request Not Processed{% endblock %}
+{% block hero_subtitle %}Hi {{ user.first_name }}, we couldn't process your withdrawal.{% endblock %}
+
+{% block content %}
+<p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+    Unfortunately, we were unable to process your withdrawal request. The funds remain safely in your account.
+</p>
+
+<!-- Withdrawal Details -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f9fafb; border-radius: 8px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 24px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Amount Requested</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">${{ withdrawal.amount|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Payment Method</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">{{ withdrawal.get_payment_method_display }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; color: #6b7280; font-size: 14px;">Reference</td>
+                    <td style="padding: 10px 0; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">#{{ withdrawal.id|stringformat:"05d" }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<!-- Good News: Funds Safe -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f0fdf4; border-left: 4px solid #10b981; border-radius: 6px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 16px;">
+            <p style="margin: 0; color: #065f46; font-size: 14px; line-height: 1.5;">
+                <strong>✓ Your funds are safe.</strong><br>
+                The requested amount of <strong>${{ withdrawal.amount|floatformat:2 }}</strong> remains in your available balance.
+            </p>
+        </td>
+    </tr>
+</table>
+
+<!-- Rejection Reason -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 20px;">
+            <h4 style="margin: 0 0 12px 0; color: #7f1d1d; font-size: 16px; font-weight: 600;">
+                Reason:
+            </h4>
+            <p style="margin: 0; color: #991b1b; font-size: 15px; line-height: 1.6;">
+                {{ withdrawal.rejection_reason|default:"Please review our withdrawal requirements and try again." }}
+            </p>
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center" style="padding: 24px 0;">
+            <a href="{{ withdraw_url }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Submit New Withdrawal →
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+    Need assistance? <a href="{{ support_url }}" style="color: #3b82f6; text-decoration: underline;">Contact our support team</a> for immediate help.
+</p>
+{% endblock %}

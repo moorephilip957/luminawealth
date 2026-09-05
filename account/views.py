@@ -49,7 +49,13 @@ def register_view(request):
             
             # Send verification email
             try:
-                send_verification_email(user, verification_url)
+                # send_verification_email(user, verification_url)
+                # 📧 Send welcome email
+                try:
+                    send_welcome_email(user, verification_url)
+                except Exception as e:
+                    print(f"Failed to send welcome email: {e}")
+                    # Don't fail registration if email fails
                 messages.success(
                     request,
                     f'Account created successfully! Please check your email ({user.email}) '

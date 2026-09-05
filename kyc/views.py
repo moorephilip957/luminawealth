@@ -5,6 +5,11 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from datetime import timedelta
 from .models import KYCSubmission
+import logging
+
+from emails.email_utils import send_kyc_approved_email, send_kyc_rejected_email
+
+logger = logging.getLogger(__name__)
 
 
 def admin_check(user):
@@ -109,6 +114,12 @@ def admin_kyc_approve(request, submission_id):
         
         try:
             submission.approve(admin_user=request.user, notes=notes)
+
+            # 📧 Send approval email
+            try:
+                send_kyc_approved_email(submission.user)
+            except Exception as e:
+                logger.error(f"Failed to send KYC approval email: {e}")
             
             messages.success(
                 request,
@@ -151,6 +162,12 @@ def admin_kyc_reject(request, submission_id):
             submission.save(update_fields=[
                 'id_needs_resubmit', 'address_needs_resubmit', 'selfie_needs_resubmit'
             ])
+
+            # 📧 Send rejection email
+            try:
+                send_kyc_rejected_email(submission.user, reason)
+            except Exception as e:
+                logger.error(f"Failed to send KYC rejection email: {e}")
             
             messages.warning(
                 request,

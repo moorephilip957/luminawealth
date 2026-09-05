@@ -11,4 +11,5 @@ urlpatterns = [
     path('transaction/', include('transaction.urls', namespace='transaction')),
     path('kyc/', include('kyc.urls', namespace='kyc')),
     path('notification/', include('notification.urls', namespace='notification')),
+    path('emails/', include('emails.urls', namespace='emails')),
 ]

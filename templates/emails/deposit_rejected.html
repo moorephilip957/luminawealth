@@ -1,0 +1,65 @@
+{% extends 'emails/base.html' %}
+
+{% block title %}Deposit Not Processed{% endblock %}
+{% block preheader %}We were unable to process your deposit request.{% endblock %}
+
+{% block hero_icon %}❌{% endblock %}
+{% block hero_color %}#ef4444{% endblock %}
+{% block hero_title %}Deposit Request Not Processed{% endblock %}
+{% block hero_subtitle %}Hi {{ user.first_name }}, we couldn't process your recent deposit.{% endblock %}
+
+{% block content %}
+<p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+    Unfortunately, we were unable to process your deposit request. Please review the details below and submit a new request.
+</p>
+
+<!-- Deposit Details -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f9fafb; border-radius: 8px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 24px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Amount</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">${{ deposit.amount|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Payment Method</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">{{ deposit.get_payment_method_display }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; color: #6b7280; font-size: 14px;">Reference</td>
+                    <td style="padding: 10px 0; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">#{{ deposit.id|stringformat:"05d" }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<!-- Rejection Reason -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 20px;">
+            <h4 style="margin: 0 0 12px 0; color: #7f1d1d; font-size: 16px; font-weight: 600;">
+                Reason:
+            </h4>
+            <p style="margin: 0; color: #991b1b; font-size: 15px; line-height: 1.6;">
+                {{ deposit.rejection_reason|default:"Please review our deposit requirements and try again." }}
+            </p>
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center" style="padding: 24px 0;">
+            <a href="{{ deposit_url }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Submit New Deposit →
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+    Questions? <a href="{{ support_url }}" style="color: #3b82f6; text-decoration: underline;">Contact our support team</a> — we're here to help.
+</p>
+{% endblock %}

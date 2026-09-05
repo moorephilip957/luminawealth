@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LuminaWealthAI{% endblock %}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    
+    <!-- Preheader (hidden preview text) -->
+    <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">
+        {% block preheader %}Important update from LuminaWealthAI{% endblock %}
+    </div>
+    
+    <!-- Email Container -->
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                    
+                    <!-- Header with Logo -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px 40px; text-align: center;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="center">
+                                        <div style="display: inline-block; background-color: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 12px 20px;">
+                                            <span style="color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">
+                                                ✨ LuminaWealthAI
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Hero Section -->
+                    {% block hero %}
+                    <tr>
+                        <td style="padding: 40px 40px 20px 40px; text-align: center;">
+                            {% if hero_icon %}
+                            <div style="display: inline-block; width: 72px; height: 72px; line-height: 72px; border-radius: 50%; background-color: {{ hero_color|default:'#3b82f6' }}15; margin-bottom: 20px;">
+                                <span style="font-size: 36px;">{{ hero_icon }}</span>
+                            </div>
+                            {% endif %}
+                            <h1 style="margin: 0 0 12px 0; color: #111827; font-size: 28px; font-weight: 700; line-height: 1.3;">
+                                {% block hero_title %}Welcome{% endblock %}
+                            </h1>
+                            <p style="margin: 0; color: #6b7280; font-size: 16px; line-height: 1.5;">
+                                {% block hero_subtitle %}{% endblock %}
+                            </p>
+                        </td>
+                    </tr>
+                    {% endblock %}
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 20px 40px 40px 40px;">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f9fafb; padding: 32px 40px; border-top: 1px solid #e5e7eb;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="center" style="padding-bottom: 20px;">
+                                        <!-- Social Icons -->
+                                        <a href="#" style="display: inline-block; margin: 0 8px; color: #6b7280; text-decoration: none;">
+                                            <span style="font-size: 20px;">📘</span>
+                                        </a>
+                                        <a href="#" style="display: inline-block; margin: 0 8px; color: #6b7280; text-decoration: none;">
+                                            <span style="font-size: 20px;">🐦</span>
+                                        </a>
+                                        <a href="#" style="display: inline-block; margin: 0 8px; color: #6b7280; text-decoration: none;">
+                                            <span style="font-size: 20px;">📷</span>
+                                        </a>
+                                        <a href="#" style="display: inline-block; margin: 0 8px; color: #6b7280; text-decoration: none;">
+                                            <span style="font-size: 20px;">💼</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" style="padding-bottom: 16px;">
+                                        <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 13px; line-height: 1.5;">
+                                            <strong style="color: #374151;">LuminaWealthAI</strong><br>
+                                            AI-Powered Investment Platform
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" style="padding-bottom: 16px;">
+                                        <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.5;">
+                                            © {% now "Y" %} LuminaWealthAI. All rights reserved.<br>
+                                            123 Finance Street, New York, NY 10001
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <p style="margin: 0; color: #9ca3af; font-size: 11px; line-height: 1.5;">
+                                            You're receiving this email because you have an account with LuminaWealthAI.<br>
+                                            <a href="#" style="color: #3b82f6; text-decoration: underline;">Unsubscribe</a> · 
+                                            <a href="#" style="color: #3b82f6; text-decoration: underline;">Privacy Policy</a> · 
+                                            <a href="#" style="color: #3b82f6; text-decoration: underline;">Contact Support</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+    
+</body>
+</html>

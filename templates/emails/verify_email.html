@@ -1,0 +1,41 @@
+{% extends 'emails/base.html' %}
+
+{% block title %}Verify Your Email{% endblock %}
+{% block preheader %}Please verify your email address to continue using LuminaWealthAI.{% endblock %}
+
+{% block hero_icon %}📧{% endblock %}
+{% block hero_color %}#3b82f6{% endblock %}
+{% block hero_title %}Verify Your Email Address{% endblock %}
+{% block hero_subtitle %}Hi {{ user.first_name }}, please confirm your email to get started.{% endblock %}
+
+{% block content %}
+<p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+    Thanks for signing up! We just need to verify your email address to make sure it's really you. This helps us keep your account secure.
+</p>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center" style="padding: 24px 0;">
+            <a href="{{ verify_url }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Verify Email Address
+            </a>
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 16px;">
+            <p style="margin: 0; color: #78350f; font-size: 14px; line-height: 1.5;">
+                <strong>⏰ Link expires in 24 hours.</strong><br>
+                If the button doesn't work, copy and paste this URL into your browser:<br>
+                <a href="{{ verify_url }}" style="color: #3b82f6; word-break: break-all; font-size: 12px;">{{ verify_url }}</a>
+            </p>
+        </td>
+    </tr>
+</table>
+
+<p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+    If you didn't request this verification, you can safely ignore this email.
+</p>
+{% endblock %}

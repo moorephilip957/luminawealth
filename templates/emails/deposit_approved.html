@@ -1,0 +1,62 @@
+{% extends 'emails/base.html' %}
+
+{% block title %}Deposit Confirmed{% endblock %}
+{% block preheader %}Your deposit of ${{ deposit.amount }} has been credited to your account.{% endblock %}
+
+{% block hero_icon %}💰{% endblock %}
+{% block hero_color %}#10b981{% endblock %}
+{% block hero_title %}Deposit Confirmed!{% endblock %}
+{% block hero_subtitle %}Your funds have been successfully added to your account.{% endblock %}
+
+{% block content %}
+<p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+    Hi {{ user.first_name }}, great news! Your deposit has been processed and your account has been credited.
+</p>
+
+<!-- Transaction Details -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f9fafb; border-radius: 8px; margin: 24px 0;">
+    <tr>
+        <td style="padding: 24px;">
+            <h4 style="margin: 0 0 16px 0; color: #111827; font-size: 16px; font-weight: 600;">
+                📋 Transaction Details
+            </h4>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Amount Deposited</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">${{ deposit.amount|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Payment Method</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">{{ deposit.get_payment_method_display }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Reference</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">#{{ deposit.id|stringformat:"05d" }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">Processed On</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827; font-size: 14px; font-weight: 600; text-align: right;">{{ deposit.processed_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 14px 0 0 0; color: #065f46; font-size: 15px; font-weight: 600;">New Balance</td>
+                    <td style="padding: 14px 0 0 0; color: #10b981; font-size: 20px; font-weight: 700; text-align: right;">${{ user.balance|floatformat:2 }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center" style="padding: 24px 0;">
+            <a href="{{ dashboard_url }}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Start Investing →
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+    Ready to put your funds to work? Explore our <a href="{{ strategies_url }}" style="color: #3b82f6; text-decoration: underline;">AI-powered strategies</a> and start growing your wealth.
+</p>
+{% endblock %}

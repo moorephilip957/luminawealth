@@ -5,10 +5,13 @@ from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 from django.db import transaction as db_transaction
+import logging
 
 from .models import DepositRequest, WithdrawalRequest, Transaction
 from account.models import User
+from emails.email_utils import send_deposit_approved_email, send_deposit_rejected_email, send_withdrawal_approved_email, send_withdrawal_rejected_email
 
+logger = logging.getLogger(__name__)
 
 def admin_check(user):
     return user.is_authenticated and user.is_staff
@@ -111,6 +114,12 @@ def admin_deposit_approve(request, deposit_id):
         
         try:
             deposit.approve(admin_user=request.user, notes=notes)
+
+            # 📧 Send approval email
+            try:
+                send_deposit_approved_email(deposit.user, deposit)
+            except Exception as e:
+                logger.error(f"Failed to send deposit approval email: {e}")
             
             messages.success(
                 request,
@@ -150,6 +159,12 @@ def admin_deposit_reject(request, deposit_id):
         
         try:
             deposit.reject(admin_user=request.user, reason=reason, notes=notes)
+
+            # 📧 Send rejection email
+            try:
+                send_deposit_rejected_email(deposit.user, deposit)
+            except Exception as e:
+                logger.error(f"Failed to send deposit rejection email: {e}")
             
             messages.warning(
                 request,
@@ -283,6 +298,12 @@ def admin_withdrawal_approve(request, withdrawal_id):
                 transaction_hash=transaction_hash,
                 notes=notes
             )
+
+            # 📧 Send approval email
+            try:
+                send_withdrawal_approved_email(withdrawal.user, withdrawal)
+            except Exception as e:
+                logger.error(f"Failed to send withdrawal approval email: {e}")
             
             messages.success(
                 request,
@@ -331,6 +352,12 @@ def admin_withdrawal_reject(request, withdrawal_id):
                 reason=reason,
                 notes=notes
             )
+
+            # 📧 Send rejection email
+            try:
+                send_withdrawal_rejected_email(withdrawal.user, withdrawal)
+            except Exception as e:
+                logger.error(f"Failed to send withdrawal rejection email: {e}")
             
             messages.warning(
                 request,
