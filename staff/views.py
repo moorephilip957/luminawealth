@@ -8,6 +8,8 @@ from datetime import timedelta
 from account.models import User
 from coin.models import Strategy, StrategyInvestor
 from .forms import AdminUserEditForm
+from notification.services import notify_account_suspended, notify_account_reactivated
+
 
 
 def admin_check(user):
@@ -441,7 +443,9 @@ def admin_user_suspend(request, user_id):
         for session in sessions:
             if session.get_decoded().get('_auth_user_id') == user_id_str:
                 session.delete()
-        
+
+        # 🔔 Notify user
+        notify_account_suspended(target_user, reason, admin_user=request.user)
         messages.success(request, f'✅ User "{target_user.email}" has been suspended.')
         return redirect('staff:admin_user_detail', user_id=user_id)
         
@@ -462,7 +466,9 @@ def admin_user_reactivate(request, user_id):
         target_user.save(update_fields=[
             'account_status', 'suspension_reason', 'suspended_at', 'suspended_by', 'updated_at'
         ])
-        
+
+        # 🔔 Notify user
+        notify_account_reactivated(target_user, admin_user=request.user)
         messages.success(request, f'✅ User "{target_user.email}" has been reactivated.')
         return redirect('staff:admin_user_detail', user_id=user_id)
         

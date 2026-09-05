@@ -159,7 +159,7 @@ def verify_email_view(request, token):
     
     # Send welcome email
     try:
-        dashboard_url = request.build_absolute_uri(reverse('client_dashboard'))
+        dashboard_url = request.build_absolute_uri(reverse('customer:dashboard'))
         send_welcome_email(user, dashboard_url)
     except Exception as e:
         print(f"Welcome email failed: {e}")

@@ -16,6 +16,9 @@ from account.decorators import kyc_required
 from account.models import TrustedDevice
 from account.models import User
 from kyc.models import KYCSubmission
+from notification.services import (
+    notify_deposit_submitted, notify_withdrawal_submitted, notify_investment_made, notify_investment_liquidated, notify_password_changed
+)
 
 
 @login_required
@@ -253,6 +256,9 @@ def strategy_detail_view(request, strategy_id):
                         status='active',
                         invested_at=timezone.now()
                     )
+
+                    # 🔔 Notify user
+                    notify_investment_made(request.user, strategy, amount)
                 
                 # 4. Create Transaction record
                 Transaction.create_transaction(
@@ -262,6 +268,8 @@ def strategy_detail_view(request, strategy_id):
                     description=f"Investment in {strategy.name}",
                     status=Transaction.STATUS_COMPLETED
                 )
+
+                
                 
                 messages.success(request, f"✅ Successfully invested ${amount:.2f} in {strategy.name}!")
                 return redirect('customer:strategy_detail', strategy_id=strategy.id)
@@ -395,7 +403,10 @@ def strategy_liquidate_view(request, strategy_id):
                 description=f"Liquidation of {strategy.name}",
                 status=Transaction.STATUS_COMPLETED
             )
-            
+
+            # 🔔 Notify user
+            notify_investment_liquidated(request.user, strategy, current_value, profit_loss)
+  
             messages.success(
                 request, 
                 f"✅ Position liquidated successfully! ${current_value:.2f} has been returned to your available balance."
@@ -460,6 +471,9 @@ def deposit_view(request):
             )
             
             # The DepositRequest.save() method automatically creates the pending Transaction!
+
+            # 🔔 Notify user that deposit was submitted
+            notify_deposit_submitted(request.user, deposit)
             
             messages.success(
                 request, 
@@ -599,8 +613,12 @@ def withdraw_view(request):
             )
             
             # The WithdrawalRequest.save() method automatically creates the pending Transaction!
-            
+
             amount_after_fee = amount - network_fee
+
+             # 🔔 Notify user that withdrawal was submitted
+            notify_withdrawal_submitted(request.user, withdrawal)
+
             messages.success(
                 request,
                 f"✅ Withdrawal request of ${amount:.2f} submitted successfully! "
@@ -775,7 +793,9 @@ def handle_password_change(request, user):
     
     # Keep user logged in after password change
     update_session_auth_hash(request, user)
-    
+
+    # 🔔 Notify user
+    notify_password_changed(user)
     messages.success(request, '✅ Password updated successfully!')
     return redirect('customer:profile_settings')
 

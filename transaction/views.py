@@ -9,7 +9,12 @@ import logging
 
 from .models import DepositRequest, WithdrawalRequest, Transaction
 from account.models import User
-from emails.email_utils import send_deposit_approved_email, send_deposit_rejected_email, send_withdrawal_approved_email, send_withdrawal_rejected_email
+from emails.email_utils import (
+    send_deposit_approved_email, send_deposit_rejected_email, send_withdrawal_approved_email, send_withdrawal_rejected_email
+)
+from notification.services import (
+    notify_deposit_approved, notify_deposit_rejected,notify_withdrawal_approved, notify_withdrawal_rejected
+)
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +119,8 @@ def admin_deposit_approve(request, deposit_id):
         
         try:
             deposit.approve(admin_user=request.user, notes=notes)
+            # 🔔 Send notification + email
+            notify_deposit_approved(deposit.user, deposit, admin_user=request.user)
 
             # 📧 Send approval email
             try:
@@ -159,6 +166,8 @@ def admin_deposit_reject(request, deposit_id):
         
         try:
             deposit.reject(admin_user=request.user, reason=reason, notes=notes)
+            # 🔔 Send notification + email
+            notify_deposit_rejected(deposit.user, deposit, reason, admin_user=request.user)
 
             # 📧 Send rejection email
             try:
@@ -299,6 +308,10 @@ def admin_withdrawal_approve(request, withdrawal_id):
                 notes=notes
             )
 
+             # 🔔 Send notification + email
+            notify_withdrawal_approved(withdrawal.user, withdrawal, admin_user=request.user)
+            
+
             # 📧 Send approval email
             try:
                 send_withdrawal_approved_email(withdrawal.user, withdrawal)
@@ -352,6 +365,9 @@ def admin_withdrawal_reject(request, withdrawal_id):
                 reason=reason,
                 notes=notes
             )
+
+            # 🔔 Send notification + email
+            notify_withdrawal_rejected(withdrawal.user, withdrawal, reason, admin_user=request.user)
 
             # 📧 Send rejection email
             try:

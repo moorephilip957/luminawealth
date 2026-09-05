@@ -8,6 +8,7 @@ from .models import KYCSubmission
 import logging
 
 from emails.email_utils import send_kyc_approved_email, send_kyc_rejected_email
+from notification.services import notify_kyc_approved, notify_kyc_rejected
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +115,8 @@ def admin_kyc_approve(request, submission_id):
         
         try:
             submission.approve(admin_user=request.user, notes=notes)
+            # 🔔 Send notification + email
+            notify_kyc_approved(submission.user, admin_user=request.user)
 
             # 📧 Send approval email
             try:
@@ -163,6 +166,7 @@ def admin_kyc_reject(request, submission_id):
                 'id_needs_resubmit', 'address_needs_resubmit', 'selfie_needs_resubmit'
             ])
 
+            notify_kyc_rejected(submission.user, reason, admin_user=request.user)
             # 📧 Send rejection email
             try:
                 send_kyc_rejected_email(submission.user, reason)
