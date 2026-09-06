@@ -178,18 +178,28 @@ LOGIN_REDIRECT_URL = 'customer:dashboard'
 LOGOUT_REDIRECT_URL = 'frontend:home'
 SITE_URL = os.getenv("SITE_URL")
 
-# Session settings
-SESSION_COOKIE_AGE = 86400  # 24 hours (default session length)
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session after browser close
-SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+# ==============================
+# SESSION SETTINGS
+# ==============================
+
+SESSION_COOKIE_AGE = 60 * 60 * 24  # 24 hours
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SAMESITE = 'Lax'
 
-# Trusted device cookie settings
+# ==============================
+# TRUSTED DEVICE SETTINGS
+# ==============================
+
 TRUSTED_DEVICE_COOKIE_NAME = 'trusted_device'
-TRUSTED_DEVICE_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
-TRUSTED_DEVICE_COOKIE_SECURE = False  # Set to True in production with HTTPS
+
+# 30 days
+TRUSTED_DEVICE_COOKIE_AGE = 60 * 60 * 24 * 30
+
 TRUSTED_DEVICE_COOKIE_HTTPONLY = True
+TRUSTED_DEVICE_COOKIE_SECURE = not DEBUG
+TRUSTED_DEVICE_COOKIE_SAMESITE = 'Lax'
 
 # OTP settings
 OTP_EXPIRY_MINUTES = 10
