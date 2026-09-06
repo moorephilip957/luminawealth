@@ -339,12 +339,12 @@
                     </p>
 
                     <div class="d-flex gap-3 flex-wrap mb-5">
-                        <a href="#" class="btn btn-shiny btn-lg px-5 py-3 rounded-pill fw-bold text-white glow-effect">
+                        <a href="{% url 'account:register' %}" class="btn btn-shiny btn-lg px-5 py-3 rounded-pill fw-bold text-white glow-effect">
                             Start with AI <i class="bi bi-arrow-right ms-2"></i>
                         </a>
-                        <a href="#" class="btn btn-outline-custom btn-lg px-5 py-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#videoModal">
+                        <!-- <a href="#" class="btn btn-outline-custom btn-lg px-5 py-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#videoModal">
                             <i class="bi bi-play-circle me-2"></i> Watch Demo
-                        </a>
+                        </a> -->
                     </div>
 
                     <!-- Animated Stats -->
@@ -610,7 +610,7 @@
                     </div>
                 </div>
 
-                <a href="#" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white">
+                <a href="{% url 'frontend:strategies' %}" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white">
                     Explore AI Strategies <i class="bi bi-arrow-right ms-2"></i>
                 </a>
             </div>
@@ -714,7 +714,7 @@
         </div>
 
         <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="500">
-            <a href="#" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+            <a href="{% url 'account:login' %}" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
                 Let AI Work for You <i class="bi bi-arrow-right ms-2"></i>
             </a>
         </div>
@@ -935,11 +935,11 @@
             Join thousands of investors who are already benefiting from our AI-powered strategies.
         </p>
         <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
-            <a href="#" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+            <a href="{% url 'account:register' %}" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
                 Start with AI Now <i class="bi bi-arrow-right ms-2"></i>
             </a>
-            <a href="#" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
-                Contact Sales
+            <a href="{% url 'frontend:contact' %}" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                Contact Our Team
             </a>
         </div>
         <div class="d-flex justify-content-center gap-4 flex-wrap">
