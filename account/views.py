@@ -52,7 +52,8 @@ def register_view(request):
                 # send_verification_email(user, verification_url)
                 # 📧 Send welcome email
                 try:
-                    send_welcome_email(user, verification_url)
+                    # send_welcome_email(user, verification_url)
+                    send_verification_email(user, verification_url)
                 except Exception as e:
                     print(f"Failed to send welcome email: {e}")
                     # Don't fail registration if email fails
@@ -255,7 +256,7 @@ def login_view(request):
             # ✅ Staff/Superuser → Staff Dashboard
             if user.is_staff:
                 auth_login(request, user)
-                return redirect('staff:dashboard')
+                return redirect('staff:admin_users')
             
             # ✅ NEW CHECK: If they logged in successfully but are suspended
             if getattr(user, 'account_status', 'active') == 'suspended':
