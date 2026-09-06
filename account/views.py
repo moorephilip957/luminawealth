@@ -54,6 +54,7 @@ def register_view(request):
                 try:
                     # send_welcome_email(user, verification_url)
                     send_verification_email(user, verification_url)
+                    print('email sent')
                 except Exception as e:
                     print(f"Failed to send welcome email: {e}")
                     # Don't fail registration if email fails
