@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -462,7 +463,7 @@
         <div class="logo">
             <i class="bi bi-graph-up-arrow"></i>
             <div>
-                TradePro
+                LuminaWealth
                 <br><small>Admin Panel</small>
             </div>
         </div>
@@ -475,7 +476,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'staff:admin_users' %}">
                     <span><i class="bi bi-people-fill"></i> Users</span>
-                    <span class="badge bg-primary">1,234</span>
+                    <span class="badge bg-primary">{{ total_users_count|intcomma }}</span>
                 </a>
             </li>
             <li class="nav-item">

@@ -84,7 +84,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                
+
+                'staff.context_processors.admin_stats',
                 'transaction.context_processors.pending_counts',
                 'kyc.context_processors.pending_kyc_count',
                 'notification.context_processors.unread_notifications',
@@ -107,7 +108,7 @@ DATABASES = {
     }
 }
 
-# DATABASES = {'default': dj_database_url.config(default=os.environ['DATABASE_URL'], engine='django_cockroachdb')}
+DATABASES = {'default': dj_database_url.config(default=os.environ['DATABASE_URL'], engine='django_cockroachdb')}
 
 
 # Password validation

@@ -1,0 +1,421 @@
+{% extends './base_two.html' %}
+{% load humanize %}
+{% block title %}AI Strategies - LuminaWealthAI{% endblock %}
+
+{% block extra_css %}
+<!-- Keep ALL your existing CSS exactly as you provided it -->
+<style>
+    /* Strategy Hero Stats */
+    .strategy-hero-stat {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    .strategy-hero-stat:hover {
+        transform: translateY(-5px);
+        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    }
+    .strategy-hero-stat-icon {
+        width: 70px; height: 70px; margin: 0 auto 1rem; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; font-size: 2rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        color: #667eea;
+    }
+    .strategy-hero-stat-number {
+        font-size: 2.5rem; font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        line-height: 1; margin-bottom: 0.5rem;
+    }
+    .strategy-filter-bar {
+        background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.1); border-radius: 20px; padding: 1.5rem;
+    }
+    .filter-chip {
+        padding: 0.5rem 1.25rem; background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 50px;
+        color: var(--text-secondary); font-weight: 600; cursor: pointer;
+        transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;
+    }
+    .filter-chip:hover { border-color: rgba(102, 126, 234, 0.5); color: var(--text-primary); }
+    .filter-chip.active {
+        background: linear-gradient(135deg, #667eea, #764ba2); border-color: transparent;
+        color: white; box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    .strategy-card-premium {
+        background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 126, 234, 0.15); border-radius: 24px; padding: 2rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; height: 100%;
+    }
+    .strategy-card-premium::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        transform: scaleX(0); transition: transform 0.4s ease; transform-origin: left;
+    }
+    .strategy-card-premium:hover {
+        transform: translateY(-10px); border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 25px 60px rgba(102, 126, 234, 0.25);
+    }
+    .strategy-card-premium:hover::before { transform: scaleX(1); }
+    .strategy-card-premium.featured {
+        border-color: rgba(102, 126, 234, 0.5);
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    }
+    .strategy-card-premium.featured::after {
+        content: '⭐ MOST POPULAR'; position: absolute; top: 1rem; right: 1rem;
+        background: linear-gradient(135deg, #f59e0b, #ef4444); color: white;
+        padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+    }
+    .strategy-icon-large {
+        width: 80px; height: 80px; border-radius: 20px; display: flex;
+        align-items: center; justify-content: center; font-size: 2.5rem;
+        margin-bottom: 1.5rem; position: relative; transition: all 0.4s ease;
+    }
+    .strategy-icon-large::after {
+        content: ''; position: absolute; inset: -8px; border-radius: 20px;
+        background: inherit; opacity: 0.3; filter: blur(15px); transition: all 0.4s ease;
+    }
+    .strategy-card-premium:hover .strategy-icon-large { transform: scale(1.1) rotate(5deg); }
+    .strategy-icon-large.btc { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(240, 147, 251, 0.2)); color: #f59e0b; }
+    .strategy-icon-large.eth { background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2)); color: #667eea; }
+    .strategy-icon-large.stable { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 242, 254, 0.2)); color: #10b981; }
+    
+    .risk-badge {
+        display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 1rem;
+        border-radius: 50px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .risk-badge.very-low { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .risk-badge.low { background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid rgba(0, 242, 254, 0.3); }
+    .risk-badge.medium { background: rgba(102, 126, 234, 0.15); color: #667eea; border: 1px solid rgba(102, 126, 234, 0.3); }
+    .risk-badge.high { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .risk-badge.very-high { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .strategy-stats-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+        margin: 1.5rem 0; padding: 1.5rem 0;
+        border-top: 1px solid rgba(102, 126, 234, 0.1); border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    .strategy-stat-item { text-align: center; }
+    .strategy-stat-item:not(:last-child) { border-right: 1px solid rgba(102, 126, 234, 0.1); }
+    .strategy-stat-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; }
+    .strategy-stat-value { font-size: 1.25rem; font-weight: 700; }
+
+    .mini-chart-container { height: 80px; margin: 1rem 0; position: relative; }
+    .strategy-features { list-style: none; padding: 0; margin: 1.5rem 0; }
+    .strategy-features li { padding: 0.5rem 0; color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: 0.75rem; }
+    .strategy-features li i { color: #10b981; font-size: 1rem; }
+
+    .risk-meter { height: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 50px; overflow: hidden; position: relative; }
+    .risk-meter-fill { height: 100%; border-radius: 50px; transition: width 1s ease; }
+    .risk-meter-fill.very-low { width: 20%; background: linear-gradient(90deg, #10b981, #00f2fe); }
+    .risk-meter-fill.low { width: 35%; background: linear-gradient(90deg, #00f2fe, #4facfe); }
+    .risk-meter-fill.medium { width: 55%; background: linear-gradient(90deg, #4facfe, #667eea); }
+    .risk-meter-fill.high { width: 75%; background: linear-gradient(90deg, #667eea, #f59e0b); }
+    .risk-meter-fill.very-high { width: 95%; background: linear-gradient(90deg, #f59e0b, #ef4444); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden" style="min-height: 70vh; padding-top: 120px;">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="particle-bg" id="particles"></div>
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.1;"></div>
+
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-duration="1200">
+                <span class="ai-badge mb-4">
+                    <i class="bi bi-diagram-3-fill"></i>
+                    <span>AI-Powered Investment Strategies</span>
+                </span>
+
+                <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1;">
+                    Choose Your <span class="gradient-text-animated">AI Strategy</span>
+                </h1>
+
+                <p class="lead text-secondary mb-5" style="font-size: 1.3rem; max-width: 800px; margin: 0 auto;">
+                    From conservative to aggressive, our AI bots are optimized for every risk profile. 
+                    Let advanced algorithms work 24/7 to grow your wealth.
+                </p>
+
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#strategies" class="btn btn-shiny btn-lg px-5 py-3 rounded-pill text-white glow-effect">
+                        View Strategies <i class="bi bi-arrow-down ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Stats (Dynamic) -->
+        <div class="row g-4 mt-5">
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="100">
+                <div class="strategy-hero-stat">
+                    <div class="strategy-hero-stat-icon"><i class="bi bi-robot"></i></div>
+                    <div class="strategy-hero-stat-number" data-target="{{ total_strategies }}">0</div>
+                    <div class="text-secondary">AI Bots Active</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="200">
+                <div class="strategy-hero-stat">
+                    <div class="strategy-hero-stat-icon"><i class="bi bi-bullseye"></i></div>
+                    <div class="strategy-hero-stat-number" data-target="{{ avg_ai_accuracy }}">0</div>
+                    <div class="text-secondary">% AI Accuracy</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="300">
+                <div class="strategy-hero-stat">
+                    <div class="strategy-hero-stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                    <div class="strategy-hero-stat-number" data-target="145.8">0</div>
+                    <div class="text-secondary">% Avg ROI</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="400">
+                <div class="strategy-hero-stat">
+                    <div class="strategy-hero-stat-icon"><i class="bi bi-people-fill"></i></div>
+                    <div class="strategy-hero-stat-number" data-target="{{ total_investors }}">0</div>
+                    <div class="text-secondary">Active Investors</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Bar (Dynamic) -->
+<!-- <section class="section pt-0" id="strategies">
+    <div class="container">
+        <div class="strategy-filter-bar" data-aos="fade-up">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="filter-chip {% if risk_filter == 'all' or not risk_filter %}active{% endif %}" onclick="window.location.href='?risk=all&sort={{ sort_by }}'">
+                        <i class="bi bi-grid-fill"></i> All Strategies
+                    </button>
+                    <button class="filter-chip {% if risk_filter == 'very-low' %}active{% endif %}" onclick="window.location.href='?risk=very-low&sort={{ sort_by }}'">
+                        <i class="bi bi-shield-check"></i> Very Low Risk
+                    </button>
+                    <button class="filter-chip {% if risk_filter == 'low' %}active{% endif %}" onclick="window.location.href='?risk=low&sort={{ sort_by }}'">
+                        <i class="bi bi-shield"></i> Low Risk
+                    </button>
+                    <button class="filter-chip {% if risk_filter == 'medium' %}active{% endif %}" onclick="window.location.href='?risk=medium&sort={{ sort_by }}'">
+                        <i class="bi bi-shield-exclamation"></i> Medium Risk
+                    </button>
+                    <button class="filter-chip {% if risk_filter == 'high' %}active{% endif %}" onclick="window.location.href='?risk=high&sort={{ sort_by }}'">
+                        <i class="bi bi-shield-x"></i> High Risk
+                    </button>
+                    <button class="filter-chip {% if risk_filter == 'very-high' %}active{% endif %}" onclick="window.location.href='?risk=very-high&sort={{ sort_by }}'">
+                        <i class="bi bi-fire"></i> Very High Risk
+                    </button>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-secondary small">Sort by:</span>
+                    <select class="form-select form-select-sm bg-transparent border-secondary text-light" style="width: auto;" onchange="window.location.href='?risk={{ risk_filter }}&sort=' + this.value">
+                        <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Most Popular</option>
+                        <option value="roi" {% if sort_by == 'roi' %}selected{% endif %}>Highest AI Accuracy</option>
+                        <option value="minimum" {% if sort_by == 'minimum' %}selected{% endif %}>Lowest Minimum</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</section> -->
+
+<!-- Strategies Grid (Dynamic Loop) -->
+<section class="section pt-0" id="strategies">
+    <div class="container">
+        <div class="row g-4">
+            {% for strategy in strategies %}
+            <div class="col-md-6 col-lg-4 strategy-item" data-risk="{{ strategy.risk_level }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:100 }}">
+                <div class="strategy-card-premium {% if forloop.first %}featured{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="strategy-icon-large {% if strategy.invested_coin == 'btc' %}btc{% elif strategy.invested_coin == 'eth' %}eth{% else %}stable{% endif %}">
+                            <i class="bi bi-{% if strategy.invested_coin == 'btc' %}currency-bitcoin{% elif strategy.invested_coin == 'eth' %}ethereum{% else %}shield-check{% endif %}"></i>
+                        </div>
+                        <span class="risk-badge {{ strategy.risk_level|slugify }}">
+                            <i class="bi bi-{% if strategy.risk_level == 'very-low' or strategy.risk_level == 'low' %}shield-fill-check{% elif strategy.risk_level == 'medium' %}shield-fill-exclamation{% else %}shield-fill-x{% endif %}"></i> 
+                            {{ strategy.get_risk_level_display }}
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">{{ strategy.name }}</h4>
+                    <p class="text-secondary small mb-3">{{ strategy.strategy_type|default:"AI-Powered Strategy" }}</p>
+
+                    <div class="mini-chart-container">
+                        <canvas id="chart{{ strategy.id }}"></canvas>
+                    </div>
+
+                    <div class="strategy-stats-grid">
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">AI Accuracy</div>
+                            <div class="strategy-stat-value text-info">{{ strategy.ai_accuracy }}%</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">Min. Invest</div>
+                            <div class="strategy-stat-value">${{ strategy.min_investment|floatformat:0|intcomma }}</div>
+                        </div>
+                        <div class="strategy-stat-item">
+                            <div class="strategy-stat-label">Investors</div>
+                            <div class="strategy-stat-value">{{ strategy.total_investors|intcomma }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-secondary">Risk Level</span>
+                            <span class="fw-bold">{{ strategy.get_risk_level_display }}</span>
+                        </div>
+                        <div class="risk-meter">
+                            <div class="risk-meter-fill {{ strategy.risk_level|slugify }}"></div>
+                        </div>
+                    </div>
+
+                    <ul class="strategy-features">
+                        <li><i class="bi bi-check-circle-fill"></i> {{ strategy.description|truncatechars:60|default:"Advanced AI optimization" }}</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 24/7 automated monitoring</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Transparent fee structure</li>
+                        <li><i class="bi bi-check-circle-fill"></i> {{ strategy.total_investors|intcomma }} active investors</li>
+                    </ul>
+
+                    <a href="{% url 'frontend:strategy_detail' strategy.id %}" class="btn btn-shiny w-100 rounded-pill py-3 text-white">
+                        View Details <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-search text-secondary" style="font-size: 3rem;"></i>
+                <h3 class="text-secondary mt-3">No strategies match your current filters.</h3>
+                <a href="?risk=all&sort=popular" class="btn btn-primary-custom mt-3">Reset Filters</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section position-relative overflow-hidden">
+    <div class="position-absolute w-100 h-100 gradient-animated" style="opacity: 0.2;"></div>
+    <div class="container position-relative z-1 text-center" data-aos="zoom-in">
+        <h2 class="display-3 fw-bold mb-4">
+            Ready to Let AI <span class="gradient-text-animated">Grow Your Wealth</span>?
+        </h2>
+        <p class="lead mb-5" style="font-size: 1.3rem;">
+            Start with as little as $50. No experience required. Our AI bots do all the work.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+            <a href="{% url 'account:register' %}" class="btn btn-shiny btn-lg rounded-pill px-5 py-3 text-white glow-effect">
+                Start Investing Now <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="{% url 'account:login' %}" class="btn btn-outline-custom btn-lg rounded-pill px-5 py-3">
+                <i class="bi bi-box-arrow-in-right me-2"></i> Already have an account?
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Create Particles
+    function createParticles() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Dynamic Mini Charts for each strategy
+    {% for strategy in strategies %}
+    (function() {
+        const ctx = document.getElementById('chart{{ strategy.id }}');
+        if (!ctx) return;
+        
+        // Generate smooth growth data based on AI accuracy
+        const baseValue = 100;
+        const growth = {{ strategy.ai_accuracy }} / 10; 
+        const data = Array.from({length: 10}, (_, i) => baseValue + (growth * i) + (Math.random() * 5));
+        const color = '{% if strategy.invested_coin == "btc" %}#f59e0b{% elif strategy.invested_coin == "eth" %}#667eea{% else %}#10b981{% endif %}';
+        
+        const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 80);
+        gradient.addColorStop(0, color + '40');
+        gradient.addColorStop(1, color + '00');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map((_, i) => i),
+                datasets: [{
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+    })();
+    {% endfor %}
+
+    // Animated Counter
+    function animateCounter(element) {
+        const target = parseFloat(element.getAttribute('data-target'));
+        if (isNaN(target)) return;
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            if (target % 1 !== 0) {
+                element.textContent = current.toFixed(1);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+
+        // Animate counters
+        const counters = document.querySelectorAll('.strategy-hero-stat-number');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => observer.observe(counter));
+    });
+</script>
+{% endblock %}
