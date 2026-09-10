@@ -1,97 +1,106 @@
 from django.contrib import admin
-from .models import Strategy, SpinRecord, StrategyPerformance, StrategyInvestor
+from .models import Strategy, StrategyInvestor, SpinRecord
 
 
 @admin.register(Strategy)
 class StrategyAdmin(admin.ModelAdmin):
+    # Fields displayed in the list view
     list_display = [
-        'name', 'invested_coin', 'current_price', 'risk_level',
-        'total_investors', 'status', 'is_featured', 'created_at'
+        'name', 
+        'invested_coin', 
+        'risk_level', 
+        'ai_accuracy',
+        'min_investment',
+        'total_investors',  # ✅ Now visible in list
+        'status',
+        'is_public',
+        'created_at'
     ]
-    list_filter = ['status', 'risk_level', 'invested_coin', 'is_featured', 'is_public']
-    search_fields = ['name', 'description', 'invested_coin']
+    
+    # Fields that can be edited directly from the list view (without opening the detail page)
+    list_editable = [
+        'status', 
+        'is_public',
+        'total_investors',  # ✅ Editable directly from list!
+    ]
+    
+    # Filters on the right sidebar
+    list_filter = [
+        'status', 
+        'is_public', 
+        'risk_level', 
+        'invested_coin',
+        'created_at'
+    ]
+    
+    # Search fields
+    search_fields = [
+        'name', 
+        'description',
+        'invested_coin'
+    ]
+    
+    # Fields shown in the detail/edit form
+    fields = [
+        'name',
+        'description',
+        'strategy_type',
+        'invested_coin',
+        'risk_level',
+        'ai_accuracy',
+        'min_investment',
+        'total_investors',  # ✅ Now in the edit form
+        'initial_price',
+        'current_price',
+        'management_fee',
+        'min_holding_period',
+        'status',
+        'is_public',
+    ]
+    
+    # Read-only fields (if you want some fields to be uneditable)
+    readonly_fields = ['created_at', 'updated_at']
+    
+    # Ordering
     ordering = ['-created_at']
-    readonly_fields = ['created_at', 'updated_at', 'market_cap', 'total_investors']
     
-    fieldsets = (
-        ('Basic Information', {
-            'fields': ('name', 'slug', 'description', 'short_description')
-        }),
-        ('Strategy Details', {
-            'fields': ('invested_coin', 'strategy_type', 'risk_level')
-        }),
-        ('Pricing & Investment', {
-            'fields': ('current_price', 'initial_price', 'min_investment', 'management_fee')
-        }),
-        ('Performance', {
-            'fields': ('ai_accuracy', 'min_holding_period')
-        }),
-        ('Statistics', {
-            'fields': ('total_investors', 'total_invested', 'market_cap')
-        }),
-        ('Status & Visibility', {
-            'fields': ('status', 'is_featured', 'is_public')
-        }),
-        ('Metadata', {
-            'fields': ('created_at', 'updated_at', 'created_by'),
-            'classes': ('collapse',)
-        }),
-    )
+    # Custom actions
+    actions = ['make_public', 'make_private', 'reset_investor_count']
     
-    def save_model(self, request, obj, form, change):
-        if not change:  # If creating new object
-            obj.created_by = request.user
-        super().save_model(request, obj, form, change)
-
-
-@admin.register(SpinRecord)
-class SpinRecordAdmin(admin.ModelAdmin):
-    list_display = [
-        'strategy', 'action', 'old_price', 'new_price',
-        'amount_changed', 'admin', 'created_at'
-    ]
-    list_filter = ['action', 'strategy', 'created_at']
-    search_fields = ['strategy__name', 'reason', 'notes', 'admin__username']
-    ordering = ['-created_at']
-    readonly_fields = ['created_at', 'amount_changed']
-    date_hierarchy = 'created_at'
+    def make_public(self, request, queryset):
+        updated = queryset.update(is_public=True)
+        self.message_user(request, f'{updated} strategies made public.')
+    make_public.short_description = "Make selected strategies public"
     
-    fieldsets = (
-        ('Spin Details', {
-            'fields': ('strategy', 'action', 'admin')
-        }),
-        ('Price Information', {
-            'fields': ('old_price', 'new_price', 'amount_changed')
-        }),
-        ('Details', {
-            'fields': ('reason', 'notes')
-        }),
-        ('Metadata', {
-            'fields': ('created_at', 'ip_address', 'user_agent'),
-            'classes': ('collapse',)
-        }),
-    )
-
-
-@admin.register(StrategyPerformance)
-class StrategyPerformanceAdmin(admin.ModelAdmin):
-    list_display = [
-        'strategy', 'date', 'open_price', 'close_price',
-        'daily_change', 'daily_change_percent', 'volume'
-    ]
-    list_filter = ['strategy', 'date']
-    search_fields = ['strategy__name']
-    ordering = ['-date']
-    date_hierarchy = 'date'
+    def make_private(self, request, queryset):
+        updated = queryset.update(is_public=False)
+        self.message_user(request, f'{updated} strategies made private.')
+    make_private.short_description = "Make selected strategies private"
+    
+    def reset_investor_count(self, request, queryset):
+        """Reset investor count to match actual StrategyInvestor records"""
+        from django.db.models import Count
+        for strategy in queryset:
+            actual_count = StrategyInvestor.objects.filter(
+                strategy=strategy, 
+                status='active'
+            ).count()
+            strategy.total_investors = actual_count
+            strategy.save(update_fields=['total_investors'])
+        self.message_user(request, f'Investor counts synced with actual data for {queryset.count()} strategies.')
+    reset_investor_count.short_description = "Sync investor count with actual data"
 
 
 @admin.register(StrategyInvestor)
 class StrategyInvestorAdmin(admin.ModelAdmin):
-    list_display = [
-        'user', 'strategy', 'invested_amount', 'current_value',
-        'profit_loss_percent', 'status', 'invested_at'
-    ]
-    list_filter = ['status', 'strategy', 'invested_at']
-    search_fields = ['user__username', 'user__email', 'strategy__name']
-    ordering = ['-invested_at']
-    readonly_fields = ['invested_at', 'updated_at']
+    list_display = ['user', 'strategy', 'invested_amount', 'current_value', 'status', 'invested_at']
+    list_filter = ['status', 'strategy']
+    search_fields = ['user__email', 'user__username', 'strategy__name']
+    readonly_fields = ['invested_at', 'liquidated_at', 'updated_at']
+
+
+@admin.register(SpinRecord)
+class SpinRecordAdmin(admin.ModelAdmin):
+    list_display = ['strategy', 'old_price', 'new_price', 'created_at']
+    list_filter = ['strategy']
+    readonly_fields = ['created_at']

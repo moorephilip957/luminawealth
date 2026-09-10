@@ -124,7 +124,7 @@
                         <div class="strategy-stat-item">
                             <div class="strategy-stat-label">All-Time ROI</div>
                             <div class="strategy-stat-value {% if all_time_roi >= 0 %}text-success{% else %}text-danger{% endif %}">
-                                {% if all_time_roi >= 0 %}+{% endif %}{{ all_time_roi }}%
+                                {% if all_time_roi >= 0 %}+{% endif %}{{ all_time_roi|floatformat:2 }}%
                             </div>
                         </div>
                         <div class="strategy-stat-item">
