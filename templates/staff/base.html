@@ -513,6 +513,15 @@
                     {% endif %}
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'staff:admin_support_list' %}">
+                    <span><i class="bi bi-headset"></i> Support Tickets</span>
+                    {% if open_tickets_count %}
+                        <span class="badge bg-warning text-dark">{{ open_tickets_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
             
             <li class="nav-item mt-4">
                 <small class="text-secondary px-3 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Reports</small>

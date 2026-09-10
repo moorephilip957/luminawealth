@@ -1,0 +1,216 @@
+{% extends '../staff/base.html' %}
+{% load humanize %}
+{% block title %}Support Tickets{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="bi bi-headset me-2"></i> Support Tickets
+        </h3>
+        <p class="text-secondary mb-0">Manage and respond to customer support requests</p>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total Tickets</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ total_tickets|intcomma }}</h3>
+                    <small class="text-secondary">All-time</small>
+                </div>
+                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-ticket-detailed text-primary fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card orange p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Open Tickets</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ open_tickets }}</h3>
+                    <small class="text-warning">Awaiting response</small>
+                </div>
+                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-envelope-fill text-warning fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card blue p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">In Progress</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ in_progress }}</h3>
+                    <small class="text-secondary">Being handled</small>
+                </div>
+                <div class="bg-info bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-hourglass-split text-info fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card card-custom stat-card red p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <small class="text-secondary text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Urgent</small>
+                    <h3 class="fw-bold mb-1 mt-2">{{ urgent_tickets }}</h3>
+                    <small class="text-danger">Need immediate attention</small>
+                </div>
+                <div class="bg-danger bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card card-custom p-4 mb-4">
+    <form method="GET">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label text-secondary small fw-semibold">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control bg-transparent border-secondary text-light" 
+                           name="search" placeholder="Subject, ticket #, or user email..." value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label text-secondary small fw-semibold">Status</label>
+                <select class="form-select bg-transparent border-secondary text-light" name="status">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                    <option value="open" {% if status_filter == 'open' %}selected{% endif %}>Open</option>
+                    <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="waiting_customer" {% if status_filter == 'waiting_customer' %}selected{% endif %}>Waiting Customer</option>
+                    <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label text-secondary small fw-semibold">Priority</label>
+                <select class="form-select bg-transparent border-secondary text-light" name="priority">
+                    <option value="all" {% if priority_filter == 'all' %}selected{% endif %}>All Priority</option>
+                    <option value="urgent" {% if priority_filter == 'urgent' %}selected{% endif %}>Urgent</option>
+                    <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
+                    <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-secondary small fw-semibold">Category</label>
+                <select class="form-select bg-transparent border-secondary text-light" name="category">
+                    <option value="all" {% if category_filter == 'all' %}selected{% endif %}>All Categories</option>
+                    <option value="general" {% if category_filter == 'general' %}selected{% endif %}>General</option>
+                    <option value="technical" {% if category_filter == 'technical' %}selected{% endif %}>Technical</option>
+                    <option value="billing" {% if category_filter == 'billing' %}selected{% endif %}>Billing</option>
+                    <option value="account" {% if category_filter == 'account' %}selected{% endif %}>Account</option>
+                    <option value="kyc" {% if category_filter == 'kyc' %}selected{% endif %}>KYC</option>
+                    <option value="deposit" {% if category_filter == 'deposit' %}selected{% endif %}>Deposit</option>
+                    <option value="withdrawal" {% if category_filter == 'withdrawal' %}selected{% endif %}>Withdrawal</option>
+                    <option value="strategy" {% if category_filter == 'strategy' %}selected{% endif %}>Strategy</option>
+                    <option value="other" {% if category_filter == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Tickets Table -->
+<div class="card card-custom p-4">
+    <div class="table-responsive">
+        <table class="table table-custom mb-0">
+            <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>User</th>
+                    <th>Subject</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Responses</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>
+                        <code class="text-light small">{{ ticket.ticket_number }}</code>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ ticket.user.get_avatar_url }}" class="rounded-circle me-2" width="32" height="32">
+                            <div>
+                                <div class="fw-semibold small">{{ ticket.user.get_full_name|default:ticket.user.username }}</div>
+                                <small class="text-secondary">{{ ticket.user.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="{% url 'staff:admin_support_detail' ticket.id %}" class="text-decoration-none text-light fw-semibold">
+                            {{ ticket.subject|truncatechars:50 }}
+                        </a>
+                    </td>
+                    <td>
+                        <small>{{ ticket.get_category_display }}</small>
+                    </td>
+                    <td>
+                        {% if ticket.priority == 'urgent' %}
+                            <span class="badge bg-danger">Urgent</span>
+                        {% elif ticket.priority == 'high' %}
+                            <span class="badge bg-warning text-dark">High</span>
+                        {% elif ticket.priority == 'medium' %}
+                            <span class="badge bg-info text-dark">Medium</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Low</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if ticket.status == 'open' %}
+                            <span class="badge-status badge-pending">Open</span>
+                        {% elif ticket.status == 'in_progress' %}
+                            <span class="badge bg-primary">In Progress</span>
+                        {% elif ticket.status == 'waiting_customer' %}
+                            <span class="badge bg-info text-dark">Waiting</span>
+                        {% elif ticket.status == 'resolved' %}
+                            <span class="badge-status badge-active">Resolved</span>
+                        {% elif ticket.status == 'closed' %}
+                            <span class="badge bg-secondary">Closed</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="text-secondary">{{ ticket.response_count }}</span>
+                    </td>
+                    <td>
+                        <div class="small">{{ ticket.created_at|date:"M d, Y" }}</div>
+                        <small class="text-secondary">{{ ticket.created_at|date:"H:i" }}</small>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                        <p class="text-secondary mt-3 mb-0">No tickets found</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

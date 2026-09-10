@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.contrib.auth.decorators import login_required
 from staff.decorators import client_login_required
 from decimal import Decimal, InvalidOperation
@@ -19,6 +19,7 @@ from kyc.models import KYCSubmission
 from notification.services import (
     notify_deposit_submitted, notify_withdrawal_submitted, notify_investment_made, notify_investment_liquidated, notify_password_changed
 )
+from support.models import SupportTicket, TicketResponse
 
 
 @login_required
@@ -1075,3 +1076,148 @@ def account_suspended_view(request):
     }
     
     return render(request, 'customer/account_suspended.html', context)
+
+
+@login_required
+@client_login_required
+def support_create(request):
+    """Create a new support ticket."""
+    if request.method == 'POST':
+        subject = request.POST.get('subject', '').strip()
+        category = request.POST.get('category', '')
+        priority = request.POST.get('priority', SupportTicket.PRIORITY_MEDIUM)
+        message = request.POST.get('message', '').strip()
+        
+        # Validation
+        if not subject:
+            messages.error(request, 'Please enter a subject.')
+            return redirect('customer:support_create')
+        
+        if not message:
+            messages.error(request, 'Please enter a message.')
+            return redirect('customer:support_create')
+        
+        valid_categories = [c[0] for c in SupportTicket.CATEGORY_CHOICES]
+        if category not in valid_categories:
+            messages.error(request, 'Please select a valid category.')
+            return redirect('customer:support_create')
+        
+        valid_priorities = [p[0] for p in SupportTicket.PRIORITY_CHOICES]
+        if priority not in valid_priorities:
+            priority = SupportTicket.PRIORITY_MEDIUM
+        
+        try:
+            ticket = SupportTicket.objects.create(
+                user=request.user,
+                subject=subject,
+                category=category,
+                priority=priority,
+                message=message
+            )
+            
+            # Send notification (optional - we'll add this later)
+            try:
+                from notification.services import notify_support_ticket_created
+                notify_support_ticket_created(request.user, ticket)
+            except Exception as e:
+                print(f"Notification error: {e}")
+            
+            messages.success(
+                request,
+                f'✅ Your support ticket {ticket.ticket_number} has been submitted. '
+                f'Our team will get back to you shortly.'
+            )
+            return redirect('customer:support_detail', ticket_id=ticket.id)
+            
+        except Exception as e:
+            messages.error(request, 'An error occurred while creating your ticket. Please try again.')
+            print(f"Ticket creation error: {e}")
+    
+    return render(request, 'support/support_create.html')
+
+
+@login_required
+@client_login_required
+def support_list(request):
+    """List all tickets for the current user."""
+    tickets = SupportTicket.objects.filter(user=request.user)
+    
+    # Filters
+    status_filter = request.GET.get('status', 'all')
+    if status_filter != 'all':
+        tickets = tickets.filter(status=status_filter)
+    
+    # Stats
+    open_count = SupportTicket.objects.filter(user=request.user, status=SupportTicket.STATUS_OPEN).count()
+    in_progress_count = SupportTicket.objects.filter(user=request.user, status=SupportTicket.STATUS_IN_PROGRESS).count()
+    resolved_count = SupportTicket.objects.filter(user=request.user, status=SupportTicket.STATUS_RESOLVED).count()
+    
+    context = {
+        'tickets': tickets,
+        'open_count': open_count,
+        'in_progress_count': in_progress_count,
+        'resolved_count': resolved_count,
+        'status_filter': status_filter,
+    }
+    
+    return render(request, 'support/support_list.html', context)
+
+
+@login_required
+@client_login_required
+def support_detail(request, ticket_id):
+    """View ticket details and reply."""
+    ticket = get_object_or_404(SupportTicket, id=ticket_id, user=request.user)
+    responses = ticket.responses.all().order_by('created_at')
+    
+    if request.method == 'POST':
+        message = request.POST.get('message', '').strip()
+        action = request.POST.get('action', 'reply')
+        
+        if action == 'close':
+            # User wants to close the ticket
+            if ticket.status in [SupportTicket.STATUS_RESOLVED, SupportTicket.STATUS_OPEN]:
+                ticket.status = SupportTicket.STATUS_CLOSED
+                ticket.closed_at = timezone.now()
+                ticket.save(update_fields=['status', 'closed_at', 'updated_at'])
+                messages.success(request, '✅ Ticket has been closed.')
+                return redirect('customer:support_detail', ticket_id=ticket.id)
+            else:
+                messages.warning(request, 'This ticket cannot be closed at this time.')
+                return redirect('customer:support_detail', ticket_id=ticket.id)
+        
+        # Regular reply
+        if not message:
+            messages.error(request, 'Please enter a message.')
+            return redirect('customer:support_detail', ticket_id=ticket.id)
+        
+        if not ticket.is_open:
+            messages.error(request, 'This ticket is closed and cannot receive new replies.')
+            return redirect('customer:support_detail', ticket_id=ticket.id)
+        
+        try:
+            TicketResponse.objects.create(
+                ticket=ticket,
+                author=request.user,
+                is_staff_response=False,
+                message=message
+            )
+            
+            # If ticket was waiting for customer, move back to open
+            if ticket.status == SupportTicket.STATUS_WAITING_CUSTOMER:
+                ticket.status = SupportTicket.STATUS_OPEN
+                ticket.save(update_fields=['status', 'updated_at'])
+            
+            messages.success(request, '✅ Your reply has been sent.')
+            return redirect('customer:support_detail', ticket_id=ticket.id)
+            
+        except Exception as e:
+            messages.error(request, 'An error occurred while sending your reply.')
+            print(f"Reply error: {e}")
+    
+    context = {
+        'ticket': ticket,
+        'responses': responses,
+    }
+    
+    return render(request, 'support/support_detail.html', context)

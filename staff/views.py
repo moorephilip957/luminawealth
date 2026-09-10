@@ -9,6 +9,9 @@ from account.models import User
 from coin.models import Strategy, StrategyInvestor
 from .forms import AdminUserEditForm
 from notification.services import notify_account_suspended, notify_account_reactivated
+from support.models import SupportTicket, TicketResponse
+from notification.services import notify_support_ticket_reply, notify_support_ticket_resolved
+
 
 
 
@@ -473,3 +476,140 @@ def admin_user_reactivate(request, user_id):
         return redirect('staff:admin_user_detail', user_id=user_id)
         
     return redirect('staff:admin_user_detail', user_id=user_id)
+
+
+@login_required
+@user_passes_test(admin_check)
+def admin_support_list(request):
+    """Admin view: list all support tickets."""
+    tickets = SupportTicket.objects.select_related('user', 'assigned_to').all()
+    
+    # Filters
+    status_filter = request.GET.get('status', 'all')
+    priority_filter = request.GET.get('priority', 'all')
+    category_filter = request.GET.get('category', 'all')
+    search_query = request.GET.get('search', '')
+    
+    if status_filter != 'all':
+        tickets = tickets.filter(status=status_filter)
+    if priority_filter != 'all':
+        tickets = tickets.filter(priority=priority_filter)
+    if category_filter != 'all':
+        tickets = tickets.filter(category=category_filter)
+    if search_query:
+        tickets = tickets.filter(
+            Q(subject__icontains=search_query) |
+            Q(ticket_number__icontains=search_query) |
+            Q(user__email__icontains=search_query) |
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query)
+        )
+    
+    # Stats
+    total_tickets = SupportTicket.objects.count()
+    open_tickets = SupportTicket.objects.filter(status=SupportTicket.STATUS_OPEN).count()
+    in_progress = SupportTicket.objects.filter(status=SupportTicket.STATUS_IN_PROGRESS).count()
+    urgent_tickets = SupportTicket.objects.filter(priority=SupportTicket.PRIORITY_URGENT, status__in=[
+        SupportTicket.STATUS_OPEN, SupportTicket.STATUS_IN_PROGRESS
+    ]).count()
+    
+    context = {
+        'tickets': tickets,
+        'total_tickets': total_tickets,
+        'open_tickets': open_tickets,
+        'in_progress': in_progress,
+        'urgent_tickets': urgent_tickets,
+        'status_filter': status_filter,
+        'priority_filter': priority_filter,
+        'category_filter': category_filter,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'support/admin_support_list.html', context)
+
+
+@login_required
+@user_passes_test(admin_check)
+def admin_support_detail(request, ticket_id):
+    """Admin view: ticket detail and reply."""
+    ticket = get_object_or_404(
+        SupportTicket.objects.select_related('user', 'assigned_to'),
+        id=ticket_id
+    )
+    responses = ticket.responses.all().select_related('author').order_by('created_at')
+    staff_members = User.objects.filter(is_staff=True, is_active=True)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'reply':
+            message = request.POST.get('message', '').strip()
+            new_status = request.POST.get('status', ticket.status)
+            assigned_to_id = request.POST.get('assigned_to')
+            
+            if not message:
+                messages.error(request, 'Please enter a message.')
+                return redirect('staff:admin_support_detail', ticket_id=ticket.id)
+            
+            try:
+                # Create staff response
+                TicketResponse.objects.create(
+                    ticket=ticket,
+                    author=request.user,
+                    is_staff_response=True,
+                    message=message
+                )
+                
+                # Update status
+                if new_status != ticket.status:
+                    ticket.status = new_status
+                    if new_status == SupportTicket.STATUS_RESOLVED:
+                        ticket.resolved_at = timezone.now()
+                
+                # Update assignment
+                if assigned_to_id:
+                    try:
+                        ticket.assigned_to = User.objects.get(id=assigned_to_id, is_staff=True)
+                    except User.DoesNotExist:
+                        pass
+                
+                ticket.save()
+                
+                # Notify user
+                try:
+                    notify_support_ticket_reply(ticket.user, ticket, request.user)
+                except Exception as e:
+                    print(f"Notification error: {e}")
+                
+                messages.success(request, f'✅ Reply sent to {ticket.user.email}.')
+                return redirect('staff:admin_support_detail', ticket_id=ticket.id)
+                
+            except Exception as e:
+                messages.error(request, f'Error: {str(e)}')
+                print(f"Admin reply error: {e}")
+        
+        elif action == 'change_status':
+            new_status = request.POST.get('status')
+            valid_statuses = [s[0] for s in SupportTicket.STATUS_CHOICES]
+            
+            if new_status in valid_statuses:
+                ticket.status = new_status
+                if new_status == SupportTicket.STATUS_RESOLVED:
+                    ticket.resolved_at = timezone.now()
+                    notify_support_ticket_resolved(ticket.user, ticket)
+                elif new_status == SupportTicket.STATUS_CLOSED:
+                    ticket.closed_at = timezone.now()
+                ticket.save(update_fields=['status', 'resolved_at', 'closed_at', 'updated_at'])
+                messages.success(request, f'✅ Ticket status updated to {ticket.get_status_display()}.')
+            else:
+                messages.error(request, 'Invalid status.')
+            
+            return redirect('staff:admin_support_detail', ticket_id=ticket.id)
+    
+    context = {
+        'ticket': ticket,
+        'responses': responses,
+        'staff_members': staff_members,
+    }
+    
+    return render(request, 'support/admin_support_detail.html', context)

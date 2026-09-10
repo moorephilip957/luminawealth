@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'kyc',
     'notification',
     'emails',
+    'support',
 ]
 
 MIDDLEWARE = [
@@ -87,6 +88,7 @@ TEMPLATES = [
                 'transaction.context_processors.pending_counts',
                 'kyc.context_processors.pending_kyc_count',
                 'notification.context_processors.unread_notifications',
+                'support.context_processors.open_tickets_count',
             ],
         },
     },
@@ -105,7 +107,7 @@ DATABASES = {
     }
 }
 
-DATABASES = {'default': dj_database_url.config(default=os.environ['DATABASE_URL'], engine='django_cockroachdb')}
+# DATABASES = {'default': dj_database_url.config(default=os.environ['DATABASE_URL'], engine='django_cockroachdb')}
 
 
 # Password validation

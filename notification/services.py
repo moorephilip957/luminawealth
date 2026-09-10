@@ -289,3 +289,41 @@ def notify_admin_fund_action(target_user, action, amount, admin_user):
         category=Notification.CATEGORY_SYSTEM,
         related_url='/user/transactions/'
     )
+
+
+def notify_support_ticket_created(user, ticket):
+    """Notify that a new support ticket was created (for admin awareness)"""
+    # Optionally notify all staff - for now, just log it
+    # Staff will see it in the admin support list
+    pass
+
+
+def notify_support_ticket_reply(user, ticket, staff_member):
+    """Notify user that staff replied to their ticket"""
+    Notification.create_notification(
+        user=user,
+        title=f'💬 New Reply on Ticket {ticket.ticket_number}',
+        message=(
+            f'{staff_member.get_full_name() or staff_member.email} from our support team '
+            f'has replied to your ticket: "{ticket.subject}". '
+            f'Click to view the conversation.'
+        ),
+        notification_type=Notification.TYPE_INFO,
+        category=Notification.CATEGORY_SYSTEM,
+        related_url=f'/user/support/{ticket.id}/'
+    )
+
+
+def notify_support_ticket_resolved(user, ticket):
+    """Notify user that their ticket has been resolved"""
+    Notification.create_notification(
+        user=user,
+        title=f'✅ Ticket {ticket.ticket_number} Resolved',
+        message=(
+            f'Your support ticket "{ticket.subject}" has been marked as resolved. '
+            f'If you need further assistance, feel free to reply or create a new ticket.'
+        ),
+        notification_type=Notification.TYPE_SUCCESS,
+        category=Notification.CATEGORY_SYSTEM,
+        related_url=f'/user/support/{ticket.id}/'
+    )

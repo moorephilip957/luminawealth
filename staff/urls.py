@@ -30,4 +30,9 @@ urlpatterns = [
 
     path('users/<int:user_id>/balance/', views.admin_user_balance, name='admin_user_balance'),
     path('users/<int:user_id>/balance/update/', views.admin_user_balance_update, name='admin_user_balance_update'),
+
+    # Support
+    path('admin/support/', views.admin_support_list, name='admin_support_list'),
+    path('admin/support/<int:ticket_id>/', views.admin_support_detail, name='admin_support_detail'),
+
 ]
