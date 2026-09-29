@@ -221,7 +221,7 @@ class DepositRequest(models.Model):
         if description_suffix:
             transaction.description += description_suffix
         
-        transaction.save(update_fields=['status', 'balance_after', 'description', 'updated_at'])
+        transaction.save(update_fields=['status', 'balance_after', 'description'])
 
 
 class WithdrawalRequest(models.Model):
@@ -483,7 +483,7 @@ class WithdrawalRequest(models.Model):
         if description_suffix:
             transaction.description += description_suffix
         
-        transaction.save(update_fields=['status', 'balance_after', 'description', 'updated_at'])
+        transaction.save(update_fields=['status', 'balance_after', 'description'])
 
 
 class Transaction(models.Model):

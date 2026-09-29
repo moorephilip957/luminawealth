@@ -200,6 +200,20 @@
                         <div class="small">{{ ticket.created_at|date:"M d, Y" }}</div>
                         <small class="text-secondary">{{ ticket.created_at|date:"H:i" }}</small>
                     </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'staff:admin_support_detail' ticket.id %}">
+                                        <i class="bi bi-eye me-2"></i> Reply
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>

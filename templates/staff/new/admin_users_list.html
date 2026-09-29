@@ -218,24 +218,24 @@
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
-                                <!-- <li>
-                                    <a class="dropdown-item text-warning" href="#">
-                                        <i class="bi bi-key-fill me-2"></i> Reset Password
-                                    </a>
-                                </li> -->
-                                {% if u.is_active %}
                                 <li>
-                                    <a class="dropdown-item text-danger" href="#">
+                                    <a class="dropdown-item text-warning" href="#">
+                                        <i class="bi bi-key-fill me-2"></i> Delete User
+                                    </a>
+                                </li>
+                                <!-- {% if u.is_active %}
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'staff:admin_user_suspend' u.id %}">
                                         <i class="bi bi-pause-circle me-2"></i> Suspend Account
                                     </a>
                                 </li>
                                 {% else %}
                                 <li>
-                                    <a class="dropdown-item text-success" href="#">
+                                    <a class="dropdown-item text-success" href="{% url 'staff:admin_user_reactivate' u.id %}">
                                         <i class="bi bi-play-circle me-2"></i> Reactivate Account
                                     </a>
                                 </li>
-                                {% endif %}
+                                {% endif %} -->
                             </ul>
                         </div>
                     </td>
