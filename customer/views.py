@@ -422,12 +422,10 @@ def strategy_liquidate_view(request, strategy_id):
 
 # Map template method values to model choices (card removed)
 METHOD_MAPPING = {
-    'crypto_btc': 'btc',
-    'crypto_eth': 'eth',
-    'crypto_usdt': 'usdt',
+    'cashier_check': 'check',
     'bank_wire': 'bank_wire',
     'bank_sepa': 'sepa',
-    'other': 'bank_wire',  # Default fallback for "Other"
+    'other': 'bank_wire',
 }
 
 @login_required
@@ -500,20 +498,20 @@ def deposit_view(request):
 
 # Map template method values to model choices
 WITHDRAWAL_METHOD_MAPPING = {
-    'crypto_btc': 'btc',
-    'crypto_eth': 'eth',
-    'crypto_usdt': 'usdt',
+    # 'crypto_btc': 'btc',
+    # 'crypto_eth': 'eth',
+    # 'crypto_usdt': 'usdt',
     'bank_wire': 'bank_wire',
-    'bank_sepa': 'sepa',
+    # 'bank_sepa': 'sepa',
 }
 
 # Network fees for crypto withdrawals (demo purposes)
 NETWORK_FEES = {
-    'btc': Decimal('5.00'),
-    'eth': Decimal('3.00'),
-    'usdt': Decimal('1.00'),
+    # 'btc': Decimal('5.00'),
+    # 'eth': Decimal('3.00'),
+    # 'usdt': Decimal('1.00'),
     'bank_wire': Decimal('15.00'),
-    'sepa': Decimal('5.00'),
+    # 'sepa': Decimal('5.00'),
 }
 
 login_required

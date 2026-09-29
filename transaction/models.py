@@ -26,20 +26,20 @@ class DepositRequest(models.Model):
     ]
     
     # Payment Method Choices
-    METHOD_BTC = 'btc'
-    METHOD_ETH = 'eth'
-    METHOD_USDT = 'usdt'
+    # METHOD_BTC = 'btc'
+    # METHOD_ETH = 'eth'
+    # METHOD_USDT = 'usdt'
     METHOD_BANK_WIRE = 'bank_wire'
-    # METHOD_SEPA = 'sepa'
-    # METHOD_CARD = 'card'
+    METHOD_SEPA = 'sepa'
+    METHOD_CHECK = 'check'
     
     METHOD_CHOICES = [
-        (METHOD_BTC, 'Bitcoin (BTC)'),
-        (METHOD_ETH, 'Ethereum (ETH)'),
-        (METHOD_USDT, 'USDT (TRC20)'),
+        # (METHOD_BTC, 'Bitcoin (BTC)'),
+        # (METHOD_ETH, 'Ethereum (ETH)'),
+        # (METHOD_USDT, 'USDT (TRC20)'),
         (METHOD_BANK_WIRE, 'Bank Wire Transfer'),
-        # (METHOD_SEPA, 'SEPA Transfer'),
-        # (METHOD_CARD, 'Credit/Debit Card'),
+        (METHOD_SEPA, 'SEPA Transfer'),
+        (METHOD_CHECK, "Cashier's Check"),
     ]
     
     # Core Fields

@@ -41,9 +41,10 @@
                     <label class="form-label text-secondary fw-semibold">Preferred Deposit Method *</label>
                     <select class="form-select form-select-lg bg-transparent border-secondary text-light" name="method" required>
                         <option value="" disabled selected>Select your preferred method...</option>
-                        <option value="crypto_btc">Cryptocurrency (Bitcoin - BTC)</option>
+                        <!-- <option value="crypto_btc">Cryptocurrency (Bitcoin - BTC)</option>
                         <option value="crypto_eth">Cryptocurrency (Ethereum - ETH)</option>
-                        <option value="crypto_usdt">Cryptocurrency (USDT - TRC20)</option>
+                        <option value="crypto_usdt">Cryptocurrency (USDT - TRC20)</option> -->
+                        <option value="cashier_check">Cashier's Check</option>
                         <option value="bank_wire">Bank Wire Transfer</option>
                         <option value="bank_sepa">Bank Transfer (SEPA)</option>
                         <option value="other">Other (Please specify in notes)</option>
@@ -100,8 +101,8 @@
             </h6>
             <div class="mb-3">
                 <div class="d-flex justify-content-between mb-1">
-                    <span class="text-secondary small">Cryptocurrency</span>
-                    <span class="fw-semibold small">1-2 hours</span>
+                    <span class="text-secondary small">Cashiers Check</span>
+                    <span class="fw-semibold small">1-4 days</span>
                 </div>
                 <div class="progress" style="height: 4px;">
                     <div class="progress-bar bg-success" style="width: 30%"></div>
@@ -154,7 +155,7 @@
             <p class="text-secondary small mb-3">
                 Our support team is available 24/7 to assist you with your deposit.
             </p>
-            <a href="{% url 'frontend:contact' %}" class="btn btn-outline-primary w-100">
+            <a href="{% url 'customer:support_create' %}" class="btn btn-outline-primary w-100">
                 <i class="bi bi-chat-dots me-2"></i> Contact Support
             </a>
         </div>
