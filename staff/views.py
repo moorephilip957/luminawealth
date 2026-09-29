@@ -35,7 +35,7 @@ def all_users_view(request):
     users = User.objects.filter(is_staff=False)
     
     # Apply filters
-    status_filter = request.GET.get('status', 'all')
+    status_filter = request.GET.get('status', 'active')
     email_filter = request.GET.get('email', 'all')
     kyc_filter = request.GET.get('kyc', 'all')
     search_query = request.GET.get('search', '')
@@ -613,3 +613,45 @@ def admin_support_detail(request, ticket_id):
     }
     
     return render(request, 'support/admin_support_detail.html', context)
+
+
+@login_required
+@user_passes_test(admin_check)
+def admin_user_soft_delete(request, user_id):
+    """
+    Soft delete a user by setting is_active to False.
+    Preserves all data for compliance while preventing login.
+    """
+    target_user = get_object_or_404(User, id=user_id)
+    
+    # Prevent staff from deleting their own account
+    if target_user == request.user:
+        messages.error(request, "You cannot deactivate your own account.")
+        return redirect('staff:admin_user_detail', user_id=user_id)
+    
+    if request.method == 'POST':
+        confirmation = request.POST.get('confirmation', '').strip()
+        
+        if confirmation != 'DELETE':
+            messages.error(request, 'Please type DELETE exactly to confirm deactivation.')
+            return redirect('staff:admin_user_detail', user_id=user_id)
+        
+        # Perform Soft Delete
+        target_user.is_active = False
+        target_user.save(update_fields=['is_active'])
+        
+        # Optional: Trigger the notification we built earlier
+        # try:
+        #     from notifications.services import notify_account_suspended
+        #     notify_account_suspended(
+        #         target_user, 
+        #         "Your account has been deactivated by an administrator. Please contact support.", 
+        #         admin_user=request.user
+        #     )
+        # except Exception as e:
+        #     print(f"Notification error: {e}")
+            
+        messages.success(request, f'✅ User "{target_user.email}" has been successfully deactivated (soft deleted).')
+        return redirect('staff:admin_users')
+    
+    return redirect('staff:admin_user_detail', user_id=user_id)

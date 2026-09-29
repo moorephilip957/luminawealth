@@ -35,4 +35,7 @@ urlpatterns = [
     path('admin/support/', views.admin_support_list, name='admin_support_list'),
     path('admin/support/<int:ticket_id>/', views.admin_support_detail, name='admin_support_detail'),
 
+    path('users/<int:user_id>/soft-delete/', views.admin_user_soft_delete, name='admin_user_soft_delete'),
+
+
 ]
